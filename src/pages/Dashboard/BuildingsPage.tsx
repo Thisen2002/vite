@@ -1,5 +1,5 @@
 import React from "react";
-import BuildingsWidget from "./components/BuildingsWidget";
+import BuildingsWidget from "../../components/OrganizerDashBoard/BuildingsWidget";
 
 const BuildingsPage: React.FC = () => {
   return (

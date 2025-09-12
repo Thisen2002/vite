@@ -1,9 +1,8 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { BarChart3, Map as HeatMap, MessageSquare, Download, Building2, X, Menu, Calendar } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { BarChart3, Map as HeatMap, MessageSquare, Download, Building2, X, Menu, LucideIcon, Calendar } from 'lucide-react';
 
-type Section = 'overview' | 'heatmaps' | 'feedback' | 'export' | 'buildings' | 'events';
+type Section = 'overview' | 'heatmaps' | 'feedback' | 'export' | 'buildings' | 'organizers';  // Added 'organizers'
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,13 +10,13 @@ interface SidebarProps {
 }
 
 const navigationItems: Array<{ id: Section; label: string; icon: LucideIcon; path: string }> = [
-  { id: 'overview', label: 'Overview', icon: BarChart3, path: '/dashboard/overview' },
-  { id: 'heatmaps', label: 'Heatmaps', icon: HeatMap, path: '/dashboard/heatmaps' },
-  { id: 'feedback', label: 'Feedback', icon: MessageSquare, path: '/dashboard/feedback' },
-  { id: 'export', label: 'Export', icon: Download, path: '/dashboard/export' },
-  { id: 'buildings', label: 'Buildings', icon: Building2, path: '/dashboard/buildings' },
-  { id: 'events', label: 'Events', icon: Calendar, path: '/dashboard/events' },
-
+  { id: 'overview', label: 'Overview', icon: BarChart3, path: 'overview' },
+  { id: 'heatmaps', label: 'Heatmaps', icon: HeatMap, path: 'heatmaps' },
+  { id: 'feedback', label: 'Feedback', icon: MessageSquare, path: 'feedback' },
+  { id: 'export', label: 'Export', icon: Download, path: 'export' },
+  { id: 'buildings', label: 'Buildings', icon: Building2, path: 'buildings' },
+  { id: 'events', label: 'Events', icon: Calendar, path: 'events' },
+  { id: 'organizers', label: 'Organizers', icon: Building2, path: 'organizers' }, // Added 'Organizers' entry
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
@@ -92,10 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         }
                       }}
                     >
-                      <div className={`
-                        p-2.5 rounded-lg transition-all duration-200
-                        group-hover:bg-blue-100 group-hover:text-blue-600
-                      `}>
+                      <div className={`p-2.5 rounded-lg transition-all duration-200 group-hover:bg-blue-100 group-hover:text-blue-600`}>
                         <Icon size={20} />
                       </div>
                       <span className="font-medium">{item.label}</span>

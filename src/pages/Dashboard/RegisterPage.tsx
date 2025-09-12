@@ -1,166 +1,163 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "./RegisterPage.css";
+import axios from "axios";
+import "./LoginPage.css"; // Make sure to import your CSS file correctly
 
-const RegisterPage: React.FC = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [company, setCompany] = useState("");
-  const [agree, setAgree] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+interface RegisterPageProps {
+  onRegister: () => void; // Callback to handle successful registration
+  goToLogin: () => void; // Callback to navigate to login page
+}
 
-  const navigate = useNavigate();
+export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegister, goToLogin }) => {
+  const [fname, setFname] = useState(""); // First name state
+  const [lname, setLname] = useState(""); // Last name state
+  const [email, setEmail] = useState(""); // Email state
+  const [contactNo, setContactNo] = useState(""); // Contact number state
+  const [password, setPassword] = useState(""); // Password state
+  const [errorMessage, setErrorMessage] = useState(""); // Error message state
+  const [loading, setLoading] = useState(false); // Loading state for form submission
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!agree) {
-      alert("Please accept the terms and privacy policy.");
+  // Handle registration submission
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent default form submission
+    setErrorMessage(""); // Clear previous error messages
+    setLoading(true); // Set loading state
+
+    // Validate the form fields
+    if (!fname || !lname || !email || !contactNo || !password) {
+      setErrorMessage("Fname, Lname, Email, Contact No, and Password are required.");
+      setLoading(false);
       return;
     }
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-    if (!email || !password || !firstName) {
-      alert("Please fill all required fields");
+
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isValidEmail) {
+      setErrorMessage("Please enter a valid email address.");
+      setLoading(false);
       return;
     }
 
-    // Placeholder for real registration logic.
-    const user = { firstName, lastName, email, company };
-    localStorage.setItem("registeredUser", JSON.stringify(user));
-    // Navigate back to login
-    navigate("../login");
+    const userData = {
+      fname,
+      lname,
+      email,
+      contact_no: contactNo,
+      password,
+    };
+
+    console.log("Sending registration data:", userData); // Log the data being sent
+
+    try {
+      // Send registration request to backend
+      const response = await axios.post("http://localhost:5000/auths/register", userData);
+
+      if (response.status === 201) {
+        // On success, call onRegister to navigate to login page
+        onRegister();
+      }
+    } catch (err) {
+      setLoading(false); // Reset loading state
+      if (axios.isAxiosError(err) && err.response) {
+        if (err.response.status === 400) {
+          setErrorMessage(err.response.data.message || "Registration failed. Try again.");
+        } else if (err.response.status === 500) {
+          // Handle server error
+          setErrorMessage("Internal server error. Please try again later.");
+        } else {
+          // Generic error message
+          setErrorMessage("Registration failed. Please try again.");
+        }
+      } else {
+        // Network or unexpected error
+        setErrorMessage("An unexpected error occurred. Please check your network and try again.");
+      }
+    }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-animated-bg" aria-hidden="true">
-        <span className="blob blob-1" />
-        <span className="blob blob-2" />
-        <span className="blob blob-3" />
-      </div>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="login-title">Register</h2>
+        <p className="login-subtitle">Create your account to get started.</p>
 
-      <div className="auth-grid">
-        <aside className="brand-side">
-          <div className="brand-inner">
-            <div className="brand-badge">EngEX</div>
-            <h1 className="brand-title">Create your EngEX account</h1>
-            <p className="brand-subtitle">
-              Register to showcase, manage, and analyze your exhibition presence.
-            </p>
-            <ul className="brand-points">
-              <li>Booth tools for teams</li>
-              <li>Lead capture and insights</li>
-              <li>Seamless event operations</li>
-            </ul>
-          </div>
-        </aside>
+        {/* Display error message if any */}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
 
-        <div className="auth-card">
-          <div className="auth-card-header">
-            <h2 className="auth-title">Create account</h2>
-            <p className="auth-subtitle">Join EngEX Exhibition</p>
+        {/* Registration form */}
+        <form onSubmit={handleRegister} className="login-form">
+          <div className="form-group">
+            <label className="form-label">First Name</label>
+            <input
+              type="text"
+              value={fname}
+              onChange={(e) => setFname(e.target.value)}
+              className="form-input"
+              placeholder="Enter your first name"
+              required
+            />
           </div>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="form-row two">
-              <div className="form-group">
-                <label className="form-label">First name</label>
-                <input
-                  className="form-input"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Jane"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Last name</label>
-                <input
-                  className="form-input"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Doe"
-                />
-              </div>
-            </div>
+          <div className="form-group">
+            <label className="form-label">Last Name</label>
+            <input
+              type="text"
+              value={lname}
+              onChange={(e) => setLname(e.target.value)}
+              className="form-input"
+              placeholder="Enter your last name"
+              required
+            />
+          </div>
 
-            <div className="form-group">
-              <label className="form-label">Company / Organization</label>
-              <input
-                className="form-input"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                placeholder="Acme Corp"
-              />
-            </div>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="form-input"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
 
-            <div className="form-group">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                required
-              />
-            </div>
+          <div className="form-group">
+            <label className="form-label">Contact Number</label>
+            <input
+              type="text"
+              value={contactNo}
+              onChange={(e) => setContactNo(e.target.value)}
+              className="form-input"
+              placeholder="Enter your contact number"
+              required
+            />
+          </div>
 
-            <div className="form-row two">
-              <div className="form-group">
-                <label className="form-label">Password</label>
-                <div className="input-with-toggle">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="form-input"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Create a password"
-                    required
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    className="toggle-password"
-                    onClick={() => setShowPassword((s) => !s)}
-                  >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Confirm password</label>
-                <input
-                  type="password"
-                  className="form-input"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repeat password"
-                  required
-                  minLength={6}
-                />
-              </div>
-            </div>
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="form-input"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
 
-            <label className="checkbox">
-              <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-              <span>
-                I agree to the <a href="#" onClick={(e) => e.preventDefault()} className="link">Terms</a> and
-                <a href="#" onClick={(e) => e.preventDefault()} className="link"> Privacy Policy</a>.
-              </span>
-            </label>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className={`login-button ${loading ? "loading" : ""}`}
+            disabled={loading}
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
 
-            <button type="submit" className="primary-button">Create account</button>
-            <p className="switch">
-              Already have an account? <Link className="link" to="../login">Log in</Link>
-            </p>
-          </form>
-        </div>
+        {/* Login Button */}
+        <button className="switch-button" onClick={goToLogin}>
+          Already have an account? Login
+        </button>
       </div>
     </div>
   );
