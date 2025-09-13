@@ -8,6 +8,8 @@ import AppKiosk from './pages/kiosk/AppTailwind';
 import AppDashboard from './pages/Dashboard/AppDash';
 import Appevents from "./pages/Events/Appevents"
 import CrowdManagement from './pages/Heatmap/CrowdManagement';
+import Dashboard from './pages/Maps/Dashboard';
+
 
 
 function AppContent() {
@@ -27,6 +29,7 @@ function AppContent() {
           <Route path="/dashboard/*" element={<AppDashboard />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/events" element={<Appevents />} />
+          <Route path="/map" element={<Dashboard />} />
         </Routes>
       </main>
       {!isDashboard && !isKiosk && <Footer />}
