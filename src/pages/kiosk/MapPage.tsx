@@ -66,7 +66,7 @@ const MapPageTailwind: React.FC<MapPageTailwindProps> = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 p-6">
+    <div className="min-h-screen  p-6">
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
