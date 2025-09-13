@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { RefreshCw } from "lucide-react";
 import HeatMap from "./HeatMap";
 import {
   LineChart,
@@ -14,8 +14,9 @@ import {
   CartesianGrid,
 } from "recharts";
 import GaugeChart from './HeatMapAnalysis/GaugeChart';
-import SearchBar from "./HeatMapAnalysis/searchBar";
+import EnhancedSearchBar from "./HeatMapAnalysis/EnhancedSearchBar";
 import { LoadingView, ErrorView } from "./utils/uiHelpers";
+import { fetchCrowd, fetchBuildingHistoryByName, getIntervalOptions, getPollOptions } from "./utils/api";
 
 interface CrowdData {
   buildingId: number;
@@ -32,31 +33,31 @@ interface BuildingHistoryData {
   current_count: number;
 }
 
+interface DefaultCapacities {
+  [key: number]: number;
+}
+
 const CrowdManagement: React.FC = () => {
   const [crowdData, setCrowdData] = useState<CrowdData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"current" | "predicted">("current");
   const [selectedBuilding, setSelectedBuilding] = useState<string>("all");
-  const [threshold, setThreshold] = useState<number>(80);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [_suggestions, setSuggestions] = useState<string[]>([]);
   const [buildingHistory, setBuildingHistory] = useState<BuildingHistoryData[]>([]);
-  const [_loadingHistory, setLoadingHistory] = useState<boolean>(false);
+  
+  const intervalOptions = getIntervalOptions();
+  const [intervalMinutes, setIntervalMinutes] = useState<number>(() => 
+    intervalOptions.includes(30) ? 30 : intervalOptions[0]
+  );
+  
+  const pollOptions = getPollOptions();
+  const [pollSeconds, setPollSeconds] = useState<number>(() => 
+    pollOptions.includes(10) ? 10 : pollOptions[0]
+  );
 
-  // TODO: Replace with real API endpoint from other team
-  const API_URL = "http://localhost:5000/api/crowd";
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const historyIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Fetch crowd data once and then every 5 seconds
-  useEffect(() => {
-    fetchData();
-    intervalRef.current = setInterval(fetchData, 5000);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
 
   // Fetch building history data when a building is selected, and refresh every 5 seconds
   useEffect(() => {
@@ -77,12 +78,10 @@ const CrowdManagement: React.FC = () => {
     };
   }, [selectedBuilding]);
 
-  const fetchData = async (): Promise<void> => {
+  const fetchData = useCallback(async (): Promise<void> => {
     setError(null);
     try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error("Network response was not ok");
-      const data: CrowdData[] = await response.json();
+      const data = await fetchCrowd(intervalMinutes);
       setCrowdData(data);
       setLoading(false);
     } catch (err) {
@@ -138,53 +137,45 @@ const CrowdManagement: React.FC = () => {
       setCrowdData(mockData);
       setLoading(false);
     }
-  };
+  }, [intervalMinutes]);
 
-  // Update suggestions as user types
+  // Fetch crowd data initially and then on a user-defined cadence (seconds). 0 means paused.
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setSuggestions([]);
-      return;
+    fetchData();
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (pollSeconds > 0) {
+      intervalRef.current = setInterval(fetchData, pollSeconds * 1000);
     }
-    const lowerSearch = searchTerm.toLowerCase();
-    setSuggestions(
-      crowdData
-        .filter((d) => d.buildingName.toLowerCase().includes(lowerSearch))
-        .map((d) => d.buildingName)
-    );
-  }, [searchTerm, crowdData]);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [fetchData, pollSeconds]);
 
   // Filter data by building or search term
-  const filteredData = selectedBuilding === "all"
-    ? searchTerm.trim()
-      ? crowdData.filter((d) =>
-          d.buildingName.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : crowdData
-    : crowdData.filter((d) => String(d.buildingId) === String(selectedBuilding));
+  const filteredData: CrowdData[] = useMemo(() => {
+    if (selectedBuilding !== "all") {
+      // If a specific building is selected, show only that building
+      return crowdData.filter((d) => String(d.buildingId) === String(selectedBuilding));
+    } else if (searchTerm.trim()) {
+      // If searching, filter by building name
+      return crowdData.filter((d) =>
+        d.buildingName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    } else {
+      // Show all buildings
+      return crowdData;
+    }
+  }, [crowdData, selectedBuilding, searchTerm]);
 
-  // Detect alerts based on predicted counts
-  const highRiskBuildings = filteredData.filter(
-    (d) => d.predictedCount > threshold
-  );
-
-  const fetchBuildingHistory = async (): Promise<void> => {
+  const fetchBuildingHistory = useCallback(async (): Promise<void> => {
     if (selectedBuilding === "all") return;
-
-    setLoadingHistory(true);
     try {
       const selectedBuildingData = crowdData.find(
         (d) => String(d.buildingId) === String(selectedBuilding)
       );
       if (selectedBuildingData) {
         const buildingName = selectedBuildingData.buildingName;
-        const response = await fetch(
-          `http://localhost:5000/api/building-history/${encodeURIComponent(
-            buildingName
-          )}`
-        );
-        if (!response.ok) throw new Error("Network response was not ok");
-        const data: BuildingHistoryData[] = await response.json();
+        const data = await fetchBuildingHistoryByName(buildingName);
         setBuildingHistory(data);
       }
     } catch (err) {
@@ -195,10 +186,25 @@ const CrowdManagement: React.FC = () => {
         current_count: Math.floor(Math.random() * 100) + 20
       }));
       setBuildingHistory(mockHistory);
-    } finally {
-      setLoadingHistory(false);
     }
-  };
+  }, [crowdData, selectedBuilding]);
+
+  // Fetch building history when a building is selected, with periodic refresh (same cadence)
+  useEffect(() => {
+    if (selectedBuilding !== "all") {
+      fetchBuildingHistory();
+      if (historyIntervalRef.current) clearInterval(historyIntervalRef.current);
+      if (pollSeconds > 0) {
+        historyIntervalRef.current = setInterval(fetchBuildingHistory, pollSeconds * 1000);
+      }
+    } else {
+      setBuildingHistory([]);
+      if (historyIntervalRef.current) clearInterval(historyIntervalRef.current);
+    }
+    return () => {
+      if (historyIntervalRef.current) clearInterval(historyIntervalRef.current);
+    };
+  }, [selectedBuilding, fetchBuildingHistory, pollSeconds]);
 
   // Get building capacity (for the gauge chart)
   const getBuildingCapacity = (buildingId: number): number => {
@@ -218,6 +224,18 @@ const CrowdManagement: React.FC = () => {
 
   const handleSearch = (query: string): void => {
     setSearchTerm(query);
+    // If search is cleared, reset to show all buildings
+    if (!query.trim()) {
+      setSelectedBuilding("all");
+    }
+  };
+
+  const handleBuildingSelect = (id: string): void => {
+    setSelectedBuilding(id);
+    // Clear search when building is selected from dropdown or search suggestions
+    if (id !== "all") {
+      setSearchTerm("");
+    }
   };
 
   if (loading) {
@@ -260,23 +278,6 @@ const CrowdManagement: React.FC = () => {
           <strong>Live Data Time:</strong> {crowdData[0]?.timestamp || "--:--"}
         </div>
 
-        {/* Alerts Section */}
-        {highRiskBuildings.length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8">
-            <div className="flex items-center gap-2 font-semibold text-red-600 mb-2">
-              <AlertTriangle className="w-5 h-5" />
-              High Occupancy Alerts
-            </div>
-            <ul className="list-none p-0 m-0">
-              {highRiskBuildings.map((building) => (
-                <li key={building.buildingId} className="py-2 text-red-900 border-b border-red-200 last:border-b-0">
-                  {building.buildingName}: {building.predictedCount} people (predicted)
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {/* Controls Section */}
         <div className="bg-white p-6 rounded-xl shadow-sm mb-8 relative z-20">
           <div className="flex flex-wrap items-center gap-6">
@@ -296,7 +297,14 @@ const CrowdManagement: React.FC = () => {
               <label className="text-sm font-medium text-gray-700">Building:</label>
               <select
                 value={selectedBuilding}
-                onChange={(e) => setSelectedBuilding(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSelectedBuilding(value);
+                  // Clear search when building is selected from dropdown
+                  if (value !== "all") {
+                    setSearchTerm("");
+                  }
+                }}
                 className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
               >
                 <option value="all">All Buildings</option>
@@ -309,20 +317,42 @@ const CrowdManagement: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2 flex-shrink-0">
-              <label className="text-sm font-medium text-gray-700">Alert Threshold:</label>
-              <input
-                type="number"
-                value={threshold}
-                onChange={(e) => setThreshold(Number(e.target.value))}
+              <label className="text-sm font-medium text-gray-700">Horizon (mins):</label>
+              <select
+                value={intervalMinutes}
+                onChange={(e) => setIntervalMinutes(Number(e.target.value))}
                 className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
-                min="0"
-                max="200"
-              />
+              >
+                {intervalOptions.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <label className="text-sm font-medium text-gray-700">Auto-refresh (sec):</label>
+              <select
+                value={pollSeconds}
+                onChange={(e) => setPollSeconds(Number(e.target.value))}
+                className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
+              >
+                {pollOptions.map(s => (
+                  <option key={s} value={s}>{s === 0 ? "Paused" : s}</option>
+                ))}
+              </select>
             </div>
 
             <div className="flex flex-col gap-2 flex-shrink-0">
               <label className="text-sm font-medium text-gray-700">Search Buildings:</label>
-              <SearchBar onSearch={handleSearch} />
+              <EnhancedSearchBar 
+                onSearch={handleSearch}
+                onBuildingSelect={handleBuildingSelect}
+                buildings={crowdData.map(d => ({
+                  buildingId: d.buildingId,
+                  buildingName: d.buildingName
+                }))}
+                placeholder="Search buildings..."
+              />
             </div>
           </div>
         </div>
