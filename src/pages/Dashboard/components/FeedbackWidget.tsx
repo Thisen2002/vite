@@ -98,9 +98,17 @@ const FeedbackWidget: React.FC = () => {
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-900">Recent Feedback</h3>
-          <button className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button
+            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={() => {
+              setSentimentFilter("all");
+              setZoneFilter("all");
+              setBuildingFilter("all");
+            }}
+          >
             View All
           </button>
+
         </div>
 
         <div className="space-y-4">

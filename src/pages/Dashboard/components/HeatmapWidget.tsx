@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { MapPin, Thermometer, Activity, Clock, Users } from "lucide-react";
 
-interface Zone {
+interface Building {
   name: string;
   peak: number;
   dwell: number;
@@ -10,21 +10,47 @@ interface Zone {
   icon: typeof Users;
 }
 
+interface Zone {
+  name: string;
+  buildings: Building[];
+}
+
 const HeatmapWidget: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState("24h");
-  const [zoneFilter, setZoneFilter] = useState("all");
-  const [BuildingFilter, setBuildingFilter] = useState("all");
+  const [zoneFilter, setZoneFilter] = useState("zone1");
+  const [buildingFilter, setBuildingFilter] = useState("all");
 
-  const allZones: Zone[] = [
-    { name: "Main Hall", peak: 187, dwell: 28, activity: "High", color: "red", icon: Users },
-    { name: "Exhibition Area", peak: 134, dwell: 22, activity: "Medium", color: "yellow", icon: Activity },
-    { name: "Networking Lounge", peak: 89, dwell: 35, activity: "Low", color: "green", icon: Clock },
-    { name: "Computer Engineering Dept", peak: 130, dwell: 20, activity: "Medium", color: "yellow", icon: Activity },
-    { name: "Competition Area", peak: 90, dwell: 18, activity: "Low", color: "green", icon: Clock },
-  ];
+  const allZones: Record<string, Zone> = {
+    zone1: {
+      name: "Zone 1",
+      buildings: [
+        { name: "Main Hall", peak: 187, dwell: 28, activity: "High", color: "red", icon: Users },
+        { name: "Exhibition Area", peak: 134, dwell: 22, activity: "Medium", color: "yellow", icon: Activity },
+      ],
+    },
+    zone2: {
+      name: "Zone 2",
+      buildings: [
+        { name: "Networking Lounge", peak: 89, dwell: 35, activity: "Low", color: "green", icon: Clock },
+        { name: "Computer Engineering Dept", peak: 130, dwell: 20, activity: "Medium", color: "yellow", icon: Activity },
+      ],
+    },
+    zone3: {
+      name: "Zone 3",
+      buildings: [
+        { name: "Competition Area", peak: 90, dwell: 18, activity: "Low", color: "green", icon: Clock },
+      ],
+    },
+  };
 
-  const filteredZones =
-    zoneFilter === "all" ? allZones : allZones.filter((z) => z.name === zoneFilter);
+  // Buildings to show in the building filter based on selected zone
+  const buildingsInZone = useMemo(() => allZones[zoneFilter].buildings, [zoneFilter]);
+
+  // Filtered buildings for the analytics cards
+  const filteredBuildings = useMemo(() => {
+    if (buildingFilter === "all") return buildingsInZone;
+    return buildingsInZone.filter((b) => b.name === buildingFilter);
+  }, [buildingFilter, buildingsInZone]);
 
   const colorClasses: Record<string, string> = {
     red: "from-red-500 to-red-600",
@@ -36,6 +62,24 @@ const HeatmapWidget: React.FC = () => {
     <div className="space-y-8">
       {/* 🔽 Filters */}
       <div className="flex flex-wrap justify-end gap-3">
+        {/* Zone Filter */}
+        <select value={zoneFilter} onChange={(e) => { setZoneFilter(e.target.value); setBuildingFilter("all"); }} className="border px-3 py-2 rounded">
+          <option value="zone1">Zone 1</option>
+          <option value="zone2">Zone 2</option>
+          <option value="zone3">Zone 3</option>
+        </select>
+
+        {/* Building Filter */}
+        <select value={buildingFilter} onChange={(e) => setBuildingFilter(e.target.value)} className="border px-3 py-2 rounded">
+          <option value="all">All Buildings</option>
+          {buildingsInZone.map((b, i) => (
+            <option key={i} value={b.name}>
+              {b.name}
+            </option>
+          ))}
+        </select>
+
+        {/* Time Filter */}
         <select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} className="border px-3 py-2 rounded">
           <option value="1h">Last 1 Hour</option>
           <option value="3h">Last 3 Hours</option>
@@ -43,20 +87,6 @@ const HeatmapWidget: React.FC = () => {
           <option value="12h">Last 12 Hours</option>
           <option value="24h">Last 24 Hours</option>
         </select>
-        <select value={zoneFilter} onChange={(e) => setZoneFilter(e.target.value)} className="border px-3 py-2 rounded">
-          <option value="all">All Zones</option>
-          {allZones.map((z, i) => (
-            <option key={i} value={z.name}>
-              {z.name}
-            </option>
-          ))}
-        </select>
-        <select value={BuildingFilter} onChange={(e) => setBuildingFilter(e.target.value)} className="border px-3 py-2 rounded">
-          <option value="all">All Buildings</option>
-          <option value="Building1">Building 1</option>
-          <option value="Building2">Building 2</option>
-        </select>
-        
       </div>
 
       {/* 📍 Heatmap Visualization */}
@@ -90,11 +120,9 @@ const HeatmapWidget: React.FC = () => {
             <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
               <MapPin size={32} className="text-blue-600" />
             </div>
-            <p className="text-gray-700 font-medium text-lg">
-              Interactive heatmap visualization
-            </p>
+            <p className="text-gray-700 font-medium text-lg">Interactive heatmap visualization</p>
             <p className="text-gray-500 mt-2">
-              Showing {zoneFilter} [{timeFilter}]
+              Showing {zoneFilter} [{buildingFilter === "all" ? "All Buildings" : buildingFilter}] [{timeFilter}]
             </p>
           </div>
 
@@ -122,29 +150,29 @@ const HeatmapWidget: React.FC = () => {
         </div>
       </div>
 
-      {/* 📊 Zone Analytics */}
+      {/* 📊 Building Analytics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredZones.map((zone, i) => (
+        {filteredBuildings.map((building, i) => (
           <div
             key={i}
             className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
           >
             <div className="flex items-center space-x-3 mb-4">
-              <div className={`p-3 rounded-xl text-white shadow-lg ${colorClasses[zone.color]}`}>
-                <zone.icon size={20} />
+              <div className={`p-3 rounded-xl text-white shadow-lg ${colorClasses[building.color]}`}>
+                <building.icon size={20} />
               </div>
               <div>
-                <h4 className="font-bold text-gray-900 text-lg">{zone.name}</h4>
+                <h4 className="font-bold text-gray-900 text-lg">{building.name}</h4>
                 <div
                   className={`px-2 py-1 rounded-full text-xs font-medium w-fit ${
-                    zone.activity === "High"
+                    building.activity === "High"
                       ? "bg-red-100 text-red-700"
-                      : zone.activity === "Medium"
+                      : building.activity === "Medium"
                       ? "bg-yellow-100 text-yellow-700"
                       : "bg-green-100 text-green-700"
                   }`}
                 >
-                  {zone.activity} Activity
+                  {building.activity} Activity
                 </div>
               </div>
             </div>
@@ -154,14 +182,14 @@ const HeatmapWidget: React.FC = () => {
                   <Users size={14} />
                   <span>Peak Occupancy:</span>
                 </span>
-                <span className="text-sm font-bold text-gray-900">{zone.peak}</span>
+                <span className="text-sm font-bold text-gray-900">{building.peak}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-xl">
                 <span className="text-sm text-gray-600 flex items-center space-x-2">
                   <Clock size={14} />
                   <span>Avg. Dwell Time:</span>
                 </span>
-                <span className="text-sm font-bold text-gray-900">{zone.dwell} min</span>
+                <span className="text-sm font-bold text-gray-900">{building.dwell} min</span>
               </div>
             </div>
           </div>
@@ -172,4 +200,3 @@ const HeatmapWidget: React.FC = () => {
 };
 
 export default HeatmapWidget;
-

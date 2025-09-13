@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Search, Settings, LogOut, ChevronDown, Calendar, MapPin, Users } from 'lucide-react';
+import { Bell, ChevronDown, Calendar, MapPin, Users, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   eventInfo: {
@@ -52,11 +52,6 @@ export const Header: React.FC<HeaderProps> = ({ eventInfo, userInfo, onLogout })
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
-          {/* Search */}
-          <button className="p-3 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 group">
-            <Search size={20} className="group-hover:scale-110 transition-transform duration-200" />
-          </button>
-
           {/* Notifications */}
           <div className="relative">
             <button
@@ -93,11 +88,6 @@ export const Header: React.FC<HeaderProps> = ({ eventInfo, userInfo, onLogout })
             )}
           </div>
 
-          {/* Settings */}
-          <button className="p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-all duration-200 group">
-            <Settings size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-          </button>
-
           {/* User Profile */}
           <div className="relative">
             <button
@@ -127,10 +117,6 @@ export const Header: React.FC<HeaderProps> = ({ eventInfo, userInfo, onLogout })
                   </div>
                 </div>
                 <div className="p-2 space-y-1">
-                  <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl flex items-center space-x-3 transition-all duration-200 group">
-                    <Settings size={16} className="group-hover:rotate-90 transition-transform duration-300" />
-                    <span>Settings</span>
-                  </button>
                   <button
                     onClick={onLogout}
                     className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 rounded-xl flex items-center space-x-3 transition-all duration-200 group"

@@ -24,6 +24,8 @@ const BuildingsWidget: React.FC = () => {
     exhibits: [], // Initialize exhibits as an empty array
   });
 
+  const [newExhibit, setNewExhibit] = useState<string>(""); // input state for adding exhibits
+
   // Define buildings for each zone as string keys (matching zone_id)
   const [zoneBuildings, setZoneBuildings] = useState<{ [key: string]: { name: string, id: number }[] }>({
     "1": [  // Zone A
@@ -111,10 +113,13 @@ const BuildingsWidget: React.FC = () => {
             exhibits: formData.exhibits, // Include exhibits in the update
           }
         );
+
         // Update the buildings list in the UI
         setBuildings((prev) =>
           prev.map((b) => (b.id === formData.id ? { ...b, ...formData } : b))
         );
+
+        alert("Building updated successfully");
       } else {
         // Create new building
         const res = await axiosInstance.post("/buildings", {
@@ -124,17 +129,27 @@ const BuildingsWidget: React.FC = () => {
           exhibits: formData.exhibits, // Send exhibits when creating a new building
         });
 
-        if (res.status === 200) {
+        if (res.status === 201) {
           const newBuilding = {
             ...formData,
             id: Date.now().toString(),  // Generate temporary ID
-            building_id: res.data.building_id, // Get real building_id from response
+            building_id: res.data.building.building_id, // Get real building_id from response
           };
           setBuildings((prev) => [...prev, newBuilding]);
+
+          alert("Building added successfully");
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error saving building:", err);
+
+      if (err.response?.status === 409) {
+        alert("Building already added. Please use a unique name.");
+      } else if (err.response?.data?.message) {
+        alert(`Error: ${err.response.data.message}`);
+      } else {
+        alert("An unexpected error occurred while saving the building.");
+      }
     }
 
     // Reset form after submission
@@ -147,10 +162,12 @@ const BuildingsWidget: React.FC = () => {
       exhibits: [], // Reset exhibits
     });
     setShowForm(false);
+    setNewExhibit("");
   };
 
   const handleEdit = (building: Building) => {
     setFormData(building);
+    setNewExhibit("");
     setShowForm(true);
   };
 
@@ -176,22 +193,21 @@ const BuildingsWidget: React.FC = () => {
     });
   };
 
-  // Handle changes in exhibits
-  const handleExhibitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    if (value) {
+  // Add exhibit with + button
+  const addExhibit = () => {
+    if (newExhibit.trim()) {
       setFormData((prev) => ({
         ...prev,
-        exhibits: [...prev.exhibits, value], // Add new exhibit
+        exhibits: [...prev.exhibits, newExhibit.trim()],
       }));
-      e.target.value = ""; // Clear the input field
+      setNewExhibit("");
     }
   };
 
   const removeExhibit = (exhibit: string) => {
     setFormData((prev) => ({
       ...prev,
-      exhibits: prev.exhibits.filter((e) => e !== exhibit), // Remove exhibit
+      exhibits: prev.exhibits.filter((e) => e !== exhibit),
     }));
   };
 
@@ -238,11 +254,11 @@ const BuildingsWidget: React.FC = () => {
                       ...formData,
                       building_name: e.target.value,
                       building_id: zoneBuildings[String(formData.zone_id)]
-                        .find((b) => b.name === e.target.value)?.id || 0, // Set building_id from the selected name
+                        .find((b) => b.name === e.target.value)?.id || 0,
                     })
                   }
                   className="w-full border p-2 rounded"
-                  disabled={!formData.zone_id} // Disable until zone is selected
+                  disabled={!formData.zone_id}
                 >
                   <option value="">Select Building</option>
                   {(zoneBuildings[String(formData.zone_id)] || []).map((building) => (
@@ -264,15 +280,25 @@ const BuildingsWidget: React.FC = () => {
 
               <div>
                 <label className="block font-medium mb-1">Exhibits</label>
-                <input
-                  type="text"
-                  placeholder="Add Exhibit"
-                  className="w-full border p-2 rounded"
-                  onBlur={handleExhibitChange}
-                />
-                <div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Add Exhibit"
+                    value={newExhibit}
+                    onChange={(e) => setNewExhibit(e.target.value)}
+                    className="flex-1 border p-2 rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={addExhibit}
+                    className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+                <div className="mt-2 space-y-1">
                   {formData.exhibits.map((exhibit, index) => (
-                    <div key={index} className="flex justify-between items-center">
+                    <div key={index} className="flex justify-between items-center bg-gray-100 p-2 rounded">
                       <span>{exhibit}</span>
                       <button
                         type="button"
@@ -322,20 +348,15 @@ const BuildingsWidget: React.FC = () => {
                   <span className="font-semibold">Description:</span> {b.description}
                 </p>
                 <p>
-                  <span className="font-semibold">Exhibits:</span>
-                  {b.exhibits.length > 0 ? (
-                    <ul>
-                      {b.exhibits.map((exhibit, index) => (
-                        <li key={index}>{exhibit}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    "No exhibits available"
-                  )}
+                  <span className="font-semibold">Exhibits:</span>{" "}
+                  {b.exhibits.length > 0 ? b.exhibits.join(", ") : "No exhibits available"}
                 </p>
 
                 <div className="flex gap-3 mt-2">
-                  <button onClick={() => handleEdit(b)} className="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                  <button
+                    onClick={() => handleEdit(b)}
+                    className="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                  >
                     <Edit size={14} className="inline-block mr-1" /> Edit
                   </button>
                   <button
