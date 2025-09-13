@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Star, MessageSquare, ThumbsUp, AlertCircle } from "lucide-react";
 
 interface Feedback {
@@ -8,8 +8,45 @@ interface Feedback {
   sentiment: "positive" | "neutral" | "negative";
   zone: string;
   Building: string;
-  
 }
+
+// Zone → Buildings mapping
+const zoneBuildings: Record<string, { id: number; name: string }[]> = {
+  "Zone A": [
+    { name: "Drawing Office 2", id: 22 },
+    { name: "Department of Manufacturing and Industrial Engineering", id: 28 },
+    { name: "Corridor", id: 23 },
+    { name: "Lecture Room(middle-right)", id: 24 },
+    { name: "Structures Laboratory", id: 25 },
+    { name: "Lecture Room(bottom-right)", id: 26 },
+    { name: "Engineering Library", id: 27 },
+  ],
+  "Zone B": [
+    { name: "Drawing Office 1", id: 3 },
+    { name: "Professor E.O.E. Pereira Theatre", id: 4 },
+    { name: "Administrative Building", id: 5 },
+    { name: "Security Unit", id: 6 },
+    { name: "Department of Chemical and Process Engineering", id: 1 },
+    { name: "Department Engineering Mathematics", id: 2 },
+  ],
+  "Zone C": [
+    { name: "Department of Electrical and Electronic Engineering", id: 8 },
+    { name: "Department of Computer Engineering", id: 9 },
+    { name: "Electrical and Electronic Workshop", id: 10 },
+    { name: "Surveying Lab", id: 11 },
+    { name: "Soil Lab", id: 12 },
+    { name: "Materials Lab", id: 13 },
+  ],
+  "Zone D": [
+    { name: "Fluids Lab", id: 15 },
+    { name: "New Mechanics Lab", id: 16 },
+    { name: "Applied Mechanics Lab", id: 17 },
+    { name: "Thermodynamics Lab", id: 18 },
+    { name: "Generator Room", id: 19 },
+    { name: "Engineering Workshop", id: 20 },
+    { name: "Engineering Carpentry Shop", id: 21 },
+  ],
+};
 
 const FeedbackWidget: React.FC = () => {
   const [sentimentFilter, setSentimentFilter] = useState("all");
@@ -25,12 +62,13 @@ const FeedbackWidget: React.FC = () => {
 
   // Replace mock feedback with backend data later
   const feedback: Feedback[] = [
-    { rating: 5, comment: "Excellent event organization!", time: "2h ago", sentiment: "positive", zone: "Zone A", Building: "Building1"},
-    { rating: 4, comment: "Good content, but crowded.", time: "3h ago", sentiment: "neutral", zone: "Zone B", Building: "Building2"},
-    { rating: 3, comment: "WiFi issues in the hall.", time: "5h ago", sentiment: "negative", zone: "Zone A", Building: "Building1"},
-    { rating: 5, comment: "Loved the keynote!", time: "1h ago", sentiment: "positive", zone: "Zone B", Building: "Building2"},
+    { rating: 5, comment: "Excellent event organization!", time: "2h ago", sentiment: "positive", zone: "Zone A", Building: "Drawing Office 2" },
+    { rating: 4, comment: "Good content, but crowded.", time: "3h ago", sentiment: "neutral", zone: "Zone B", Building: "Professor E.O.E. Pereira Theatre" },
+    { rating: 3, comment: "WiFi issues in the hall.", time: "5h ago", sentiment: "negative", zone: "Zone A", Building: "Corridor" },
+    { rating: 5, comment: "Loved the keynote!", time: "1h ago", sentiment: "positive", zone: "Zone B", Building: "Administrative Building" },
   ];
 
+  // Filtering logic
   const filteredFeedback = feedback.filter(f => {
     const matchSentiment = sentimentFilter === "all" || f.sentiment === sentimentFilter;
     const matchZone = zoneFilter === "all" || f.zone === zoneFilter;
@@ -38,8 +76,17 @@ const FeedbackWidget: React.FC = () => {
     return matchSentiment && matchZone && matchBuilding;
   });
 
-  const zones = ["all", ...Array.from(new Set(feedback.map(f => f.zone)))];
-  const Buildings = ["all", ...Array.from(new Set(feedback.map(f => f.Building)))];
+  // Zones dropdown options
+  const zones = ["all", ...Object.keys(zoneBuildings)];
+
+  // Buildings dropdown options (dependent on zone)
+  const buildingsForSelectedZone = useMemo(() => {
+    if (zoneFilter === "all") {
+      // Show all buildings across all zones
+      return ["all", ...Object.values(zoneBuildings).flat().map(b => b.name)];
+    }
+    return ["all", ...zoneBuildings[zoneFilter].map(b => b.name)];
+  }, [zoneFilter]);
 
   const getSentimentColor = (sentiment: string) => {
     const colors = {
@@ -79,19 +126,32 @@ const FeedbackWidget: React.FC = () => {
           <option value="negative">Negative</option>
         </select>
 
-        <select value={zoneFilter} onChange={(e) => setZoneFilter(e.target.value)} className="border rounded px-3 py-2">
+        <select
+          value={zoneFilter}
+          onChange={(e) => {
+            setZoneFilter(e.target.value);
+            setBuildingFilter("all"); // reset building filter when zone changes
+          }}
+          className="border rounded px-3 py-2"
+        >
           {zones.map((z, i) => (
-            <option key={i} value={z}>{z === "all" ? "All Zones" : z}</option>
+            <option key={i} value={z}>
+              {z === "all" ? "All Zones" : z}
+            </option>
           ))}
         </select>
 
-        <select value={BuildingFilter} onChange={(e) => setBuildingFilter(e.target.value)} className="border rounded px-3 py-2">
-          {Buildings.map((s, i) => (
-            <option key={i} value={s}>{s === "all" ? "All Buildings" : s}</option>
+        <select
+          value={BuildingFilter}
+          onChange={(e) => setBuildingFilter(e.target.value)}
+          className="border rounded px-3 py-2"
+        >
+          {buildingsForSelectedZone.map((b, i) => (
+            <option key={i} value={b}>
+              {b === "all" ? "All Buildings" : b}
+            </option>
           ))}
         </select>
-
-        
       </div>
 
       {/* Recent Feedback */}
@@ -108,7 +168,6 @@ const FeedbackWidget: React.FC = () => {
           >
             View All
           </button>
-
         </div>
 
         <div className="space-y-4">
@@ -148,4 +207,3 @@ const FeedbackWidget: React.FC = () => {
 };
 
 export default FeedbackWidget;
-

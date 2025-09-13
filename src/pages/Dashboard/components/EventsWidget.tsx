@@ -33,6 +33,7 @@ const EventsWidget: React.FC = () => {
   });
 
   const [newCategory, setNewCategory] = useState("");
+  const [customLocation, setCustomLocation] = useState("");
 
   // Fetch events
   const fetchEvents = async () => {
@@ -102,6 +103,10 @@ const EventsWidget: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Use customLocation if "Other" was selected
+    const finalLocation =
+      formData.location === "Other" ? customLocation : formData.location;
+
     const startISO =
       formData.date && formData.startTime
         ? `${formData.date}T${formData.startTime}:00`
@@ -120,7 +125,7 @@ const EventsWidget: React.FC = () => {
       event_categories: formData.categories,
       start_time: startISO,
       end_time: endISO,
-      location: formData.location,
+      location: finalLocation,
       description: formData.description,
       media_urls: mediaArray,
     };
@@ -156,6 +161,7 @@ const EventsWidget: React.FC = () => {
       media_urls: "",
       description: "",
     });
+    setCustomLocation("");
     setNewCategory("");
     setShowForm(false);
   };
@@ -172,6 +178,47 @@ const EventsWidget: React.FC = () => {
       media_urls: event.media_urls,
       description: event.description,
     });
+
+    // If location is not in the dropdown list, pre-fill as "Other" + customLocation
+    const predefinedLocations = [
+      "Department of Chemical and Process Engineering",
+      "Department of Engineering Mathematics / Department of Engineering Management / Computer Center",
+      "Drawing Office 1",
+      "Professor E.O.E. Pereira Theatre",
+      "Administrative Building",
+      "Security Unit",
+      "Electronic Lab",
+      "Department of Electrical and Electronic Engineering",
+      "Department of Computer Engineering",
+      "Electrical and Electronic Workshop",
+      "Surveying Lab",
+      "Soil Lab",
+      "Materials Lab",
+      "Environmental Lab",
+      "Fluids Lab",
+      "New Mechanics Lab",
+      "Applied Mechanics Lab",
+      "Thermodynamics Lab",
+      "Generator Room",
+      "Engineering Workshop",
+      "Engineering Carpentry Shop",
+      "Drawing Office 2",
+      "Corridor",
+      "Lecture Room (middle-right)",
+      "Process Laboratory",
+      "Lecture Room (bottom-right)",
+      "Engineering Library",
+      "Department of Manufacturing and Industrial Engineering",
+      "Faculty Canteen",
+    ];
+
+    if (!predefinedLocations.includes(event.location)) {
+      setFormData((prev) => ({ ...prev, location: "Other" }));
+      setCustomLocation(event.location);
+    } else {
+      setCustomLocation("");
+    }
+
     setNewCategory("");
     setShowForm(true);
   };
@@ -217,6 +264,7 @@ const EventsWidget: React.FC = () => {
               media_urls: "",
               description: "",
             });
+            setCustomLocation("");
             setNewCategory("");
             setShowForm(true);
           }}
@@ -234,28 +282,37 @@ const EventsWidget: React.FC = () => {
               {formData.id ? "Edit Event" : "Add Event"}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input
-                type="text"
-                placeholder="Title"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                className="w-full border rounded p-2"
-                required
-              />
+              {/* Title */}
+              <div>
+                <label className="block font-medium mb-1">Title</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  className="w-full border rounded p-2"
+                  required
+                />
+              </div>
 
               {/* Categories */}
               <div>
                 <label className="block font-medium mb-1">Categories</label>
                 <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Add a category"
+                  <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     className="flex-1 border rounded p-2"
-                  />
+                  >
+                    <option value="">-- Select Category --</option>
+                    <option value="Music">Music</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Education">Education</option>
+                    <option value="Tech">Tech</option>
+                    <option value="Networking">Networking</option>
+                    <option value="Other">Other</option>
+                  </select>
                   <button
                     type="button"
                     onClick={addCategory}
@@ -283,57 +340,140 @@ const EventsWidget: React.FC = () => {
                 </div>
               </div>
 
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) =>
-                  setFormData({ ...formData, date: e.target.value })
-                }
-                className="w-full border rounded p-2"
-              />
-              <input
-                type="time"
-                value={formData.startTime}
-                onChange={(e) =>
-                  setFormData({ ...formData, startTime: e.target.value })
-                }
-                className="w-full border rounded p-2"
-              />
-              <input
-                type="time"
-                value={formData.endTime}
-                onChange={(e) =>
-                  setFormData({ ...formData, endTime: e.target.value })
-                }
-                className="w-full border rounded p-2"
-              />
-              <input
-                type="text"
-                placeholder="Location"
-                value={formData.location}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
-                className="w-full border rounded p-2"
-              />
-              <input
-                type="text"
-                placeholder="Media URLs (comma-separated)"
-                value={formData.media_urls}
-                onChange={(e) =>
-                  setFormData({ ...formData, media_urls: e.target.value })
-                }
-                className="w-full border rounded p-2"
-              />
-              <textarea
-                placeholder="Description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                className="w-full border rounded p-2"
-              />
+              {/* Date */}
+              <div>
+                <label className="block font-medium mb-1">Date</label>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, date: e.target.value })
+                  }
+                  className="w-full border rounded p-2"
+                />
+              </div>
 
+              {/* Start Time */}
+              <div>
+                <label className="block font-medium mb-1">Start Time</label>
+                <input
+                  type="time"
+                  value={formData.startTime}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startTime: e.target.value })
+                  }
+                  className="w-full border rounded p-2"
+                />
+              </div>
+
+              {/* End Time */}
+              <div>
+                <label className="block font-medium mb-1">End Time</label>
+                <input
+                  type="time"
+                  value={formData.endTime}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endTime: e.target.value })
+                  }
+                  className="w-full border rounded p-2"
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block font-medium mb-1">Location</label>
+                <select
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
+                  className="w-full border rounded p-2"
+                >
+                  <option value="">-- Select Location --</option>
+                  <option value="Department of Chemical and Process Engineering">
+                    Department of Chemical and Process Engineering
+                  </option>
+                  <option value="Department of Engineering Mathematics / Department of Engineering Management / Computer Center">
+                    Department of Engineering Mathematics / Department of Engineering Management / Computer Center
+                  </option>
+                  <option value="Drawing Office 1">Drawing Office 1</option>
+                  <option value="Professor E.O.E. Pereira Theatre">
+                    Professor E.O.E. Pereira Theatre
+                  </option>
+                  <option value="Administrative Building">Administrative Building</option>
+                  <option value="Security Unit">Security Unit</option>
+                  <option value="Electronic Lab">Electronic Lab</option>
+                  <option value="Department of Electrical and Electronic Engineering">
+                    Department of Electrical and Electronic Engineering
+                  </option>
+                  <option value="Department of Computer Engineering">
+                    Department of Computer Engineering
+                  </option>
+                  <option value="Electrical and Electronic Workshop">
+                    Electrical and Electronic Workshop
+                  </option>
+                  <option value="Surveying Lab">Surveying Lab</option>
+                  <option value="Soil Lab">Soil Lab</option>
+                  <option value="Materials Lab">Materials Lab</option>
+                  <option value="Environmental Lab">Environmental Lab</option>
+                  <option value="Fluids Lab">Fluids Lab</option>
+                  <option value="New Mechanics Lab">New Mechanics Lab</option>
+                  <option value="Applied Mechanics Lab">Applied Mechanics Lab</option>
+                  <option value="Thermodynamics Lab">Thermodynamics Lab</option>
+                  <option value="Generator Room">Generator Room</option>
+                  <option value="Engineering Workshop">Engineering Workshop</option>
+                  <option value="Engineering Carpentry Shop">Engineering Carpentry Shop</option>
+                  <option value="Drawing Office 2">Drawing Office 2</option>
+                  <option value="Corridor">Corridor</option>
+                  <option value="Lecture Room (middle-right)">Lecture Room (middle-right)</option>
+                  <option value="Process Laboratory">Process Laboratory</option>
+                  <option value="Lecture Room (bottom-right)">Lecture Room (bottom-right)</option>
+                  <option value="Engineering Library">Engineering Library</option>
+                  <option value="Department of Manufacturing and Industrial Engineering">
+                    Department of Manufacturing and Industrial Engineering
+                  </option>
+                  <option value="Faculty Canteen">Faculty Canteen</option>
+                  <option value="Other">Other</option>
+                </select>
+                {formData.location === "Other" && (
+                  <input
+                    type="text"
+                    value={customLocation}
+                    onChange={(e) => setCustomLocation(e.target.value)}
+                    placeholder="Enter custom location"
+                    className="mt-2 w-full border rounded p-2"
+                  />
+                )}
+              </div>
+
+              {/* Media URLs */}
+              <div>
+                <label className="block font-medium mb-1">
+                  Media URLs (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={formData.media_urls}
+                  onChange={(e) =>
+                    setFormData({ ...formData, media_urls: e.target.value })
+                  }
+                  className="w-full border rounded p-2"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block font-medium mb-1">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className="w-full border rounded p-2"
+                />
+              </div>
+
+              {/* Buttons */}
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
@@ -363,7 +503,11 @@ const EventsWidget: React.FC = () => {
               className="w-full flex justify-between items-center px-4 py-3 text-left font-medium hover:bg-gray-50"
             >
               {ev.title} (ID: {ev.id})
-              {expanded === ev.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              {expanded === ev.id ? (
+                <ChevronUp size={18} />
+              ) : (
+                <ChevronDown size={18} />
+              )}
             </button>
             {expanded === ev.id && (
               <div className="px-4 pb-4 space-y-2">

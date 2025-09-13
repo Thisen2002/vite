@@ -32,6 +32,10 @@ const BuildingsWidget: React.FC = () => {
       { name: "Drawing Office 2", id: 22 },
       { name: "Department of Manufacturing and Industrial Engineering", id: 28 },
       { name: "Corridor", id: 23 },
+      { name: "Lecture Room(middle-right)", id: 24 },
+      { name: "Structures Laboratory", id: 25 },
+      { name: "Lecture Room(bottom-right)", id: 26 },
+      { name: "Engineering Library", id: 27 },
     ],
     "2": [  // Zone B
       { name: "Drawing Office 1", id: 3 },

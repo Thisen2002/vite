@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { MapPin, Thermometer, Activity, Clock, Users } from "lucide-react";
 
 interface Building {
+  id: number;
   name: string;
   peak: number;
   dwell: number;
@@ -16,34 +17,61 @@ interface Zone {
 }
 
 const HeatmapWidget: React.FC = () => {
-  const [timeFilter, setTimeFilter] = useState("24h");
-  const [zoneFilter, setZoneFilter] = useState("zone1");
-  const [buildingFilter, setBuildingFilter] = useState("all");
+  // Default filters: Zone A, Drawing Office 2, Last 1 hour
+  const [timeFilter, setTimeFilter] = useState("1h");
+  const [zoneFilter, setZoneFilter] = useState("zoneA");
+  const [buildingFilter, setBuildingFilter] = useState("Drawing Office 2");
 
   const allZones: Record<string, Zone> = {
-    zone1: {
-      name: "Zone 1",
+    zoneA: {
+      name: "Zone A",
       buildings: [
-        { name: "Main Hall", peak: 187, dwell: 28, activity: "High", color: "red", icon: Users },
-        { name: "Exhibition Area", peak: 134, dwell: 22, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 22, name: "Drawing Office 2", peak: 95, dwell: 18, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 28, name: "Department of Manufacturing and Industrial Engineering", peak: 140, dwell: 24, activity: "High", color: "red", icon: Users },
+        { id: 23, name: "Corridor", peak: 60, dwell: 10, activity: "Low", color: "green", icon: Clock },
+        { id: 24, name: "Lecture Room(middle-right)", peak: 80, dwell: 15, activity: "Low", color: "green", icon: Clock },
+        { id: 25, name: "Structures Laboratory", peak: 120, dwell: 22, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 26, name: "Lecture Room(bottom-right)", peak: 75, dwell: 12, activity: "Low", color: "green", icon: Clock },
+        { id: 27, name: "Engineering Library", peak: 160, dwell: 30, activity: "High", color: "red", icon: Users },
       ],
     },
-    zone2: {
-      name: "Zone 2",
+    zoneB: {
+      name: "Zone B",
       buildings: [
-        { name: "Networking Lounge", peak: 89, dwell: 35, activity: "Low", color: "green", icon: Clock },
-        { name: "Computer Engineering Dept", peak: 130, dwell: 20, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 3, name: "Drawing Office 1", peak: 90, dwell: 16, activity: "Low", color: "green", icon: Clock },
+        { id: 4, name: "Professor E.O.E. Pereira Theatre", peak: 180, dwell: 28, activity: "High", color: "red", icon: Users },
+        { id: 5, name: "Administrative Building", peak: 100, dwell: 18, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 6, name: "Security Unit", peak: 70, dwell: 12, activity: "Low", color: "green", icon: Clock },
+        { id: 1, name: "Department of Chemical and Process Engineering", peak: 150, dwell: 25, activity: "High", color: "red", icon: Users },
+        { id: 2, name: "Department Engineering Mathematics", peak: 120, dwell: 20, activity: "Medium", color: "yellow", icon: Activity },
       ],
     },
-    zone3: {
-      name: "Zone 3",
+    zoneC: {
+      name: "Zone C",
       buildings: [
-        { name: "Competition Area", peak: 90, dwell: 18, activity: "Low", color: "green", icon: Clock },
+        { id: 8, name: "Department of Electrical and Electronic Engineering", peak: 160, dwell: 28, activity: "High", color: "red", icon: Users },
+        { id: 9, name: "Department of Computer Engineering", peak: 140, dwell: 22, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 10, name: "Electrical and Electronic Workshop", peak: 100, dwell: 18, activity: "Low", color: "green", icon: Clock },
+        { id: 11, name: "Surveying Lab", peak: 95, dwell: 15, activity: "Low", color: "green", icon: Clock },
+        { id: 12, name: "Soil Lab", peak: 105, dwell: 17, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 13, name: "Materials Lab", peak: 115, dwell: 19, activity: "Medium", color: "yellow", icon: Activity },
+      ],
+    },
+    zoneD: {
+      name: "Zone D",
+      buildings: [
+        { id: 15, name: "Fluids Lab", peak: 125, dwell: 22, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 16, name: "New Mechanics Lab", peak: 135, dwell: 23, activity: "Medium", color: "yellow", icon: Activity },
+        { id: 17, name: "Applied Mechanics Lab", peak: 145, dwell: 24, activity: "High", color: "red", icon: Users },
+        { id: 18, name: "Thermodynamics Lab", peak: 155, dwell: 26, activity: "High", color: "red", icon: Users },
+        { id: 19, name: "Generator Room", peak: 65, dwell: 10, activity: "Low", color: "green", icon: Clock },
+        { id: 20, name: "Engineering Workshop", peak: 175, dwell: 27, activity: "High", color: "red", icon: Users },
+        { id: 21, name: "Engineering Carpentry Shop", peak: 80, dwell: 12, activity: "Low", color: "green", icon: Clock },
       ],
     },
   };
 
-  // Buildings to show in the building filter based on selected zone
+  // Buildings in selected zone
   const buildingsInZone = useMemo(() => allZones[zoneFilter].buildings, [zoneFilter]);
 
   // Filtered buildings for the analytics cards
@@ -63,24 +91,40 @@ const HeatmapWidget: React.FC = () => {
       {/* 🔽 Filters */}
       <div className="flex flex-wrap justify-end gap-3">
         {/* Zone Filter */}
-        <select value={zoneFilter} onChange={(e) => { setZoneFilter(e.target.value); setBuildingFilter("all"); }} className="border px-3 py-2 rounded">
-          <option value="zone1">Zone 1</option>
-          <option value="zone2">Zone 2</option>
-          <option value="zone3">Zone 3</option>
+        <select
+          value={zoneFilter}
+          onChange={(e) => {
+            setZoneFilter(e.target.value);
+            setBuildingFilter("all");
+          }}
+          className="border px-3 py-2 rounded"
+        >
+          <option value="zoneA">Zone A</option>
+          <option value="zoneB">Zone B</option>
+          <option value="zoneC">Zone C</option>
+          <option value="zoneD">Zone D</option>
         </select>
 
         {/* Building Filter */}
-        <select value={buildingFilter} onChange={(e) => setBuildingFilter(e.target.value)} className="border px-3 py-2 rounded">
+        <select
+          value={buildingFilter}
+          onChange={(e) => setBuildingFilter(e.target.value)}
+          className="border px-3 py-2 rounded"
+        >
           <option value="all">All Buildings</option>
-          {buildingsInZone.map((b, i) => (
-            <option key={i} value={b.name}>
+          {buildingsInZone.map((b) => (
+            <option key={b.id} value={b.name}>
               {b.name}
             </option>
           ))}
         </select>
 
         {/* Time Filter */}
-        <select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} className="border px-3 py-2 rounded">
+        <select
+          value={timeFilter}
+          onChange={(e) => setTimeFilter(e.target.value)}
+          className="border px-3 py-2 rounded"
+        >
           <option value="1h">Last 1 Hour</option>
           <option value="3h">Last 3 Hours</option>
           <option value="5h">Last 5 Hours</option>
@@ -89,7 +133,7 @@ const HeatmapWidget: React.FC = () => {
         </select>
       </div>
 
-      {/* 📍 Heatmap Visualization */}
+      {/* 📍 Heatmap Visualization (kept as-is) */}
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-8 shadow-xl hover:shadow-2xl transition-all duration-300">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3">
@@ -122,7 +166,8 @@ const HeatmapWidget: React.FC = () => {
             </div>
             <p className="text-gray-700 font-medium text-lg">Interactive heatmap visualization</p>
             <p className="text-gray-500 mt-2">
-              Showing {zoneFilter} [{buildingFilter === "all" ? "All Buildings" : buildingFilter}] [{timeFilter}]
+              Showing {allZones[zoneFilter].name} [
+              {buildingFilter === "all" ? "All Buildings" : buildingFilter}] [{timeFilter}]
             </p>
           </div>
 
@@ -152,9 +197,9 @@ const HeatmapWidget: React.FC = () => {
 
       {/* 📊 Building Analytics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredBuildings.map((building, i) => (
+        {filteredBuildings.map((building) => (
           <div
-            key={i}
+            key={building.id}
             className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
           >
             <div className="flex items-center space-x-3 mb-4">
