@@ -1,5 +1,5 @@
 import React from "react";
-import EventsWidget from "../../components/OrganizerDashBoard/EventsWidget";
+import EventsWidget from "./components/EventsWidget";
 
 const EventsPage: React.FC = () => {
   return (

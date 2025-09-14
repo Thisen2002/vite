@@ -1,5 +1,5 @@
 import React from "react";
-import ExportWidget from "../../components/OrganizerDashBoard/ExportWidget"; // adjust path if needed
+import ExportWidget from "./components/ExportWidget"; // adjust path if needed
 
 const ExportPage: React.FC = () => {
   return (

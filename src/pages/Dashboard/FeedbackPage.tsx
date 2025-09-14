@@ -1,5 +1,5 @@
 import React from "react";
-import FeedbackWidget from "../../components/OrganizerDashBoard/FeedbackWidget"; // adjust path if needed
+import FeedbackWidget from "./components/FeedbackWidget"; // adjust path if needed
 
 const FeedbackPage: React.FC = () => {
   return (

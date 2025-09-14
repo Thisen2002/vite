@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { BarChart3, Map as HeatMap, MessageSquare, Download, Building2, X, Menu, LucideIcon, Calendar } from 'lucide-react';
+import { BarChart3, Map as HeatMap, MessageSquare, Download, Building2, X, Menu, Calendar } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 type Section = 'overview' | 'heatmaps' | 'feedback' | 'export' | 'buildings' | 'organizers';  // Added 'organizers'
 
@@ -10,13 +11,13 @@ interface SidebarProps {
 }
 
 const navigationItems: Array<{ id: Section; label: string; icon: LucideIcon; path: string }> = [
-  { id: 'overview', label: 'Overview', icon: BarChart3, path: 'overview' },
-  { id: 'heatmaps', label: 'Heatmaps', icon: HeatMap, path: 'heatmaps' },
-  { id: 'feedback', label: 'Feedback', icon: MessageSquare, path: 'feedback' },
-  { id: 'export', label: 'Export', icon: Download, path: 'export' },
-  { id: 'buildings', label: 'Buildings', icon: Building2, path: 'buildings' },
-  { id: 'events', label: 'Events', icon: Calendar, path: 'events' },
-  { id: 'organizers', label: 'Organizers', icon: Building2, path: 'organizers' }, // Added 'Organizers' entry
+  { id: 'overview', label: 'Overview', icon: BarChart3, path: '/dashboard/overview' },
+  { id: 'heatmaps', label: 'Heatmaps', icon: HeatMap, path: '/dashboard/heatmaps' },
+  { id: 'feedback', label: 'Feedback', icon: MessageSquare, path: '/dashboard/feedback' },
+  { id: 'export', label: 'Export', icon: Download, path: '/dashboard/export' },
+  { id: 'buildings', label: 'Buildings', icon: Building2, path: '/dashboard/buildings' },
+  { id: 'events', label: 'Events', icon: Calendar, path: '/dashboard/events' },
+  { id: 'organizers', label: 'Organizers', icon: Building2, path: '/dashboard/organizers' }, // Added 'Organizers' entry
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {

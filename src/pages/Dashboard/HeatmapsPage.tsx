@@ -1,5 +1,5 @@
 import React from "react";
-import HeatmapWidget from "../../components/OrganizerDashBoard/HeatmapWidget"; // adjust path if needed
+import HeatmapWidget from "./components/HeatmapWidget"; // adjust path if needed
 
 const HeatmapsPage: React.FC = () => {
   return (

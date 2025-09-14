@@ -1,5 +1,5 @@
 import React from "react";
-import OverviewWidget from "../../components/OrganizerDashBoard/OverviewWidget";
+import OverviewWidget from "./components/OverviewWidget";
 
 const OverviewPage: React.FC = () => {
   return (

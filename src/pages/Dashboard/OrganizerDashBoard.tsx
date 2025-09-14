@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Sidebar } from "../../components/OrganizerDashBoard/Sidebar";
-import { Header } from "../../components/OrganizerDashBoard/Header";
+import { Sidebar } from "./components/Sidebar";
+import { Header } from "./components/Header";
 
 // Import pages
 import OverviewPage from "./OverviewPage";
