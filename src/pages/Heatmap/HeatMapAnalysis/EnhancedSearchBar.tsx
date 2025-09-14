@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Search, X, MapPin } from "lucide-react";
 
 interface Building {
-  buildingId: number;
+  buildingId: string;  // Changed from number to string
   buildingName: string;
 }
 
@@ -101,7 +101,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     setSearchQuery(building.buildingName);
     setShowSuggestions(false);
     setSelectedIndex(-1);
-    onBuildingSelect(String(building.buildingId));
+    onBuildingSelect(building.buildingId);
     inputRef.current?.blur();
   };
 
