@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { RefreshCw } from "lucide-react";
-import HeatMap from "./HeatMap";
+import SvgHeatmap from "./SvgHeatmap.jsx";
 import {
   LineChart,
   Line,
@@ -359,7 +359,8 @@ const CrowdManagement: React.FC = () => {
 
         {/* Heat Map Section */}
         <div className="mb-8">
-          <HeatMap />
+          {/* <HeatMap /> */}
+          <SvgHeatmap />
         </div>
 
         {/* Charts Section */}
