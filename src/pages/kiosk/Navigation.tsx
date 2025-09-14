@@ -48,9 +48,9 @@ const NavigationTailwind: React.FC<NavigationTailwindProps> = ({ currentPage, on
         {pages.map((_, index) => (
           <div
             key={index}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-slate-700/60 backdrop-blur-md border-2 border-white/10 transition-all duration-300 ease-cubic-bezier(0.4,0,0.2,1) relative overflow-hidden cursor-pointer select-none ${
+            className={`nav-item flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-slate-700/60 backdrop-blur-md border-2 border-white/10 transition-all duration-300 ease-cubic-bezier(0.4,0,0.2,1) relative overflow-hidden cursor-pointer select-none ${
               index === currentPage 
-                ? 'bg-blue-500/30 border-blue-500/60 scale-105 shadow-[0_12px_35px_rgba(59,130,246,0.4)]' 
+                ? 'active bg-blue-500/30 border-blue-500/60 scale-105 shadow-[0_12px_35px_rgba(59,130,246,0.4)]' 
                 : 'hover:bg-sky-400/20 hover:border-sky-400/40 hover:scale-105 hover:shadow-[0_8px_25px_rgba(56,189,248,0.3)]'
             }`}
             onClick={() => onPageClick(index)}
@@ -88,17 +88,29 @@ const NavigationTailwind: React.FC<NavigationTailwindProps> = ({ currentPage, on
           .scrollbar-thin::-webkit-scrollbar {
             width: 6px;
           }
-          .scrollbar-track-slate-700\\/30::-webkit-scrollbar-track {
+          .scrollbar-track-slate-700/30::-webkit-scrollbar-track {
             background: rgba(51, 65, 85, 0.3);
             border-radius: 10px;
           }
-          .scrollbar-thumb-blue-500\\/60::-webkit-scrollbar-thumb {
+          .scrollbar-thumb-blue-500/60::-webkit-scrollbar-thumb {
             background: rgba(59, 130, 246, 0.6);
             border-radius: 10px;
             transition: background 0.3s ease;
           }
-          .scrollbar-thumb-blue-500\\/60::-webkit-scrollbar-thumb:hover {
+          .scrollbar-thumb-blue-500/60::-webkit-scrollbar-thumb:hover {
             background: rgba(59, 130, 246, 0.8);
+          }
+          .nav-item:hover { 
+            background: rgba(56, 189, 248, 0.2); 
+            border-color: rgba(56, 189, 248, 0.4); 
+            transform: scale(1.02); 
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3); 
+          }
+          .nav-item.active { 
+            background: rgba(59, 130, 246, 0.3); 
+            border-color: rgba(59, 130, 246, 0.6); 
+            transform: scale(1.05); 
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4); 
           }
         `
       }} />

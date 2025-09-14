@@ -163,21 +163,13 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
           {/* Tab Navigation */}
           <div className="flex justify-center gap-4 mb-4">
             <button 
-              className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                activeTab === 'happening' 
-                  ? 'bg-blue-500/30 text-white border-2 border-blue-400/60 shadow-[0_0_20px_rgba(59,130,246,0.4)]' 
-                  : 'bg-white/10 text-white/80 border-2 border-white/20 hover:bg-white/20 hover:text-white'
-              }`}
+              className={`tab-btn ${activeTab === 'happening' ? 'active' : ''}`}
               onClick={() => setActiveTab('happening')}
             >
               Events Happening
             </button>
             <button 
-              className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                activeTab === 'all' 
-                  ? 'bg-blue-500/30 text-white border-2 border-blue-400/60 shadow-[0_0_20px_rgba(59,130,246,0.4)]' 
-                  : 'bg-white/10 text-white/80 border-2 border-white/20 hover:bg-white/20 hover:text-white'
-              }`}
+              className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
               onClick={() => setActiveTab('all')}
             >
               All Events
@@ -250,7 +242,7 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
             displayEvents.map((event, index) => (
               <div 
                 key={event.id || index} 
-                className="relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] animate-slideIn"
+                className="bg-transparent  backdrop-blur-xl rounded-2xl border-2 border-[rgba(59,130,246,0.6)] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] animate-slideIn"
                 style={{animationDelay: `${index * 0.1}s`}}
               >
                 {/* Status Badge */}
@@ -264,10 +256,9 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
                 </div>
                 
                 {/* Event Information */}
-                <div className="pr-24">
-                  {/* Main event info */}
-                  <div className="mb-4">
-                    <h3 className="text-2xl font-bold text-white mb-2">
+                <div className="mt-8 flex justify-between items-center flex-wrap gap-4">
+                  <div className="mb-2">
+                    <h3 className="text-3xl font-bold text-white mb-2">
                       {highlightSearchTerm(event.title, searchQuery)}
                     </h3>
                     <p className="text-blue-300 text-lg">
@@ -275,18 +266,18 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
                     </p>
                   </div>
                   
-                  {/* Event details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                      <span className="text-white/70 text-sm font-medium block mb-1">Location</span>
-                      <span className="text-white text-lg">
+                  {/* Location and Time Container */}
+                  <div className="flex gap-8 items-start"> 
+                    <div className="flex flex-col gap-2 text-right min-w-[200px] items-end"> 
+                      <span className="text-white/100 text-2xl font-medium block mb-1">Location</span>
+                      <span className="text-[#FDE103] text-xl">
                         {highlightSearchTerm(event.venue, searchQuery)}
                       </span>
                     </div>
                     
-                    <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                      <span className="text-white/70 text-sm font-medium block mb-1">Start Time</span>
-                      <span className="text-white text-lg">
+                    <div className="flex flex-col gap-2 text-right min-w-[200px] items-end">
+                      <span className="text-white/100 text-2xl font-medium block mb-1">Start Time</span>
+                      <span className="text-[#FDE103] text-xl">
                         {highlightSearchTerm(event.time, searchQuery)}
                       </span>
                     </div>
@@ -341,6 +332,36 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
           }
           .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
           .animate-slideIn { animation: slideIn 0.5s ease-out forwards; }
+        `
+      }} />
+      
+      {/* Add custom styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .tab-btn { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; /* Center content */ 
+            gap: 0.5rem; 
+            padding: 0.75rem 0; /* Adjust vertical padding */ 
+            background: rgba(255, 255, 255, 0.1); /* Lighter background */ 
+            color: #e2e8f0; 
+            border: none; /* Remove border */ 
+            border-radius: 0; /* Remove border radius */ 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            backdrop-filter: blur(10px); 
+            flex: 1; /* Make tabs equal width */ 
+          }
+          .tab-btn.active { 
+            background: rgba(59, 130, 246, 0.3); 
+            border-color: rgba(59, 130, 246, 0.6); /* Lighter active background */ 
+            color: white; 
+            border: none; 
+            box-shadow: none; /* Remove box shadow */ 
+          }
         `
       }} />
     </div>

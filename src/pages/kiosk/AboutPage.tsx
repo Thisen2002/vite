@@ -84,7 +84,7 @@ const AboutPageTailwind: React.FC<AboutPageTailwindProps> = () => {
 
         {/* Event Overview */}
         <motion.div 
-          className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1"
+          className="backdrop-blur-2xl  rounded-2xl border-2 border-[rgba(59,130,246,0.6)] p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -141,7 +141,7 @@ const AboutPageTailwind: React.FC<AboutPageTailwindProps> = () => {
         </motion.div>
 
         {/* Departments */}
-        <div className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+        <div className="backdrop-blur-2xl  rounded-2xl border-2 border-[rgba(59,130,246,0.6)] p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1]">
           <h2 className="text-3xl font-bold text-white mb-8 text-center flex items-center justify-center gap-3">
             🏛️ Engineering Departments
           </h2>
