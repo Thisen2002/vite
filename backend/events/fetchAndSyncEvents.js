@@ -4,7 +4,9 @@
 const axios = require('axios');
 const supabase = require('./db');
 
+
 const API_BASE_URL = process.env.EVENT_API_BASE_URL || 'http://localhost:5000'; // Set your baseurl here or via env
+
 const FETCH_INTERVAL_MINUTES = 0.5; // How often to fetch (in minutes)
 
 async function fetchEventsFromAPI() {
