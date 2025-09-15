@@ -5,10 +5,11 @@ import { getAllEvents } from './utils/eventService'
 interface Event {
   event_id: string;
   event_title: string;
-  description: string;
   location: string;
   start_time: string;
   end_time: string;
+  event_categories?: string[];
+  categories?: string[];
 }
 
 interface SchedulePageTailwindProps {}
@@ -25,21 +26,25 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
+        console.log('🔄 Fetching events...')
         setLoading(true)
         setError(null)
         
         // Fetch all events
         const data = await getAllEvents()
+        console.log('📋 Events data received:', data)
         
-        if (data) {
+        if (data && data.length > 0) {
           // Events are already in the correct format from the service
+          console.log('✅ Setting events:', data.length, 'events')
           setAllEvents(data)
         } else {
+          console.log('⚠️ No events found or empty array')
           setError('No events found')
         }
       } catch (err) {
-        setError('Failed to fetch events')
-        console.error('Error fetching events:', err)
+        console.error('❌ Error fetching events:', err)
+        setError('Failed to fetch events: ' + (err as Error).message)
       } finally {
         setLoading(false)
       }
@@ -66,15 +71,12 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
         // Check if query is in venue/location
         const locationMatch = event.location.toLowerCase().includes(query)
         
-        // Check if query is in description
-        const descriptionMatch = event.description && event.description.toLowerCase().includes(query)
-        
         // Check if query is in start_time or end_time (secondary matches)
         const startTimeMatch = event.start_time.toLowerCase().includes(query)
         const endTimeMatch = event.end_time.toLowerCase().includes(query)
         
         // Return true if any of the fields match
-        return titleMatch || locationMatch || descriptionMatch || startTimeMatch || endTimeMatch
+        return titleMatch || locationMatch || startTimeMatch || endTimeMatch
       })
       
       return filteredEvents
@@ -260,11 +262,6 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
                     <p className="text-blue-300 text-lg mb-2">
                       Duration: {highlightSearchTerm(formatDurationDisplay(event.start_time, event.end_time), searchQuery)}
                     </p>
-                    {event.description && (
-                      <p className="text-white/80 text-base">
-                        {highlightSearchTerm(event.description, searchQuery)}
-                      </p>
-                    )}
                   </div>
                   
                   {/* Location and Time Container */}

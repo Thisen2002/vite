@@ -1,14 +1,17 @@
 import { supabase } from '../supabaseClient'
 
-// Get all events
+// Get all events from backend API
 export async function getAllEvents() {
   try {
-    const { data, error } = await supabase
-      .from('events')
-      .select('event_id, event_title, description, location, start_time, end_time')
-      .order('start_time', { ascending: true })
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3036'
+    const response = await fetch(`${apiUrl}/api/events`)
     
-    if (error) throw error
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    console.log('📋 API Response:', data)
     
     return data
   } catch (error) {
