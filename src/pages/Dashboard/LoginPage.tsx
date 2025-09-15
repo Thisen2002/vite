@@ -39,12 +39,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, goToRegister }) =
         // After login, navigate to the overview page
         navigate("dashboard/overview");  // Navigate to overview page
       }
-    } catch (err) {
+    } catch (err: any) {
       setLoading(false);  // Reset loading state after response
-      if (err.response?.status === 400) {
-        setErrorMessage("Email and Password are required.");
-      } else if (err.response?.status === 401) {
-        setErrorMessage("Invalid email or password.");
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 400) {
+          setErrorMessage("Email and Password are required.");
+        } else if (err.response?.status === 401) {
+          setErrorMessage("Invalid email or password.");
+        } else {
+          setErrorMessage("An error occurred, please try again later.");
+        }
       } else {
         setErrorMessage("An error occurred, please try again later.");
       }
