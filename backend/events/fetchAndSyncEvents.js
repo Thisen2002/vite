@@ -4,12 +4,12 @@
 const axios = require('axios');
 const supabase = require('./db');
 
-const API_BASE_URL = process.env.EVENT_API_BASE_URL || 'http://localhost:3000'; // Set your baseurl here or via env
+const API_BASE_URL = process.env.EVENT_API_BASE_URL || 'http://localhost:5000'; // Set your baseurl here or via env
 const FETCH_INTERVAL_MINUTES = 0.5; // How often to fetch (in minutes)
 
 async function fetchEventsFromAPI() {
     try {
-        const response = await axios.get(`${API_BASE_URL}/events/all`);
+        const response = await axios.get(`${API_BASE_URL}/events/`);
         return response.data;
     } catch (err) {
         console.error('Failed to fetch events from API:', err.message);
@@ -22,7 +22,6 @@ async function upsertEventsToSupabase(events) {
     for (const event of events) {
         // Map API fields to Supabase fields as needed
         const eventData = {
-            event_id: event.event_id,
             event_title: event.event_name,
             description: event.description,
             location: event.location,

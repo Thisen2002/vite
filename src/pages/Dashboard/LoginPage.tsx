@@ -37,7 +37,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, goToRegister }) =
         onLogin();
 
         // After login, navigate to the overview page
-        navigate("/overview");  // Navigate to overview page
+        navigate("dashboard/overview");  // Navigate to overview page
       }
     } catch (err) {
       setLoading(false);  // Reset loading state after response
