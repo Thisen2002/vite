@@ -76,7 +76,7 @@ const UniversityInfo: React.FC<UniversityInfoProps> = ({
       <div className="bg-white p-8 rounded-xl text-center shadow-md transition-transform duration-300 hover:-translate-y-1">
         <Award className="text-blue-500 mb-4 mx-auto" size={32} />
         <div className="text-4xl font-bold text-slate-800 mb-2">{info.departments}</div>
-        <div className="text-gray-500 text-base">Departments</div>
+        <div className="text-gray-500 text-base">Faculties</div>
       </div>
     </div>
   );
