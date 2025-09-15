@@ -22,5 +22,5 @@ app.get('/', (req, res) => res.json({ msg: "Hello from backend!" }));           
 // ===============================
 // SERVER STARTUP
 // ===============================
-const PORT = 3000;
+const PORT = 3897;
 app.listen(PORT, () => console.log(`API running on port ${PORT}`));

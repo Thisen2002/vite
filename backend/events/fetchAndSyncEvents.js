@@ -22,6 +22,7 @@ async function upsertEventsToSupabase(events) {
     for (const event of events) {
         // Map API fields to Supabase fields as needed
         const eventData = {
+            event_id: event.event_id,
             event_title: event.event_name,
             description: event.description,
             location: event.location,

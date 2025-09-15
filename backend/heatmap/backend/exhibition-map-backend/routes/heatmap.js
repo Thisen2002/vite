@@ -8,7 +8,7 @@ const router = express.Router();
 //const CCTV_API_URL ="http://172.20.10.3:5000/api/crowd_all"; //"http://10.90.249.214:5000/api/crowd_all";
 //this is for local testing with sample_buildings.js
 //add correct API URL when deploying
-const CCTV_API_URL = "http://localhost:3000/api/buildings";
+const CCTV_API_URL = "http://localhost:3897/api/buildings";
 
 // Function to calculate heatmap color
 function getHeatmapColor(current, capacity) {

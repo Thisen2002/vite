@@ -28,7 +28,7 @@ function AppContent() {
           <Route path="/kiosk" element={<AppKiosk />} />
           <Route path="/dashboard/*" element={<AppDashboard />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="/events" element={<Appevents />} />
+          <Route path="/events/*" element={<Appevents />} />
           <Route path="/map" element={<Dashboard />} />
         </Routes>
       </main>

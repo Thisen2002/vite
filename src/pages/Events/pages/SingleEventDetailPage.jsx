@@ -8,7 +8,7 @@ import StarIcon from '../icons/star.svg';
 import RateIcon from '../icons/rate.svg';
 import ArrowLeftIcon from '../icons/arrow-left.svg';
 
-const API_BASE_URL = typeof __backend_url !== 'undefined' ? __backend_url : 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:3036';
 
 export default function SingleEventDetailPage() {
     const [event, setEvent] = useState(null);

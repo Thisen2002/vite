@@ -21,10 +21,7 @@ const EventsScreen = () => {
   const [isEditInterestsOpen, setIsEditInterestsOpen] = useState(false);
 
   const navigate = useNavigate();
-  const API_BASE_URL = useMemo(
-    () => import.meta.env.VITE_API_URL || "http://localhost:3000",
-    []
-  );
+  const API_BASE_URL = "http://localhost:3036";
 
   const filteredEvents = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();

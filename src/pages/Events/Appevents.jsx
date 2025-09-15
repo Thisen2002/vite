@@ -7,10 +7,10 @@ import RecommendedEvents from "./pages/RecommendedEvents.jsx";
 export default function Appevents() {
     return (
         <Routes>
-            <Route path="/" element={<EventsScreen />} />
-            <Route path="/events/:id" element={<SingleEventDetailPage />} />
-            <Route path="/events/:eventId/feedback" element={<FeedbackPage />} />
-            <Route path="/recommended" element={<RecommendedEvents />} />
+            <Route index element={<EventsScreen />} />
+            <Route path=":id" element={<SingleEventDetailPage />} />
+            <Route path=":eventId/feedback" element={<FeedbackPage />} />
+            <Route path="recommended" element={<RecommendedEvents />} />
         </Routes>
     );
 }
