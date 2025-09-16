@@ -72,7 +72,7 @@ export default tseslint.config([
 to run heatmap backend
     npm install
     node index.js
-    running port 3000
+    running port 3897
 
 to run map backend
     npm install

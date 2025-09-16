@@ -58,32 +58,53 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
     return () => clearInterval(interval)
   }, [])
 
+    // Helper function to compute event status from raw fields
+  const getEventStatus = (event: Event): string => {
+    const now = new Date()
+    const eventStartDateTime = new Date(event.start_time)
+    const eventEndDateTime = new Date(event.end_time)
+    
+    if (now >= eventEndDateTime) {
+      return 'completed'
+    } else if (now >= eventStartDateTime && now < eventEndDateTime) {
+      return 'ongoing'
+    } else {
+      return 'upcoming'
+    }
+  }
+
   // Enhanced filter function - searches in all events when there's a query
   const getDisplayEvents = (): Event[] => {
+    // Helper to get status order
+    const getStatusOrder = (event: Event): number => {
+      const status = getEventStatus(event)
+      if (status === 'ongoing') return 0
+      if (status === 'upcoming') return 1
+      if (status === 'completed') return 2
+      return 3 // unknown
+    }
+
+    let filteredEvents: Event[]
     if (searchQuery.trim()) {
       // Search query exists - search through all events
       const query = searchQuery.toLowerCase().trim()
-      
-      const filteredEvents = allEvents.filter(event => {
+      filteredEvents = allEvents.filter(event => {
         // Check if query is in title
         const titleMatch = event.event_title.toLowerCase().includes(query)
-        
         // Check if query is in venue/location
         const locationMatch = event.location.toLowerCase().includes(query)
-        
         // Check if query is in start_time or end_time (secondary matches)
         const startTimeMatch = event.start_time.toLowerCase().includes(query)
         const endTimeMatch = event.end_time.toLowerCase().includes(query)
-        
         // Return true if any of the fields match
         return titleMatch || locationMatch || startTimeMatch || endTimeMatch
       })
-      
-      return filteredEvents
     } else {
       // No search query - show all events
-      return allEvents
+      filteredEvents = allEvents
     }
+    // Sort by status: ongoing, upcoming, completed
+    return filteredEvents.slice().sort((a, b) => getStatusOrder(a) - getStatusOrder(b))
   }
 
   const displayEvents = getDisplayEvents()
@@ -134,20 +155,7 @@ const SchedulePageTailwind: React.FC<SchedulePageTailwindProps> = () => {
     setSearchQuery('')
   }
 
-  // Helper function to compute event status from raw fields
-  const getEventStatus = (event: Event): string => {
-    const now = new Date()
-    const eventStartDateTime = new Date(event.start_time)
-    const eventEndDateTime = new Date(event.end_time)
-    
-    if (now >= eventEndDateTime) {
-      return 'completed'
-    } else if (now >= eventStartDateTime && now < eventEndDateTime) {
-      return 'ongoing'
-    } else {
-      return 'upcoming'
-    }
-  }
+
 
   // Helper function to format time display
   const formatTimeForDisplay = (dateTimeString: string): string => {
