@@ -2,6 +2,7 @@
 $folders = @(
     ".\backend\api-gateway",
     ".\backend\services\alert-service",
+    ".\backend\db",
     ".\backend\services\auth-service",
     ".\backend\services\building-service",
     ".\backend\services\event-service",
