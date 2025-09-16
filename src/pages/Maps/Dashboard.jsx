@@ -911,16 +911,12 @@ const Dashboard = () => {
             minHeight: '400px'
           }}>
             <div className="dashboard-sidebar-tabs">
-              <button
-                className={`dashboard-sidebar-tab${sidebarTab === 'bookmarks' ? ' active' : ''}`}
-                onClick={() => setSidebarTab('bookmarks')}
-                type="button"
-              >
+              <div className="dashboard-sidebar-heading">
                 Bookmarks
                 {bookmarks.length > 0 && (
                   <span className="dashboard-bookmark-count">{bookmarks.length}</span>
                 )}
-              </button>
+              </div>
             </div>
             <BookmarkSidebar
               bookmarkedPoints={bookmarkedPoints}

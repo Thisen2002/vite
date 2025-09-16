@@ -23,43 +23,63 @@ export default function MapExtra() {
   const engineeringBuildings = {
     b12: {
       department: "Mechanical Engineering",
-      description: "Thermodynamics labs, CAD/CAM center, and machine shop.",
-      labs: ["Heat Transfer Lab", "Robotics Bay"],
+      description: "Thermodynamics labs, CAD/CAM center, and machine shop. This building houses state-of-the-art equipment for mechanical engineering research and education.",
+      labs: ["Heat Transfer Lab", "Robotics Bay", "Fluid Mechanics Lab", "Materials Testing Lab"],
       floors: 4,
       hours: "8:00–18:00",
-      contact: "mech-office@univ.edu"
+      contact: "mech-office@univ.edu",
+      facilities: ["3D Printing Center", "CNC Machine Shop", "Wind Tunnel", "Vibration Testing Lab"],
+      faculty: ["Dr. Sarah Johnson", "Prof. Michael Chen", "Dr. Emily Rodriguez"],
+      capacity: "500 students",
+      established: "1985"
     },
     b28: {
       department: "Electrical & Electronic Engineering",
-      description: "Circuits, power systems and embedded systems facilities.",
-      labs: ["Power Electronics Lab", "Embedded Systems Studio"],
+      description: "Circuits, power systems and embedded systems facilities. Features advanced electronics labs and clean rooms for semiconductor research.",
+      labs: ["Power Electronics Lab", "Embedded Systems Studio", "RF Engineering Lab", "Digital Signal Processing Lab"],
       floors: 5,
       hours: "8:00–19:00",
-      contact: "eee-office@univ.edu"
+      contact: "eee-office@univ.edu",
+      facilities: ["Clean Room", "High Voltage Lab", "Antenna Testing Range", "Circuit Design Studio"],
+      faculty: ["Prof. David Kim", "Dr. Lisa Wang", "Prof. Robert Taylor"],
+      capacity: "600 students",
+      established: "1992"
     },
     b34: {
       department: "Computer Engineering",
-      description: "High‑performance computing cluster and AI research hub.",
-      labs: ["AI Lab", "Networks & Systems Lab"],
+      description: "High‑performance computing cluster and AI research hub. Houses cutting-edge computing infrastructure and research facilities.",
+      labs: ["AI Lab", "Networks & Systems Lab", "Cybersecurity Lab", "Computer Vision Lab"],
       floors: 6,
       hours: "8:00–20:00",
-      contact: "ce-office@univ.edu"
+      contact: "ce-office@univ.edu",
+      facilities: ["GPU Computing Cluster", "Data Center", "IoT Development Lab", "Virtual Reality Lab"],
+      faculty: ["Dr. Alex Thompson", "Prof. Maria Garcia", "Dr. James Wilson"],
+      capacity: "700 students",
+      established: "1998"
     },
     b07: {
       department: "Civil Engineering",
-      description: "Structural testing rigs and materials characterization.",
-      labs: ["Materials Lab", "Geotechnical Lab"],
+      description: "Structural testing rigs and materials characterization. Features large-scale testing equipment for civil infrastructure research.",
+      labs: ["Materials Lab", "Geotechnical Lab", "Structural Analysis Lab", "Environmental Engineering Lab"],
       floors: 3,
       hours: "8:30–17:30",
-      contact: "civil-office@univ.edu"
+      contact: "civil-office@univ.edu",
+      facilities: ["Concrete Testing Lab", "Soil Mechanics Lab", "Hydraulics Lab", "Surveying Equipment"],
+      faculty: ["Prof. Jennifer Lee", "Dr. Mark Anderson", "Prof. Susan Davis"],
+      capacity: "400 students",
+      established: "1980"
     },
     b19: {
       department: "Chemical & Process Engineering",
-      description: "Unit operations pilot plant and process control center.",
-      labs: ["Process Control Lab", "Reaction Engineering Lab"],
+      description: "Unit operations pilot plant and process control center. Houses industrial-scale equipment for chemical process research.",
+      labs: ["Process Control Lab", "Reaction Engineering Lab", "Separation Processes Lab", "Biochemical Engineering Lab"],
       floors: 5,
       hours: "8:00–18:00",
-      contact: "chem-office@univ.edu"
+      contact: "chem-office@univ.edu",
+      facilities: ["Pilot Plant", "Analytical Chemistry Lab", "Safety Training Center", "Process Simulation Lab"],
+      faculty: ["Dr. Kevin Brown", "Prof. Amanda White", "Dr. Thomas Miller"],
+      capacity: "450 students",
+      established: "1987"
     }
   };
 
@@ -78,11 +98,15 @@ export default function MapExtra() {
       id: buildingId,
       name: `Building ${buildingId}`,
       department: info.department || pick,
-      description: info.description || "Specialized teaching spaces and research labs.",
-      labs: info.labs || ["Innovation Lab", "Prototyping Studio"],
+      description: info.description || "Specialized teaching spaces and research labs with modern equipment and facilities.",
+      labs: info.labs || ["Innovation Lab", "Prototyping Studio", "Research Lab", "Design Studio"],
       floors: info.floors || 4,
       hours: info.hours || "8:00–18:00",
-      contact: info.contact || `${pick.split(" ")[0].toLowerCase()}-office@univ.edu`
+      contact: info.contact || `${pick.split(" ")[0].toLowerCase()}-office@univ.edu`,
+      facilities: info.facilities || ["Computer Lab", "Conference Room", "Student Lounge", "Equipment Storage"],
+      faculty: info.faculty || ["Dr. John Smith", "Prof. Jane Doe", "Dr. Bob Wilson"],
+      capacity: info.capacity || "300 students",
+      established: info.established || "1990"
     };
   };
 
@@ -291,9 +315,11 @@ export default function MapExtra() {
           boxShadow: "0 -8px 24px rgba(0,0,0,0.12)",
           padding: "16px 16px calc(20px + env(safe-area-inset-bottom, 0px)) 16px",
           maxHeight: "50vh",
-          overflow: "auto",
+          overflow: "hidden",
           transform: isClosing ? "translateY(100%)" : "translateY(0)",
-          transition: "transform 300ms ease"
+          transition: "transform 300ms ease",
+          display: "flex",
+          flexDirection: "column"
         }}>
           <style>{`
             .iem-bottom-sheet .iem-title { font-weight: 700; font-size: 18px; color: #1f2937; }
@@ -313,45 +339,107 @@ export default function MapExtra() {
               background: linear-gradient(90deg, #4338CA 0%, #2563eb 100%);
               box-shadow: 0 12px 20px -3px rgba(67,56,202,0.35), 0 6px 10px -2px rgba(37,99,235,0.25);
             }
-            .iem-bottom-sheet .iem-meta { color: #374151; font-size: 14px; }
+            .iem-bottom-sheet .iem-meta { 
+              color: #374151; 
+              font-size: 14px; 
+              /* Enhanced scroll behavior */
+              scroll-behavior: smooth;
+              -webkit-overflow-scrolling: touch;
+            }
+            /* Custom scrollbar styling */
+            .iem-bottom-sheet .iem-meta::-webkit-scrollbar {
+              width: 6px;
+            }
+            .iem-bottom-sheet .iem-meta::-webkit-scrollbar-track {
+              background: #f1f5f9;
+              border-radius: 3px;
+            }
+            .iem-bottom-sheet .iem-meta::-webkit-scrollbar-thumb {
+              background: #cbd5e1;
+              border-radius: 3px;
+              transition: background 0.2s ease;
+            }
+            .iem-bottom-sheet .iem-meta::-webkit-scrollbar-thumb:hover {
+              background: #94a3b8;
+            }
+            /* Scroll fade indicators */
+            .iem-bottom-sheet .iem-meta::before {
+              content: '';
+              position: sticky;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 8px;
+              background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+              pointer-events: none;
+              z-index: 1;
+            }
+            .iem-bottom-sheet .iem-meta::after {
+              content: '';
+              position: sticky;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              height: 8px;
+              background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+              pointer-events: none;
+              z-index: 1;
+            }
             @media (max-width: 640px) {
               .iem-bottom-sheet { max-height: 65vh !important; padding: 12px 12px calc(16px + env(safe-area-inset-bottom, 0px)) 12px !important; }
               .iem-bottom-sheet .iem-title { font-size: 16px; }
               .iem-bottom-sheet .iem-actions { flex-direction: row; }
               .iem-bottom-sheet .iem-btn { width: 100%; }
+              /* Enhanced mobile scroll */
+              .iem-bottom-sheet .iem-meta {
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+              }
             }
           `}</style>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div
-              style={{
-                width: 40,
-                height: 4,
-                background: "#e5e7eb",
-                borderRadius: 9999,
-                margin: "0 auto 8px auto"
-              }}
-            />
-          </div>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div className="iem-title">{selectedBuilding?.name || "Selected Building"}</div>
-            <button
-              onClick={() => setIsSheetOpen(false)}
-              aria-label="Close"
-              style={{
-                marginLeft: "auto",
-                background: "none",
-                border: "none",
-                fontSize: 22,
-                lineHeight: 1,
-                cursor: "pointer",
-                color: "#6b7280"
-              }}
-            >
-              ×
-            </button>
+          {/* Header - Fixed */}
+          <div style={{ flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div
+                style={{
+                  width: 40,
+                  height: 4,
+                  background: "#e5e7eb",
+                  borderRadius: 9999,
+                  margin: "0 auto 8px auto"
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div className="iem-title">{selectedBuilding?.name || "Selected Building"}</div>
+              <button
+                onClick={() => setIsSheetOpen(false)}
+                aria-label="Close"
+                style={{
+                  marginLeft: "auto",
+                  background: "none",
+                  border: "none",
+                  fontSize: 22,
+                  lineHeight: 1,
+                  cursor: "pointer",
+                  color: "#6b7280"
+                }}
+              >
+                ×
+              </button>
+            </div>
           </div>
 
-          <div style={{ marginTop: 10 }} className="iem-meta">
+          {/* Scrollable Content Area */}
+          <div style={{ 
+            flex: 1, 
+            overflowY: "auto", 
+            overflowX: "hidden",
+            marginTop: 10,
+            paddingRight: 4,
+            scrollbarWidth: "thin",
+            scrollbarColor: "#cbd5e1 #f1f5f9"
+          }} className="iem-meta">
             <div style={{ marginBottom: 8 }}>
               <strong style={{ color: "#2563eb" }}>ID:</strong>
               <span style={{ marginLeft: 6 }}>{selectedBuilding?.id}</span>
@@ -370,9 +458,25 @@ export default function MapExtra() {
                 {(selectedBuilding?.labs || []).join(", ")}
               </div>
             </div>
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Facilities</div>
+              <div style={{ color: "#374151" }}>
+                {(selectedBuilding?.facilities || []).join(", ")}
+              </div>
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Faculty</div>
+              <div style={{ color: "#374151" }}>
+                {(selectedBuilding?.faculty || []).join(", ")}
+              </div>
+            </div>
             <div style={{ marginBottom: 8, display: "flex", gap: 12, color: "#374151" }}>
               <div><strong style={{ color: "#2563eb" }}>Floors:</strong> {selectedBuilding?.floors}</div>
               <div><strong style={{ color: "#2563eb" }}>Hours:</strong> {selectedBuilding?.hours}</div>
+            </div>
+            <div style={{ marginBottom: 8, display: "flex", gap: 12, color: "#374151" }}>
+              <div><strong style={{ color: "#2563eb" }}>Capacity:</strong> {selectedBuilding?.capacity}</div>
+              <div><strong style={{ color: "#2563eb" }}>Established:</strong> {selectedBuilding?.established}</div>
             </div>
             <div style={{ marginBottom: 8 }}>
               <strong style={{ color: "#2563eb" }}>Contact:</strong>
@@ -382,6 +486,10 @@ export default function MapExtra() {
               <div style={{ marginTop: 6, color: "#059669", fontSize: 13 }}>{navStatus}</div>
             )}
             {/* Bookmark status message removed per request */}
+          </div>
+
+          {/* Actions - Fixed at bottom */}
+          <div style={{ flexShrink: 0, marginTop: 16 }}>
             <div className="iem-actions">
               {selectedBuilding && isBookmarked(selectedBuilding.id) ? (
                 <button
