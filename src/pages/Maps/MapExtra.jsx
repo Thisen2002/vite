@@ -142,8 +142,21 @@ export default function MapExtra() {
       setSelectedBuilding(getBuildingInfo(buildingId));
       setIsSheetOpen(true);
     });
+
+    // Expose a global function so the bookmarks sidebar can open this sheet
+    window.showBuildingInfo = (buildingId, buildingName) => {
+      setSelectedBuilding(getBuildingInfo(buildingId));
+      setIsSheetOpen(true);
+      // Optionally highlight building on the map if available
+      try {
+        if (typeof window.highlightBuilding === "function") {
+          window.highlightBuilding(buildingId);
+        }
+      } catch {}
+    };
     return () => {
       if (typeof unsubscribe === "function") unsubscribe();
+      try { delete window.showBuildingInfo; } catch {}
     };
   }, []);
 
