@@ -1,6 +1,15 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import MapComponent from "./Map";
-import { addBuildingClickListner } from "./map_module";
+import { 
+  addBuildingClickListner, 
+  addGpsListner, 
+  addMessageListner, 
+  sendMessage,
+  startGPS,
+  buildingToNode,
+  drawRoute,
+  stopGps 
+} from "./map_module";
 
 export default function MapExtra() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -137,6 +146,41 @@ export default function MapExtra() {
       if (typeof unsubscribe === "function") unsubscribe();
     };
   }, []);
+
+  let unsubscribeGps = () => {};
+    
+  let unsubscribeRouteListner = () => {};
+  
+  useEffect(() => {
+    
+    if (isNavigating) {
+      console.log("Navigation started");
+      unsubscribeGps = addGpsListner((latLng) => {
+        if (isNavigating) {
+          if (selectedBuilding?.id) {
+            let c = buildingToNode(selectedBuilding?.id) 
+            // if (c) {
+            //   sendMessage('position-update', {coords:latLng, node: c})
+            // }
+            sendMessage('position-update', {coords:latLng, node: c})
+          }
+          
+        }
+        
+      })
+  
+      unsubscribeRouteListner = addMessageListner('route-update', (r) => drawRoute(r));
+  
+      startGPS();
+    } else {
+      stopGps();
+      unsubscribeRouteListner();
+      unsubscribeGps();
+      console.log("Navigation stopped");
+    }
+
+    
+}, [isNavigating, selectedBuilding]);
 
   // When selected building changes, reflect bookmark status from cookie
   useEffect(() => {
@@ -402,6 +446,7 @@ export default function MapExtra() {
                     setIsSheetOpen(false);
                     setIsClosing(false);
                   }, 300);
+                  console.log("Navigate to", selectedBuilding?.id);
                 }}
                 aria-label="Navigate"
               >

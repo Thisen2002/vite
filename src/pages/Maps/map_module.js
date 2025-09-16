@@ -217,10 +217,15 @@ function sendMessage(type, data) {
 
 function addMessageListner(type, listner) {
   socket.on(type, listner);
+  return () => {
+    socket.off(type, listner); // cleanup on unmount
+    console.log(`Removed message listener for type: ${type}`);
+  };
 }
 
 function stopGps() {
   navigator.geolocation.clearWatch(watchId);
+  console.log("GPS tracking stopped.");
 }
 
 export {
