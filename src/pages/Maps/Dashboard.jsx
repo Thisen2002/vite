@@ -217,8 +217,22 @@ function ZoneFilterPopup({
   zoneDropdown, allSubzones
 }) {
   if (!showZoneFilter) return null;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
   return (
-    <div className="dashboard-zone-filter-popup" style={{ position: 'absolute', top: '110%', left: '0px', minWidth: 260, background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(37,99,235,0.12)', padding: '18px 18px 12px 18px', zIndex: 9999 }}>
+    <div
+      className="dashboard-zone-filter-popup"
+      style={{
+        position: 'absolute',
+        top: '110%',
+        ...(isMobile ? { left: '0px' } : { right: 0, left: 'auto' }),
+        minWidth: 260,
+        background: '#fff',
+        borderRadius: 16,
+        boxShadow: '0 8px 32px rgba(37,99,235,0.12)',
+        padding: '18px 18px 12px 18px',
+        zIndex: 9999
+      }}
+    >
       <div style={{ fontWeight: 600, color: '#2563eb', marginBottom: 8 }}>Zone/Subzone Filters</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <select
