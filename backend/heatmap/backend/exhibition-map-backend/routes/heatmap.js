@@ -72,7 +72,7 @@ router.get("/map-data", async (req, res) => {
       for (let row of dbResult.rows) {
         const diff = (now - new Date(row.status_timestamp)) / 1000 / 60; // diff in minutes
         console.log(`Building ${row.building_id} data age: ${diff.toFixed(2)} minutes`);
-        if (diff > 1) {
+        if (diff > 0.002) {
           useCache = false;
           console.log(`Cache expired for building_id ${row.building_id}, fetching fresh data.`);
           break;
@@ -111,7 +111,7 @@ router.get("/map-data", async (req, res) => {
 
       coloredBuildings.push({ ...pick(building, ["building_id","Build_Name", "total_count"]),building_capacity:capacityMap[building.building_id] , color, status_timestamp: timestamp });
 
-      //console.log(building.total_count);
+      //console.log(building.total_count,building.building_id);
       // Insert or update current_status table
       await pool.query(
         `INSERT INTO current_status (building_id, current_crowd, color, status_timestamp)
