@@ -419,40 +419,25 @@ const CrowdManagement: React.FC = () => {
 
             <div className="flex flex-col gap-2 flex-shrink-0">
               <label className="text-sm font-medium text-gray-700">Building:</label>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setSelectedBuilding("all");
+              <select
+                value={selectedBuilding}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSelectedBuilding(value);
+                  // Clear search when building is selected from dropdown
+                  if (value !== "all") {
                     setSearchTerm("");
-                  }}
-                  className={`px-4 py-3 border rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none ${
-                    selectedBuilding === "all"
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  All
-                </button>
-                <select
-                  value={selectedBuilding}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSelectedBuilding(value);
-                    // Clear search when building is selected from dropdown
-                    if (value !== "all") {
-                      setSearchTerm("");
-                    }
-                  }}
-                  className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
-                >
-                  <option value="all">All Buildings</option>
-                  {crowdData.map((d) => (
-                    <option key={d.buildingId} value={d.buildingId}>
-                      {d.buildingName}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  }
+                }}
+                className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
+              >
+                <option value="all">All Buildings</option>
+                {crowdData.map((d) => (
+                  <option key={d.buildingId} value={d.buildingId}>
+                    {d.buildingName}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="flex flex-col gap-2 flex-shrink-0">
