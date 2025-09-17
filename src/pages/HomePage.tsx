@@ -12,10 +12,17 @@ interface UniversityFeature {
 }
 
 const HomePage: React.FC = () => {
-  const isLoaded  = useState<boolean>(false);
-  const showScrollHint = useState<boolean>(true);
-  
-  // University data configuration
+  // fixed useState destructuring so booleans work as expected
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [showScrollHint, setShowScrollHint] = useState<boolean>(true);
+
+  useEffect(() => {
+    // small fade-in; optional and non-invasive
+    const t = setTimeout(() => setIsLoaded(true), 120);
+    return () => clearTimeout(t);
+  }, []);
+
+  // University data configuration (unchanged)
   const universityData = {
     foundedYear: 1950,
     currentYear: new Date().getFullYear(),
@@ -40,7 +47,7 @@ const HomePage: React.FC = () => {
     ]
   };
 
-  // University features and highlights
+  // University features and highlights (unchanged colours/text)
   const universityFeatures: UniversityFeature[] = [
     {
       id: 1,
@@ -76,66 +83,76 @@ const HomePage: React.FC = () => {
     const nextSection = document.getElementById('university-info');
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: 'smooth' });
+      // optionally hide the hint after scrolling on small devices
+      if (window.innerWidth < 768) setShowScrollHint(false);
     }
   };
 
   return (
     <>
-      <div className={`min-h-screen overflow-hidden transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <div
+        className={`min-h-screen flex flex-col transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+      >
         {/* Hero Section with Video */}
-        <section className="relative h-screen">
+        {/* Make hero height responsive so mobile doesn't feel too tall */}
+        <section className="relative h-screen md:h-[90vh] lg:h-screen">
           <VideoHero
-            videoSrc="/video/video.mp4"
+            videoSrc="/intro.mp4"
             posterImage="/images/university-campus.jpg"
-            title="University of Peradeniya"
-            subtitle="Excellence in Education, Research & Innovation"
+            title="Crowd Management System"
+            subtitle="Event Scheduling and Real-Time Crowd Monitoring Platform"
             autoPlay={true}
             showControls={false}
           />
-          {/* Scroll Hint */}
+
+          {/* Scroll Hint - smaller on phones, same content */}
           {showScrollHint && (
-            <div 
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer text-white z-10 animate-bounce"
+            <div
+              className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 sm:gap-2 cursor-pointer text-white z-10"
               onClick={scrollToNext}
+              role="button"
+              aria-label="Scroll to university information"
             >
-              <span className="text-base font-medium text-shadow-sm">Explore Our University</span>
-              <ChevronDown className="animate-bounce" />
+              <span className="text-sm sm:text-base font-medium text-shadow-sm">About</span>
+              <ChevronDown className="w-6 h-6 sm:w-7 sm:h-7 animate-bounce" />
             </div>
           )}
         </section>
 
-        {/* University Information Section */}
+        {/* University Information Section (kept as-is, layout handled by the component) */}
         <section id="university-info" className="relative z-[2]">
-          <UniversityInfo 
+          <UniversityInfo
             data={universityData}
             layout="default"
           />
         </section>
 
         {/* University Features Section */}
-        <section id="features" className="bg-gray-50 py-16 px-8 relative z-[2]">
+        <section id="features" className="bg-gray-50 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 relative z-[2]">
           <div className="max-w-6xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-12 text-slate-800 md:text-3xl sm:text-2xl">
+            <h2 className="text-3xl sm:text-4xl md:text-4xl font-bold mb-8 sm:mb-12 text-slate-800">
               Why Choose University of Peradeniya
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 auto-fit-minmax-280">
+
+            {/* Responsive grid: keeps your auto-fit helper but also uses Tailwind cols for robust behavior */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 auto-fit-minmax-280">
               {universityFeatures.map((feature) => {
                 const IconComponent = feature.icon;
                 return (
-                  <div 
-                    key={feature.id} 
-                    className="bg-white p-8 rounded-xl shadow-md text-center transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg"
+                  <div
+                    key={feature.id}
+                    className="bg-white p-6 sm:p-8 rounded-xl shadow-md text-center transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg"
                   >
-                    <div 
-                      className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
-                      style={{backgroundColor: feature.color}}
+                    <div
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6"
+                      style={{ backgroundColor: feature.color }}
                     >
-                      <IconComponent size={32} color="white" />
+                      <IconComponent size={20} color="white" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-800 mb-4">
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-800 mb-3 sm:mb-4">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-500 leading-relaxed text-base">
+                    <p className="text-gray-500 leading-relaxed text-sm sm:text-base">
                       {feature.description}
                     </p>
                   </div>
@@ -146,7 +163,7 @@ const HomePage: React.FC = () => {
         </section>
       </div>
 
-      {/* Custom CSS for animations and specific styles */}
+      {/* Keep your custom CSS but adjust responsive media queries for mobile-first behavior */}
       <style>{`
         @keyframes bounce {
           0%, 20%, 50%, 80%, 100% { 
@@ -160,34 +177,25 @@ const HomePage: React.FC = () => {
           }
         }
 
-        @keyframes sparkle {
-          0%, 100% { 
-            transform: scale(1) rotate(0deg); 
-            opacity: 1; 
-          }
-          50% { 
-            transform: scale(1.2) rotate(180deg); 
-            opacity: 0.8; 
-          }
-        }
-
         .text-shadow-sm {
           text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
 
+        /* helper you already had - keep it but make queries mobile-friendly */
         .auto-fit-minmax-280 {
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         }
 
-        @media (max-width: 768px) {
+        /* smaller devices: force single column where needed */
+        @media (max-width: 640px) {
           .auto-fit-minmax-280 {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
           }
         }
 
-        @media (max-width: 480px) {
+        @media (min-width: 641px) and (max-width: 900px) {
           .auto-fit-minmax-280 {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
           }
         }
       `}</style>
