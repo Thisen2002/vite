@@ -50,7 +50,11 @@ function initMap(map_div) {
   map.getPane('routePane').style.zIndex = 650;
 
   // Load SVG overlay
+ //Updated upstream
   fetch(`${API}/map`)
+
+//   fetch('http://localhost:3001/map')
+// >>>>>>> Stashed changes
     .then(res => res.text())
     .then(svgText => {
       const parser = new DOMParser();
@@ -63,7 +67,21 @@ function initMap(map_div) {
 
   map.fitBounds(bounds);
 
+//<<<<<<< Updated upstream
   initWebSocket();
+// =======
+
+// }
+
+// async function getRouteToNode(userLatLng, dest) {
+//   if(dest === undefined){
+//     console.log("undefined route")
+//   } else{
+//     console.log(dest);
+//   var result = await fetch(`http://localhost:3001/routing?lat=${userLatLng[0]}&long=${userLatLng[1]}&dest=${dest}`);
+//   return result.json();
+//   }
+// >>>>>>> Stashed changes
 }
 
 const buildings = {
