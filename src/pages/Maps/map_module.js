@@ -119,8 +119,25 @@ function drawRoute(result) {
 }
 
 function drawMarker(latLng) {
+  
   if(latLng){
-    L.circleMarker(latLng, { radius: 8, color: 'blue', pane: 'routePane' }).addTo(map);
+    const userIcon = L.divIcon({
+      className: "",
+      html: `
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="14" fill="rgba(37, 99, 235, 0.2)">
+            <animate attributeName="r" values="14;20;14" dur="1.5s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.5;0;0.5" dur="1.5s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="20" cy="20" r="8" fill="#2563EB" stroke="#fff" stroke-width="2"/>
+        </svg>
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20] // center the icon
+    });
+    
+    const marker = L.marker(latLng, { icon: userIcon }).addTo(map);
+    
   }
 }
 

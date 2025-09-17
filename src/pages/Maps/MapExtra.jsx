@@ -8,8 +8,14 @@ import {
   startGPS,
   buildingToNode,
   drawRoute,
-  stopGps 
+  stopGps, 
+  getUserPosition,
+  drawMarker
 } from "./map_module";
+
+import buildingApiService from "./buildingApi";
+
+import { latLng } from "leaflet";
 
 export default function MapExtra() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -162,8 +168,10 @@ export default function MapExtra() {
 
   useEffect(() => {
     // Listen for building clicks from the map module
-    const unsubscribe = addBuildingClickListner((buildingId) => {
-      setSelectedBuilding(getBuildingInfo(buildingId));
+    const unsubscribe = addBuildingClickListner(async (buildingId) => {
+      const b = await buildingApiService.getBuildingById(buildingId);
+      console.log("Building clicked:", buildingId, b);
+      setSelectedBuilding(b);
       setIsSheetOpen(true);
     });
 
@@ -186,38 +194,68 @@ export default function MapExtra() {
 
   let unsubscribeGps = () => {};
     
-  let unsubscribeRouteListner = () => {};
+  let unsubscribeRouteListener = () => {};
+
+  useEffect(() => {
+    console.log("MapExtra mounted, starting GPS");
+    startGPS();
+
+    //drawMarker(getUserPosition());
+    addGpsListner((latLng) => {
+      drawMarker(latLng)
+    })
+  
+    // Cleanup when page changes / component unmounts
+    return () => {
+      console.log("MapExtra unmounted, stopping GPS");
+      stopGps();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isNavigating) {
+      sendMessage("position-update", { coords: getUserPosition(), node:buildingToNode(selectedBuilding.id)});
+      console.log(`selected building changed during navigation: ${selectedBuilding?.id}`);
+    }
+  }, [selectedBuilding]);
   
   useEffect(() => {
-    
-    if (isNavigating) {
-      console.log("Navigation started");
-      unsubscribeGps = addGpsListner((latLng) => {
-        if (isNavigating) {
-          if (selectedBuilding?.id) {
-            let c = buildingToNode(selectedBuilding?.id) 
-            // if (c) {
-            //   sendMessage('position-update', {coords:latLng, node: c})
-            // }
-            sendMessage('position-update', {coords:latLng, node: c})
-          }
-          
-        }
-        
-      })
-  
-      unsubscribeRouteListner = addMessageListner('route-update', (r) => drawRoute(r));
-  
-      startGPS();
-    } else {
-      stopGps();
-      unsubscribeRouteListner();
-      unsubscribeGps();
+    if (!isNavigating) {
+      // If navigation stops, remove route and unsubscribe listeners
       console.log("Navigation stopped");
+      if (unsubscribeGps) unsubscribeGps();
+      if (unsubscribeRouteListener) unsubscribeRouteListener();
+      drawRoute(undefined); // clear route
+       
+      return;
     }
+  
+    console.log("Navigation started");
 
-    
-}, [isNavigating, selectedBuilding]);
+    sendMessage("position-update", { coords: getUserPosition(), node:buildingToNode(selectedBuilding.id)});
+  
+    // Listen to GPS updates and send messages to server
+    unsubscribeGps = addGpsListner((latLng) => {
+      if (selectedBuilding?.id) {
+        const node = buildingToNode(selectedBuilding.id);
+        sendMessage("position-update", { coords: latLng, node:node });
+        console.log(`Sent position update: ${latLng} towards ${selectedBuilding.id}`);
+      }
+    });
+  
+    // Listen to server route updates
+    unsubscribeRouteListener = addMessageListner("route-update", (route) => {
+      console.log("Received route update from server:", route);
+      drawRoute(route);
+    });
+  
+    // Cleanup will happen when isNavigating becomes false or component unmounts
+    return () => {
+      if (unsubscribeGps) unsubscribeGps();
+      if (unsubscribeRouteListener) unsubscribeRouteListener();
+      
+    };
+  }, [isNavigating]);
 
   // When selected building changes, reflect bookmark status from cookie
   useEffect(() => {
@@ -411,7 +449,7 @@ export default function MapExtra() {
               />
             </div>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <div className="iem-title">{selectedBuilding?.name || "Selected Building"}</div>
+              <div className="iem-title">{selectedBuilding?.building_name || "Selected Building"}</div>
               <button
                 onClick={() => setIsSheetOpen(false)}
                 aria-label="Close"
@@ -442,46 +480,38 @@ export default function MapExtra() {
           }} className="iem-meta">
             <div style={{ marginBottom: 8 }}>
               <strong style={{ color: "#2563eb" }}>ID:</strong>
-              <span style={{ marginLeft: 6 }}>{selectedBuilding?.id}</span>
+              <span style={{ marginLeft: 6 }}>{selectedBuilding?.building_id}</span>
             </div>
             <div style={{ marginBottom: 8 }}>
-              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Department</div>
-              <div style={{ color: "#374151" }}>{selectedBuilding?.department}</div>
+              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Zone</div>
+              <div style={{ color: "#374151" }}>{selectedBuilding?.zone_id}</div>
             </div>
             <div style={{ marginBottom: 8 }}>
               <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Description</div>
               <div style={{ color: "#374151" }}>{selectedBuilding?.description}</div>
             </div>
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Labs</div>
+            
+            {selectedBuilding?.exhibits && selectedBuilding.exhibits.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Exhibits</div>
               <div style={{ color: "#374151" }}>
-                {(selectedBuilding?.labs || []).join(", ")}
+                      {selectedBuilding.exhibits.map((exhibit, index) => (
+                        <span key={index} style={{
+                          display: "inline-block",
+                          background: "#f3f4f6",
+                          color: "#374151",
+                          padding: "4px 8px",
+                          borderRadius: "6px",
+                          margin: "2px 4px 2px 0",
+                          fontSize: "14px"
+                        }}>
+                          {exhibit}
+                        </span>
+                      ))}
               </div>
             </div>
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Facilities</div>
-              <div style={{ color: "#374151" }}>
-                {(selectedBuilding?.facilities || []).join(", ")}
-              </div>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Faculty</div>
-              <div style={{ color: "#374151" }}>
-                {(selectedBuilding?.faculty || []).join(", ")}
-              </div>
-            </div>
-            <div style={{ marginBottom: 8, display: "flex", gap: 12, color: "#374151" }}>
-              <div><strong style={{ color: "#2563eb" }}>Floors:</strong> {selectedBuilding?.floors}</div>
-              <div><strong style={{ color: "#2563eb" }}>Hours:</strong> {selectedBuilding?.hours}</div>
-            </div>
-            <div style={{ marginBottom: 8, display: "flex", gap: 12, color: "#374151" }}>
-              <div><strong style={{ color: "#2563eb" }}>Capacity:</strong> {selectedBuilding?.capacity}</div>
-              <div><strong style={{ color: "#2563eb" }}>Established:</strong> {selectedBuilding?.established}</div>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <strong style={{ color: "#2563eb" }}>Contact:</strong>
-              <span style={{ marginLeft: 6 }}>{selectedBuilding?.contact}</span>
-            </div>
+                )}
+            
             {navStatus && (
               <div style={{ marginTop: 6, color: "#059669", fontSize: 13 }}>{navStatus}</div>
             )}
