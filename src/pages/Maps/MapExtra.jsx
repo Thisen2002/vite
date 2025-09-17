@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import MapComponent from "./Map";
 import { 
   addBuildingClickListner, 
@@ -9,111 +9,25 @@ import {
   buildingToNode,
   drawRoute,
   stopGps, 
-  getUserPosition,
-  drawMarker
+  getUserPosition
 } from "./map_module";
-
 import buildingApiService from "./buildingApi";
-
-import { latLng } from "leaflet";
 
 export default function MapExtra() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const fetchedBuilding = useRef([]);
   const [navStatus, setNavStatus] = useState("");
   const [bookmarkStatus, setBookmarkStatus] = useState("");
   const [isClosing, setIsClosing] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
 
   // Engineering themed dummy building data (extend as needed)
-  const engineeringBuildings = {
-    b12: {
-      department: "Mechanical Engineering",
-      description: "Thermodynamics labs, CAD/CAM center, and machine shop. This building houses state-of-the-art equipment for mechanical engineering research and education.",
-      labs: ["Heat Transfer Lab", "Robotics Bay", "Fluid Mechanics Lab", "Materials Testing Lab"],
-      floors: 4,
-      hours: "8:00–18:00",
-      contact: "mech-office@univ.edu",
-      facilities: ["3D Printing Center", "CNC Machine Shop", "Wind Tunnel", "Vibration Testing Lab"],
-      faculty: ["Dr. Sarah Johnson", "Prof. Michael Chen", "Dr. Emily Rodriguez"],
-      capacity: "500 students",
-      established: "1985"
-    },
-    b28: {
-      department: "Electrical & Electronic Engineering",
-      description: "Circuits, power systems and embedded systems facilities. Features advanced electronics labs and clean rooms for semiconductor research.",
-      labs: ["Power Electronics Lab", "Embedded Systems Studio", "RF Engineering Lab", "Digital Signal Processing Lab"],
-      floors: 5,
-      hours: "8:00–19:00",
-      contact: "eee-office@univ.edu",
-      facilities: ["Clean Room", "High Voltage Lab", "Antenna Testing Range", "Circuit Design Studio"],
-      faculty: ["Prof. David Kim", "Dr. Lisa Wang", "Prof. Robert Taylor"],
-      capacity: "600 students",
-      established: "1992"
-    },
-    b34: {
-      department: "Computer Engineering",
-      description: "High‑performance computing cluster and AI research hub. Houses cutting-edge computing infrastructure and research facilities.",
-      labs: ["AI Lab", "Networks & Systems Lab", "Cybersecurity Lab", "Computer Vision Lab"],
-      floors: 6,
-      hours: "8:00–20:00",
-      contact: "ce-office@univ.edu",
-      facilities: ["GPU Computing Cluster", "Data Center", "IoT Development Lab", "Virtual Reality Lab"],
-      faculty: ["Dr. Alex Thompson", "Prof. Maria Garcia", "Dr. James Wilson"],
-      capacity: "700 students",
-      established: "1998"
-    },
-    b07: {
-      department: "Civil Engineering",
-      description: "Structural testing rigs and materials characterization. Features large-scale testing equipment for civil infrastructure research.",
-      labs: ["Materials Lab", "Geotechnical Lab", "Structural Analysis Lab", "Environmental Engineering Lab"],
-      floors: 3,
-      hours: "8:30–17:30",
-      contact: "civil-office@univ.edu",
-      facilities: ["Concrete Testing Lab", "Soil Mechanics Lab", "Hydraulics Lab", "Surveying Equipment"],
-      faculty: ["Prof. Jennifer Lee", "Dr. Mark Anderson", "Prof. Susan Davis"],
-      capacity: "400 students",
-      established: "1980"
-    },
-    b19: {
-      department: "Chemical & Process Engineering",
-      description: "Unit operations pilot plant and process control center. Houses industrial-scale equipment for chemical process research.",
-      labs: ["Process Control Lab", "Reaction Engineering Lab", "Separation Processes Lab", "Biochemical Engineering Lab"],
-      floors: 5,
-      hours: "8:00–18:00",
-      contact: "chem-office@univ.edu",
-      facilities: ["Pilot Plant", "Analytical Chemistry Lab", "Safety Training Center", "Process Simulation Lab"],
-      faculty: ["Dr. Kevin Brown", "Prof. Amanda White", "Dr. Thomas Miller"],
-      capacity: "450 students",
-      established: "1987"
-    }
-  };
 
   const getBuildingInfo = (buildingId) => {
-    const key = String(buildingId).toLowerCase();
-    const info = engineeringBuildings[key] || {};
-    // Fallback generator when id not in map
-    const fallbackDepartments = [
-      "Software Engineering",
-      "Industrial Engineering",
-      "Biomedical Engineering",
-      "Mechatronics Engineering"
-    ];
-    const pick = fallbackDepartments[Math.abs(hashCode(key)) % fallbackDepartments.length];
-    return {
-      id: buildingId,
-      name: `Building ${buildingId}`,
-      department: info.department || pick,
-      description: info.description || "Specialized teaching spaces and research labs with modern equipment and facilities.",
-      labs: info.labs || ["Innovation Lab", "Prototyping Studio", "Research Lab", "Design Studio"],
-      floors: info.floors || 4,
-      hours: info.hours || "8:00–18:00",
-      contact: info.contact || `${pick.split(" ")[0].toLowerCase()}-office@univ.edu`,
-      facilities: info.facilities || ["Computer Lab", "Conference Room", "Student Lounge", "Equipment Storage"],
-      faculty: info.faculty || ["Dr. John Smith", "Prof. Jane Doe", "Dr. Bob Wilson"],
-      capacity: info.capacity || "300 students",
-      established: info.established || "1990"
-    };
+    const building = fetchedBuilding.current.find(b => "b"+b.building_id === buildingId);
+    console.log(`found building 71: ${building}`)
+    return building;
   };
 
   function hashCode(str) {
@@ -168,16 +82,14 @@ export default function MapExtra() {
 
   useEffect(() => {
     // Listen for building clicks from the map module
-    const unsubscribe = addBuildingClickListner(async (buildingId) => {
-      const b = await buildingApiService.getBuildingById(buildingId);
-      console.log("Building clicked:", buildingId, b);
-      setSelectedBuilding(b);
+    const unsubscribe = addBuildingClickListner((buildingId) => {
+      setSelectedBuilding(buildingId);
       setIsSheetOpen(true);
     });
 
     // Expose a global function so the bookmarks sidebar can open this sheet
     window.showBuildingInfo = (buildingId, buildingName) => {
-      setSelectedBuilding(getBuildingInfo(buildingId));
+      setSelectedBuilding(buildingId);
       setIsSheetOpen(true);
       // Optionally highlight building on the map if available
       try {
@@ -192,74 +104,63 @@ export default function MapExtra() {
     };
   }, []);
 
-  let unsubscribeGps = () => {};
-    
-  let unsubscribeRouteListener = () => {};
-
   useEffect(() => {
-    console.log("MapExtra mounted, starting GPS");
-    startGPS();
-
-    //drawMarker(getUserPosition());
-    addGpsListner((latLng) => {
-      drawMarker(latLng)
+    buildingApiService.getAllBuildings()
+    .then((r) => {
+      console.log(`at 169 MapExtra: ${r}`);
+      fetchedBuilding.current = r;
     })
-  
-    // Cleanup when page changes / component unmounts
-    return () => {
-      console.log("MapExtra unmounted, stopping GPS");
-      stopGps();
-    };
+    .catch((e) => console.log("Error fetching building") );
+
+    console.log("at 173 MapExtra");
+    console.log(fetchedBuilding.current);
   }, []);
 
-  useEffect(() => {
-    if (isNavigating) {
-      sendMessage("position-update", { coords: getUserPosition(), node:buildingToNode(selectedBuilding.id)});
-      console.log(`selected building changed during navigation: ${selectedBuilding?.id}`);
-    }
-  }, [selectedBuilding]);
-  
-  useEffect(() => {
-    if (!isNavigating) {
-      // If navigation stops, remove route and unsubscribe listeners
-      console.log("Navigation stopped");
-      if (unsubscribeGps) unsubscribeGps();
-      if (unsubscribeRouteListener) unsubscribeRouteListener();
-      drawRoute(undefined); // clear route
-       
-      return;
-    }
-  
-    console.log("Navigation started");
+  let unsubscribeGps = () => {};
+    
+  let unsubscribeRouteListner = () => {};
 
-    sendMessage("position-update", { coords: getUserPosition(), node:buildingToNode(selectedBuilding.id)});
-  
-    // Listen to GPS updates and send messages to server
-    unsubscribeGps = addGpsListner((latLng) => {
-      if (selectedBuilding?.id) {
-        const node = buildingToNode(selectedBuilding.id);
-        sendMessage("position-update", { coords: latLng, node:node });
-        console.log(`Sent position update: ${latLng} towards ${selectedBuilding.id}`);
-      }
-    });
-  
-    // Listen to server route updates
-    unsubscribeRouteListener = addMessageListner("route-update", (route) => {
-      console.log("Received route update from server:", route);
-      drawRoute(route);
-    });
-  
-    // Cleanup will happen when isNavigating becomes false or component unmounts
+  useEffect(() => {
+    startGPS();
+
     return () => {
-      if (unsubscribeGps) unsubscribeGps();
-      if (unsubscribeRouteListener) unsubscribeRouteListener();
+      stopGps();
+    }
+  },[]);
+  
+  useEffect(() => {
+    
+    if (isNavigating) {
+      console.log("Navigation started");
+      let c = buildingToNode(selectedBuilding) 
+      sendMessage('position-update', {coords:getUserPosition(), node: c})
+      unsubscribeGps = addGpsListner((latLng) => {
+        if (isNavigating) {
+          if (c) {
+            sendMessage('position-update', {coords:latLng, node: c})
+          }
+          
+        }
+        
+      })
+  
+      unsubscribeRouteListner = addMessageListner('route-update', (r) => drawRoute(r));
+  
       
-    };
-  }, [isNavigating]);
+    } else {
+      
+      unsubscribeRouteListner();
+      unsubscribeGps();
+      drawRoute(undefined);
+      console.log("Navigation stopped");
+    }
+
+    
+}, [isNavigating]);
 
   // When selected building changes, reflect bookmark status from cookie
   useEffect(() => {
-    // no automatic bookmark status on selection
+    
   }, [selectedBuilding]);
 
   useEffect(() => {
@@ -435,67 +336,48 @@ export default function MapExtra() {
               }
             }
           `}</style>
-          {/* Header - Fixed */}
-          <div style={{ flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div
-                style={{
-                  width: 40,
-                  height: 4,
-                  background: "#e5e7eb",
-                  borderRadius: 9999,
-                  margin: "0 auto 8px auto"
-                }}
-              />
-            </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div className="iem-title">{selectedBuilding?.building_name || "Selected Building"}</div>
-              <button
-                onClick={() => setIsSheetOpen(false)}
-                aria-label="Close"
-                style={{
-                  marginLeft: "auto",
-                  background: "none",
-                  border: "none",
-                  fontSize: 22,
-                  lineHeight: 1,
-                  cursor: "pointer",
-                  color: "#6b7280"
-                }}
-              >
-                ×
-              </button>
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
+              style={{
+                width: 40,
+                height: 4,
+                background: "#e5e7eb",
+                borderRadius: 9999,
+                margin: "0 auto 8px auto"
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div className="iem-title">{getBuildingInfo(selectedBuilding)?.building_name || "Selected Building"}</div>
+            <button
+              onClick={() => setIsSheetOpen(false)}
+              aria-label="Close"
+              style={{
+                marginLeft: "auto",
+                background: "none",
+                border: "none",
+                fontSize: 22,
+                lineHeight: 1,
+                cursor: "pointer",
+                color: "#6b7280"
+              }}
+            >
+              ×
+            </button>
           </div>
 
-          {/* Scrollable Content Area */}
-          <div style={{ 
-            flex: 1, 
-            overflowY: "auto", 
-            overflowX: "hidden",
-            marginTop: 10,
-            paddingRight: 4,
-            scrollbarWidth: "thin",
-            scrollbarColor: "#cbd5e1 #f1f5f9"
-          }} className="iem-meta">
-            <div style={{ marginBottom: 8 }}>
-              <strong style={{ color: "#2563eb" }}>ID:</strong>
-              <span style={{ marginLeft: 6 }}>{selectedBuilding?.building_id}</span>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Zone</div>
-              <div style={{ color: "#374151" }}>{selectedBuilding?.zone_id}</div>
-            </div>
+          <div style={{ marginTop: 10 }} className="iem-meta">
+            
             <div style={{ marginBottom: 8 }}>
               <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Description</div>
-              <div style={{ color: "#374151" }}>{selectedBuilding?.description}</div>
+              <div style={{ color: "#374151" }}>{getBuildingInfo(selectedBuilding)?.description}</div>
             </div>
-            
-            {selectedBuilding?.exhibits && selectedBuilding.exhibits.length > 0 && (
+
+            {getBuildingInfo(selectedBuilding)?.exhibits && getBuildingInfo(selectedBuilding).exhibits.length > 0 && (
                   <div style={{ marginBottom: 12 }}>
                     <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Exhibits</div>
               <div style={{ color: "#374151" }}>
-                      {selectedBuilding.exhibits.map((exhibit, index) => (
+                      {getBuildingInfo(selectedBuilding).exhibits.map((exhibit, index) => (
                         <span key={index} style={{
                           display: "inline-block",
                           background: "#f3f4f6",
@@ -589,15 +471,20 @@ export default function MapExtra() {
                 type="button"
                 className="iem-btn iem-btn-gradient"
                 onClick={() => {
+                  if(isNavigating){
+                    setIsNavigating(false);
+                    return;
+                  }
                   setNavStatus("Starting navigation...");
                   setTimeout(() => setNavStatus(""), 2000);
+                  //setIsNavigating(false);
                   setIsNavigating(true);
                   setIsClosing(true);
                   setTimeout(() => {
                     setIsSheetOpen(false);
                     setIsClosing(false);
                   }, 300);
-                  console.log("Navigate to", selectedBuilding?.id);
+                  console.log("Navigate to", selectedBuilding);
                 }}
                 aria-label="Navigate"
               >

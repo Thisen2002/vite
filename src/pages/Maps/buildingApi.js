@@ -1,7 +1,7 @@
 // Building API service for connecting to the building service
 // This service handles all communication with the building service backend
 
-const BUILDING_SERVICE_URL = 'http://localhost:5003'; // Building service port
+const BUILDING_SERVICE_URL = 'http://localhost:5000'; // Building service port
 
 class BuildingApiService {
   constructor() {
@@ -16,6 +16,7 @@ class BuildingApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      console.log(`fetched data:${data}`)
       return data;
     } catch (error) {
       console.error('Error fetching buildings:', error);
