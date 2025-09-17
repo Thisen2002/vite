@@ -5,13 +5,21 @@ const OverallTrendChart = ({ data }) => {
   return (
     <div className="p-4 bg-white rounded-xl shadow my-6 overflow-x-auto">
       <h2 className="text-lg font-semibold mb-2">Overall Crowd Trend</h2>
+      <div className="mb-4 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+        <p className="text-sm text-gray-700">
+          <strong>About Predictions:</strong> The predicted count values are generated using machine learning algorithms 
+          that analyze historical crowd patterns, time of day, and building characteristics. These predictions help 
+          anticipate future crowd levels to assist with planning and crowd management decisions.
+        </p>
+      </div>
       <div style={{ width: "100%", minWidth: "500px" }}>
-        <ResponsiveContainer width="100%" height={350}>
+        <ResponsiveContainer width="100%" height={500}>
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="buildingName"
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, angle: 0 }}
+              interval={0}
             />
             <YAxis />
             <Tooltip />
