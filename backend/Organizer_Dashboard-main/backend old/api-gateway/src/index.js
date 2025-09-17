@@ -25,37 +25,38 @@ app.use('/api/auth', createProxyMiddleware({
 }));
 */
 
-app.use('/organizers',createProxyMiddleware({
+app.use('/organizers', createProxyMiddleware({
     target: 'http://localhost:5001',
     changeOrigin: true,
     pathRewrite: (path, req) => req.originalUrl.replace(/^\/users/, '/users')
 }));
 
-app.use('/events',createProxyMiddleware({
+app.use('/events', createProxyMiddleware({
     target: 'http://localhost:5002',
     changeOrigin: true,
     pathRewrite: (path, req) => req.originalUrl.replace(/^\/events/, '/events')
 }));
 
-app.use('/buildings',createProxyMiddleware({
+app.use('/buildings', createProxyMiddleware({
     target: 'http://localhost:5003',
     changeOrigin: true,
     pathRewrite: (path, req) => req.originalUrl.replace(/^\/buildings/, '/buildings')
+}));
+
+
+app.use('/auths', createProxyMiddleware({
+    target: 'http://localhost:5004',
+    changeOrigin: true,
+    pathRewrite: (path, req) => req.originalUrl.replace(/^\/auths/, '/auths')
 }));
 
 /*
 app.use('/auths', createProxyMiddleware({
     target: 'http://localhost:5004',
     changeOrigin: true,
-    pathRewrite: (path, req) => req.originalUrl.replace(/^\/auths/, '/auths')
-}));
-*/
-
-app.use('/auths', createProxyMiddleware({
-    target: 'http://localhost:5004',
-    changeOrigin: true,
     pathRewrite: { '^/auths': '' } // remove /auths before sending
 }));
+*/
 
 
 

@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
-app.use('/', authRoutes);
+app.use('/auths', authRoutes);
 
 
 // Error handling middleware - add this after routes

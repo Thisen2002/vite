@@ -17,7 +17,7 @@ CREATE TABLE Zone (
 );
 
 CREATE TABLE Building (
-    building_ID INT PRIMARY KEY,
+    building_ID SERIAL PRIMARY KEY,
     zone_ID INT NOT NULL,
     building_name VARCHAR(150) NOT NULL UNIQUE,  -- enforce unique names
     description TEXT,
