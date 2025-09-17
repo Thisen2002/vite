@@ -7,7 +7,7 @@ const router = express.Router();
 // URL of the API that gives building data
 //this is for local testing with sample_buildings.js
 //add correct API URL when deploying
-const CCTV_API_URL = "http://localhost:3000/api/buildings";
+const CCTV_API_URL = process.env.CCTV_API_URL || process.env.VITE_KIOSK_NOTIFICATION_API_URL || "http://localhost:3000/api/buildings";
 
 // Define API base URL for QR API
 const API_BASE_URL = "https://ynqcwlpuzgcdqoslmgqy.supabase.co/rest/v1";

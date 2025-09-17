@@ -38,7 +38,7 @@ const EventsWidget: React.FC = () => {
   // Fetch events
   const fetchEvents = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/events");
+      const res = await axios.get(import.meta.env.VITE_MAIN_API_URL ? `${import.meta.env.VITE_MAIN_API_URL}/events` : "http://localhost:5000/events");
 
       const mapped = res.data.map((ev: any) => {
         const start = ev.start_time ? new Date(ev.start_time) : null;

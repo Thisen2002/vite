@@ -1,7 +1,7 @@
 // Building API service for connecting to the building service
 // This service handles all communication with the building service backend
 
-const BUILDING_SERVICE_URL = 'http://localhost:5000'; // Building service port
+const BUILDING_SERVICE_URL = import.meta.env.VITE_BUILDING_API_URL || import.meta.env.VITE_MAIN_API_URL || 'http://localhost:5000'; // Building service port
 
 class BuildingApiService {
   constructor() {

@@ -4,7 +4,7 @@ import axios from "axios";
 
 const SVG_URL = "/campus.svg";
 // If you use a Vite proxy, set API_URL = "/heatmap/map-data"
-const API_URL = "http://localhost:3897/heatmap/map-data";
+const API_URL = import.meta.env.VITE_HEATMAP_API_URL ? `${import.meta.env.VITE_HEATMAP_API_URL}/heatmap/map-data` : "http://localhost:3897/heatmap/map-data";
 
 /* ---------- Map gutter (OSM) bbox ---------- */
 const BBOX_W = 80.5903, BBOX_S = 7.2519, BBOX_E = 80.5939, BBOX_N = 7.2560;

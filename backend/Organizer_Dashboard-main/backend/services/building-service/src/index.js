@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5003;
+const PORT = process.env.PORT || process.env.BACKEND_BUILDING_SERVICE_PORT || 5003;
 
 
 // Middleware - fix typo

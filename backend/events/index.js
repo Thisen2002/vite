@@ -17,7 +17,7 @@ const userinterestsRouter = require("./routes/userinterests.routes");
 
 
 const app = express();
-const PORT = 3036;
+const PORT = process.env.PORT || process.env.BACKEND_EVENTS_SERVICE_PORT || 3036;
 
 const allowedOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 app.use(

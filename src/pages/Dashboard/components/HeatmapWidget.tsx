@@ -148,7 +148,7 @@ const HeatmapWidget: React.FC = () => {
             Live Data
           </div>
         </div>
-        <ChatClient socketUrl="ws://localhost:3001" />
+        <ChatClient socketUrl={import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:3001"} />
       </div>
 
       {/* Analytics Cards */}

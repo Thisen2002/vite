@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config({path:__dirname+ '/../.env'});
 
 const app = express();
-const PORT = process.env.PORT || 5004;
+const PORT = process.env.PORT || process.env.BACKEND_AUTH_SERVICE_PORT || 5004;
 
 
 // Middleware - fix typo
