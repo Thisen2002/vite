@@ -45,15 +45,15 @@ const Footer: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <MapPin size={16} />
-                <span style={{ color: '#9ca3af' }}>123 Event Street, City, State 12345</span>
+                <span style={{ color: '#9ca3af' }}>Faculty of Engineering-University of Peradeniya</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Phone size={16} />
-                <span style={{ color: '#9ca3af' }}>+1 (555) 123-4567</span>
+                <span style={{ color: '#9ca3af' }}>0812 393 300</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Mail size={16} />
-                <span style={{ color: '#9ca3af' }}>contact@e21231@eng.pdn.ac.lk</span>
+                <span style={{ color: '#9ca3af' }}>deanoffice@eng.pdn.ac.lk</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               </div>

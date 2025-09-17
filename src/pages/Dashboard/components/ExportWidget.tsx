@@ -10,16 +10,16 @@ interface ExportItem {
 
 const ExportWidget: React.FC = () => {
   const [exportHistory, setExportHistory] = useState<ExportItem[]>([
-    { name: "Attendance Report.pdf", type: "PDF", date: "2025-09-23", status: "completed" },
-    { name: "Feedback Analysis.xlsx", type: "Excel", date: "2025-09-23", status: "completed" },
-    { name: "Heatmap Data.csv", type: "CSV", date: "2025-09-23", status: "processing" },
+    { name: "Attendance & Usage Report.pdf", type: "PDF", date: "2025-09-23", status: "completed" },
+    { name: "Movement & Flow Report.csv", type: "CSV", date: "2025-09-23", status: "completed" },
+    { name: "Security & Exception Report.pdf", type: "PDF", date: "2025-09-23", status: "processing" },
   ]);
 
   const exportOptions = [
-    { title: "Analytics Report", description: "Overview with charts & stats", formats: ["PDF", "Excel"], icon: FileText, color: "blue" },
-    { title: "Attendance Data", description: "Detailed attendee info", formats: ["CSV", "Excel"], icon: FileSpreadsheet, color: "green" },
-    { title: "Heatmap Images", description: "Visual heatmap representations", formats: ["PNG", "SVG"], icon: Image, color: "purple" },
-    { title: "Event Summary", description: "Executive summary for stakeholders", formats: ["PDF"], icon: Calendar, color: "orange" },
+    { title: "Attendance & Usage Report", description: "Who came, where, and when", formats: ["PDF", "CSV"], icon: FileText, color: "blue" },
+    { title: "Movement & Flow Report", description: " How people moved across buildings/zones and at what times", formats: ["PDF", "CSV"], icon: FileSpreadsheet, color: "green" },
+    { title: "Security & Exception Report", description: "Unusual behaviors and anomalies", formats: ["PDF"], icon: Image, color: "purple" },
+    { title: " Event Analytics", description: "Event-level insights", formats: ["PDF"], icon: Calendar, color: "orange" },
   ];
 
   const handleExport = (title: string, format: string) => {

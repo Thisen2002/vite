@@ -142,6 +142,7 @@ function drawMarker(latLng) {
 }
 
 function setBuildingAccent(buildingId ,accent) {
+
   let cls = "";
   switch(accent) {
     case "unassigned":
@@ -165,6 +166,7 @@ if (building) {
   console.warn("Building not found:", buildingId);
 }
 
+
 }
 
 
@@ -174,12 +176,15 @@ let buildingClickListner = [];
 // Add a listener and return a function to remove it
 function addBuildingClickListner(listener) {
   buildingClickListner.push(listener);
+
   console.log("Added building click listener. Total:", buildingClickListner.length);
+
 
   // Return an "unsubscribe" function
   return () => {
     removeBuildingClickListner(listener);
   };
+
 }
 
 function removeBuildingClickListner(listener) {
@@ -247,6 +252,7 @@ function stopGps() {
   console.log("GPS tracking stopped.");
 }
 
+
 export {
   map, 
   initMap, 
@@ -260,8 +266,10 @@ export {
   stopGps, 
   drawMarker, 
   addMessageListner, 
+
   sendMessage,
   setBuildingAccent
+
 };
 
 

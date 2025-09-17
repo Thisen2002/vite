@@ -10,6 +10,7 @@ const fs = require('fs/promises');
 
 const app = express();
 
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {origin: "*"}
@@ -40,6 +41,7 @@ io.on("connection", (socket) => {
       
     }
 
+
     const route = routeFromArbitraryPoint(data.coords, data.node);
 
     // Send back response
@@ -68,6 +70,8 @@ app.get("/api/building/:id", (req, res) => {
   if (!detailsById[id]) return res.status(404).json({ error: "Not found" });
   res.json({ ...detailsById[id], traffic: traffic[id] });
 });
+
+
 
 app.get('/map', async (req, res) => {
   try {

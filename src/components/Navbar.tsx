@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
   const navItems: NavItem[] = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/crowd-management', label: 'Crowd Management', icon: Users },
-    { path: '/dashboard', label: 'Dashboard', icon: Users },
+    // { path: '/dashboard', label: 'Dashboard', icon: Users },
     { path: '/map', label: 'Map', icon: Map },
     { path: '/events', label: 'Events', icon: Calendar },
     { path: '/information', label: 'Information', icon: Info },

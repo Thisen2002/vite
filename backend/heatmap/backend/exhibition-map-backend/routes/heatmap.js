@@ -5,10 +5,22 @@ const pool = require('../heatmap_db'); // pg Pool instance
 const router = express.Router();
 
 // URL of the API that gives building data
-//const CCTV_API_URL ="http://172.20.10.3:5000/api/crowd_all"; //"http://10.90.249.214:5000/api/crowd_all";
 //this is for local testing with sample_buildings.js
 //add correct API URL when deploying
-const CCTV_API_URL = "http://localhost:3897/api/buildings";
+const CCTV_API_URL = "http://localhost:3000/api/buildings";
+
+// Define API base URL for QR API
+const API_BASE_URL = "https://ynqcwlpuzgcdqoslmgqy.supabase.co/rest/v1";
+
+// Define headers
+const headers = {
+  apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlucWN3bHB1emdjZHFvc2xtZ3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzI3NzAsImV4cCI6MjA3MjkwODc3MH0.R5iu6lfMuQy6monisDOUA2sf6_94ZIzFDiC0QJK_OZg",
+  Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlucWN3bHB1emdjZHFvc2xtZ3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzI3NzAsImV4cCI6MjA3MjkwODc3MH0.R5iu6lfMuQy6monisDOUA2sf6_94ZIzFDiC0QJK_OZg"
+};
+
+
+
+//module.exports = getMapID;
 
 // Function to calculate heatmap color
 function getHeatmapColor(current, capacity) {
@@ -24,8 +36,11 @@ function getHeatmapColor(current, capacity) {
 function pick(obj, keys) {
   return keys.reduce((result, key) => {
     if (obj.hasOwnProperty(key)) {
+      if(key=="Build_Name") result["building_name"] = obj[key];
+      if(key=="building_id") result["building_id"] = obj[key];
+      if(key=="total_count") result["current_crowd"] = obj[key];
       
-      result[key] = obj[key];
+      //result[key] = obj[key];
     }
     return result;
   }, {});
@@ -57,7 +72,7 @@ router.get("/map-data", async (req, res) => {
       for (let row of dbResult.rows) {
         const diff = (now - new Date(row.status_timestamp)) / 1000 / 60; // diff in minutes
         console.log(`Building ${row.building_id} data age: ${diff.toFixed(2)} minutes`);
-        if (diff > 1) {
+        if (diff > 0.002) {
           useCache = false;
           console.log(`Cache expired for building_id ${row.building_id}, fetching fresh data.`);
           break;
@@ -78,17 +93,25 @@ router.get("/map-data", async (req, res) => {
 
     // 2️ Otherwise fetch from API
     console.log("Fetching fresh data from Buildings API...");
-    const response = await axios.get(CCTV_API_URL);
+    //for testing use this fetch.this takes response from sample_buildings.js not real QR API
+    //const response = await axios.get(CCTV_API_URL);
+
+    //This gets response from real QR API
+    const response = await axios.get(`${API_BASE_URL}/BUILDING`, { headers });
+
+
     const buildings = response.data.data || response.data;
+    //console.log(`Fetched ${buildings} buildings from API.`);
     
     const coloredBuildings = [];
 
     for (let building of buildings) {
-      const color = getHeatmapColor(building.current_crowd, capacityMap[building.building_id] );
+      const color = getHeatmapColor(building.total_count, capacityMap[building.building_id] );
       const timestamp = new Date().toLocaleString();
 
-      coloredBuildings.push({ ...pick(building, ["building_id","building_name", "current_crowd"]),building_capacity:capacityMap[building.building_id] , color, status_timestamp: timestamp });
+      coloredBuildings.push({ ...pick(building, ["building_id","Build_Name", "total_count"]),building_capacity:capacityMap[building.building_id] , color, status_timestamp: timestamp });
 
+      //console.log(building.total_count,building.building_id);
       // Insert or update current_status table
       await pool.query(
         `INSERT INTO current_status (building_id, current_crowd, color, status_timestamp)
@@ -97,7 +120,7 @@ router.get("/map-data", async (req, res) => {
          DO UPDATE SET current_crowd = EXCLUDED.current_crowd,
                        color = EXCLUDED.color,
                        status_timestamp = EXCLUDED.status_timestamp`,
-        [building.building_id, building.current_crowd, color, timestamp]
+        [building.building_id, building.total_count, color, timestamp]
       );
     }
 
@@ -117,3 +140,4 @@ router.get("/map-data", async (req, res) => {
 });
 
 module.exports = router;
+
