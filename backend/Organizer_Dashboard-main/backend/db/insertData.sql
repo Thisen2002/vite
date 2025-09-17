@@ -1,7 +1,7 @@
 -- ==============================
 -- INSERT SAMPLE DATA
 -- ==============================
-
+\c organizer_dashboard;
 -- 1. Zone
 INSERT INTO Zone (zone_name) VALUES
 ('A'),
