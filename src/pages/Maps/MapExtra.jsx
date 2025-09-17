@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import MapComponent from "./Map";
 import { 
   addBuildingClickListner, 
@@ -8,82 +8,26 @@ import {
   startGPS,
   buildingToNode,
   drawRoute,
-  stopGps 
+  stopGps, 
+  getUserPosition
 } from "./map_module";
+import buildingApiService from "./buildingApi";
 
 export default function MapExtra() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const fetchedBuilding = useRef([]);
   const [navStatus, setNavStatus] = useState("");
   const [bookmarkStatus, setBookmarkStatus] = useState("");
   const [isClosing, setIsClosing] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
 
   // Engineering themed dummy building data (extend as needed)
-  const engineeringBuildings = {
-    b12: {
-      department: "Mechanical Engineering",
-      description: "Thermodynamics labs, CAD/CAM center, and machine shop.",
-      labs: ["Heat Transfer Lab", "Robotics Bay"],
-      floors: 4,
-      hours: "8:00–18:00",
-      contact: "mech-office@univ.edu"
-    },
-    b28: {
-      department: "Electrical & Electronic Engineering",
-      description: "Circuits, power systems and embedded systems facilities.",
-      labs: ["Power Electronics Lab", "Embedded Systems Studio"],
-      floors: 5,
-      hours: "8:00–19:00",
-      contact: "eee-office@univ.edu"
-    },
-    b34: {
-      department: "Computer Engineering",
-      description: "High‑performance computing cluster and AI research hub.",
-      labs: ["AI Lab", "Networks & Systems Lab"],
-      floors: 6,
-      hours: "8:00–20:00",
-      contact: "ce-office@univ.edu"
-    },
-    b07: {
-      department: "Civil Engineering",
-      description: "Structural testing rigs and materials characterization.",
-      labs: ["Materials Lab", "Geotechnical Lab"],
-      floors: 3,
-      hours: "8:30–17:30",
-      contact: "civil-office@univ.edu"
-    },
-    b19: {
-      department: "Chemical & Process Engineering",
-      description: "Unit operations pilot plant and process control center.",
-      labs: ["Process Control Lab", "Reaction Engineering Lab"],
-      floors: 5,
-      hours: "8:00–18:00",
-      contact: "chem-office@univ.edu"
-    }
-  };
 
   const getBuildingInfo = (buildingId) => {
-    const key = String(buildingId).toLowerCase();
-    const info = engineeringBuildings[key] || {};
-    // Fallback generator when id not in map
-    const fallbackDepartments = [
-      "Software Engineering",
-      "Industrial Engineering",
-      "Biomedical Engineering",
-      "Mechatronics Engineering"
-    ];
-    const pick = fallbackDepartments[Math.abs(hashCode(key)) % fallbackDepartments.length];
-    return {
-      id: buildingId,
-      name: `Building ${buildingId}`,
-      department: info.department || pick,
-      description: info.description || "Specialized teaching spaces and research labs.",
-      labs: info.labs || ["Innovation Lab", "Prototyping Studio"],
-      floors: info.floors || 4,
-      hours: info.hours || "8:00–18:00",
-      contact: info.contact || `${pick.split(" ")[0].toLowerCase()}-office@univ.edu`
-    };
+    const building = fetchedBuilding.current.find(b => "b"+b.building_id === buildingId);
+    console.log(`found building 71: ${building}`)
+    return building;
   };
 
   function hashCode(str) {
@@ -139,13 +83,13 @@ export default function MapExtra() {
   useEffect(() => {
     // Listen for building clicks from the map module
     const unsubscribe = addBuildingClickListner((buildingId) => {
-      setSelectedBuilding(getBuildingInfo(buildingId));
+      setSelectedBuilding(buildingId);
       setIsSheetOpen(true);
     });
 
     // Expose a global function so the bookmarks sidebar can open this sheet
     window.showBuildingInfo = (buildingId, buildingName) => {
-      setSelectedBuilding(getBuildingInfo(buildingId));
+      setSelectedBuilding(buildingId);
       setIsSheetOpen(true);
       // Optionally highlight building on the map if available
       try {
@@ -160,21 +104,39 @@ export default function MapExtra() {
     };
   }, []);
 
+  useEffect(() => {
+    buildingApiService.getAllBuildings()
+    .then((r) => {
+      console.log(`at 169 MapExtra: ${r}`);
+      fetchedBuilding.current = r;
+    })
+    .catch((e) => console.log("Error fetching building") );
+
+    console.log("at 173 MapExtra");
+    console.log(fetchedBuilding.current);
+  }, []);
+
   let unsubscribeGps = () => {};
     
   let unsubscribeRouteListner = () => {};
+
+  useEffect(() => {
+    startGPS();
+
+    return () => {
+      stopGps();
+    }
+  },[]);
   
   useEffect(() => {
     
     if (isNavigating) {
       console.log("Navigation started");
+      let c = buildingToNode(selectedBuilding) 
+      sendMessage('position-update', {coords:getUserPosition(), node: c})
       unsubscribeGps = addGpsListner((latLng) => {
         if (isNavigating) {
-          if (selectedBuilding?.id) {
-            let c = buildingToNode(selectedBuilding?.id) 
-            // if (c) {
-            //   sendMessage('position-update', {coords:latLng, node: c})
-            // }
+          if (c) {
             sendMessage('position-update', {coords:latLng, node: c})
           }
           
@@ -184,20 +146,21 @@ export default function MapExtra() {
   
       unsubscribeRouteListner = addMessageListner('route-update', (r) => drawRoute(r));
   
-      startGPS();
+      
     } else {
-      stopGps();
+      
       unsubscribeRouteListner();
       unsubscribeGps();
+      drawRoute(undefined);
       console.log("Navigation stopped");
     }
 
     
-}, [isNavigating, selectedBuilding]);
+}, [isNavigating]);
 
   // When selected building changes, reflect bookmark status from cookie
   useEffect(() => {
-    // no automatic bookmark status on selection
+    
   }, [selectedBuilding]);
 
   useEffect(() => {
@@ -333,7 +296,7 @@ export default function MapExtra() {
             />
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <div className="iem-title">{selectedBuilding?.name || "Selected Building"}</div>
+            <div className="iem-title">{getBuildingInfo(selectedBuilding)?.building_name || "Selected Building"}</div>
             <button
               onClick={() => setIsSheetOpen(false)}
               aria-label="Close"
@@ -352,32 +315,33 @@ export default function MapExtra() {
           </div>
 
           <div style={{ marginTop: 10 }} className="iem-meta">
-            <div style={{ marginBottom: 8 }}>
-              <strong style={{ color: "#2563eb" }}>ID:</strong>
-              <span style={{ marginLeft: 6 }}>{selectedBuilding?.id}</span>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Department</div>
-              <div style={{ color: "#374151" }}>{selectedBuilding?.department}</div>
-            </div>
+            
             <div style={{ marginBottom: 8 }}>
               <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Description</div>
-              <div style={{ color: "#374151" }}>{selectedBuilding?.description}</div>
+              <div style={{ color: "#374151" }}>{getBuildingInfo(selectedBuilding)?.description}</div>
             </div>
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Labs</div>
+
+            {getBuildingInfo(selectedBuilding)?.exhibits && getBuildingInfo(selectedBuilding).exhibits.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Exhibits</div>
               <div style={{ color: "#374151" }}>
-                {(selectedBuilding?.labs || []).join(", ")}
+                      {getBuildingInfo(selectedBuilding).exhibits.map((exhibit, index) => (
+                        <span key={index} style={{
+                          display: "inline-block",
+                          background: "#f3f4f6",
+                          color: "#374151",
+                          padding: "4px 8px",
+                          borderRadius: "6px",
+                          margin: "2px 4px 2px 0",
+                          fontSize: "14px"
+                        }}>
+                          {exhibit}
+                        </span>
+                      ))}
               </div>
             </div>
-            <div style={{ marginBottom: 8, display: "flex", gap: 12, color: "#374151" }}>
-              <div><strong style={{ color: "#2563eb" }}>Floors:</strong> {selectedBuilding?.floors}</div>
-              <div><strong style={{ color: "#2563eb" }}>Hours:</strong> {selectedBuilding?.hours}</div>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <strong style={{ color: "#2563eb" }}>Contact:</strong>
-              <span style={{ marginLeft: 6 }}>{selectedBuilding?.contact}</span>
-            </div>
+                )}
+            
             {navStatus && (
               <div style={{ marginTop: 6, color: "#059669", fontSize: 13 }}>{navStatus}</div>
             )}
@@ -451,15 +415,20 @@ export default function MapExtra() {
                 type="button"
                 className="iem-btn iem-btn-gradient"
                 onClick={() => {
+                  if(isNavigating){
+                    setIsNavigating(false);
+                    return;
+                  }
                   setNavStatus("Starting navigation...");
                   setTimeout(() => setNavStatus(""), 2000);
+                  //setIsNavigating(false);
                   setIsNavigating(true);
                   setIsClosing(true);
                   setTimeout(() => {
                     setIsSheetOpen(false);
                     setIsClosing(false);
                   }, 300);
-                  console.log("Navigate to", selectedBuilding?.id);
+                  console.log("Navigate to", selectedBuilding);
                 }}
                 aria-label="Navigate"
               >
