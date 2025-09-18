@@ -478,154 +478,155 @@ const CrowdManagement: React.FC = () => {
           <SvgHeatmap />
         </div>
 
-        {/* Main Content Layout */}
-        <div className="flex gap-8">
-          {/* Main Content */}
-          <div className={`flex-1 transition-all duration-300 ${selectedBuilding !== "all" ? 'mr-96' : ''}`}>
-            <div className="flex flex-col gap-8">
-              {/* Overall Crowd Trend */}
-              <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                {/* Chart Header */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800 mb-1">Overall Crowd Trend</h2>
-                      <p className="text-sm text-gray-600">Real-time occupancy data across all buildings</p>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                      Live Data
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Chart Container */}
-                <div className="p-8">
-                  <div className="flex justify-center">
-                    <div 
-                      className="border-2 border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white chart-scroll-container shadow-inner"
-                      style={{ 
-                        maxWidth: 'calc(100vw - 200px)', // Account for page margins and padding
-                        width: '100%',
-                        overflowX: 'auto',
-                        overflowY: 'hidden',
-                        scrollbarWidth: 'thin',
-                        scrollbarColor: '#CBD5E0 #F7FAFC'
-                      }}
-                    >
-                      <div 
-                        style={{ 
-                          width: Math.max(1200, filteredData.length * 140), // Increased spacing for better readability
-                          height: 400, // Increased height
-                          padding: '20px'
-                        }}
-                      >
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={filteredData} margin={{ top: 30, right: 40, left: 30, bottom: 100 }}>
-                            <defs>
-                              <linearGradient id="currentGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                                <stop offset="95%" stopColor="#8884d8" stopOpacity={0.1}/>
-                              </linearGradient>
-                              <linearGradient id="predictedGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                                <stop offset="95%" stopColor="#82ca9d" stopOpacity={0.1}/>
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" opacity={0.7} />
-                            <XAxis 
-                              dataKey="buildingName"
-                              tick={{ fontSize: 10, fill: '#374151' }}
-                              angle={-45}
-                              textAnchor="end"
-                              height={90}
-                              interval={0}
-                              stroke="#6b7280"
-                            />
-                            <YAxis 
-                              tick={{ fontSize: 11, fill: '#374151' }}
-                              stroke="#6b7280"
-                              label={{ value: 'Occupancy Count', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#374151' } }}
-                            />
-                            <Tooltip 
-                              contentStyle={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                border: '1px solid #e5e7eb',
-                                borderRadius: '12px',
-                                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                                fontSize: '13px'
-                              }}
-                            />
-                            <Legend 
-                              wrapperStyle={{
-                                paddingTop: '20px',
-                                fontSize: '13px',
-                                fontWeight: '500'
-                              }}
-                            />
-                            <Line 
-                              type="monotone" 
-                              dataKey="currentCount" 
-                              name="Current Count" 
-                              stroke="#8884d8" 
-                              strokeWidth={3}
-                              dot={{ r: 6, fill: '#8884d8', strokeWidth: 2, stroke: '#ffffff' }}
-                              activeDot={{ r: 8, fill: '#8884d8', strokeWidth: 3, stroke: '#ffffff' }} 
-                            />
-                            <Line 
-                              type="monotone" 
-                              dataKey="predictedCount" 
-                              name="Predicted Count" 
-                              stroke="#82ca9d" 
-                              strokeWidth={3}
-                              strokeDasharray="5 5"
-                              dot={{ r: 6, fill: '#82ca9d', strokeWidth: 2, stroke: '#ffffff' }}
-                              activeDot={{ r: 8, fill: '#82ca9d', strokeWidth: 3, stroke: '#ffffff' }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Chart Info */}
-                  <div className="mt-6 flex items-center justify-center">
-                    <div className="bg-blue-50 px-6 py-3 rounded-full border border-blue-200">
-                      <p className="text-sm text-blue-700 font-medium flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                        Scroll horizontally to view all {filteredData.length} buildings
-                      </p>
-                    </div>
-                  </div>
-                </div>
+        {/* Overall Crowd Trend - Always Visible */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+          {/* Chart Header */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 md:px-8 py-4 md:py-6 border-b border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-1">Overall Crowd Trend</h2>
+                <p className="text-sm text-gray-600">Real-time occupancy data across all buildings</p>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                Live Data
               </div>
             </div>
           </div>
-
-          {/* Sidebar for Selected Building */}
-          {selectedBuilding !== "all" && (
-            <div className="fixed right-8 top-32 bottom-8 w-80 bg-white rounded-xl shadow-lg border border-gray-200 overflow-y-auto z-30">
-              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 z-40">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {crowdData.find(d => d.buildingId === selectedBuilding)?.buildingName}
-                  </h3>
-                  <button
-                    onClick={() => setSelectedBuilding("all")}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+          
+          {/* Chart Container */}
+          <div className="p-4 md:p-8">
+            <div className="flex justify-center">
+              <div 
+                className="border-2 border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white chart-scroll-container shadow-inner mx-auto"
+                style={{ 
+                  maxWidth: 'min(1200px, calc(100vw - 4rem))', // Responsive max width with padding
+                  width: '100%',
+                  overflowX: 'auto',
+                  overflowY: 'hidden',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#CBD5E0 #F7FAFC'
+                }}
+              >
+                <div 
+                  style={{ 
+                    width: Math.max(800, crowdData.length * 120), // Use crowdData for all buildings
+                    minWidth: '800px', // Minimum width for chart readability
+                    height: 400,
+                    padding: '20px'
+                  }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={crowdData} margin={{ top: 30, right: 40, left: 30, bottom: 100 }}>
+                      <defs>
+                        <linearGradient id="currentGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0.1}/>
+                        </linearGradient>
+                        <linearGradient id="predictedGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#82ca9d" stopOpacity={0.1}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" opacity={0.7} />
+                      <XAxis 
+                        dataKey="buildingName"
+                        tick={{ fontSize: 10, fill: '#374151' }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={90}
+                        interval={0}
+                        stroke="#6b7280"
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 11, fill: '#374151' }}
+                        stroke="#6b7280"
+                        label={{ value: 'Occupancy Count', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#374151' } }}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '12px',
+                          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                          fontSize: '13px'
+                        }}
+                      />
+                      <Legend 
+                        wrapperStyle={{
+                          paddingTop: '20px',
+                          fontSize: '13px',
+                          fontWeight: '500'
+                        }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="currentCount" 
+                        name="Current Count" 
+                        stroke="#8884d8" 
+                        strokeWidth={3}
+                        dot={{ r: 6, fill: '#8884d8', strokeWidth: 2, stroke: '#ffffff' }}
+                        activeDot={{ r: 8, fill: '#8884d8', strokeWidth: 3, stroke: '#ffffff' }} 
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="predictedCount" 
+                        name="Predicted Count" 
+                        stroke="#82ca9d" 
+                        strokeWidth={3}
+                        strokeDasharray="5 5"
+                        dot={{ r: 6, fill: '#82ca9d', strokeWidth: 2, stroke: '#ffffff' }}
+                        activeDot={{ r: 8, fill: '#82ca9d', strokeWidth: 3, stroke: '#ffffff' }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
-              
-              <div className="p-4 space-y-6">
+            </div>
+            
+            {/* Chart Info */}
+            <div className="mt-6 flex items-center justify-center px-4">
+              <div className="bg-blue-50 px-4 md:px-6 py-3 rounded-full border border-blue-200">
+                <p className="text-xs md:text-sm text-blue-700 font-medium flex items-center gap-2">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <span className="hidden sm:inline">Scroll horizontally to view all {crowdData.length} buildings</span>
+                  <span className="sm:hidden">Scroll to view all buildings</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Building Analytics Section - Always Visible */}
+        {selectedBuilding !== "all" && (
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-4 md:px-8 py-4 md:py-6 border-b border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-1">
+                    {crowdData.find(d => d.buildingId === selectedBuilding)?.buildingName || 'Building Analytics'}
+                  </h2>
+                  <p className="text-sm text-gray-600">Detailed analytics for the selected building</p>
+                </div>
+                <button
+                  onClick={() => setSelectedBuilding("all")}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Close
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-4 md:p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Gauge Chart for Selected Building */}
                 <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-3">Current Occupancy</h4>
                   {crowdData
                     .filter(d => d.buildingId === selectedBuilding)
                     .map(building => (
@@ -655,11 +656,11 @@ const CrowdManagement: React.FC = () => {
                 </div>
                 
                 {/* Building History Chart */}
-                {buildingHistory.length > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-gray-800 mb-3">
-                      Past 2 Minutes Variation
-                    </h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-3">
+                    Past 2 Minutes Variation
+                  </h4>
+                  {buildingHistory.length > 0 ? (
                     <ResponsiveContainer width="100%" height={200}>
                       <LineChart data={buildingHistory}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -675,11 +676,20 @@ const CrowdManagement: React.FC = () => {
                         />
                       </LineChart>
                     </ResponsiveContainer>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex items-center justify-center h-48 text-gray-500">
+                      <p className="text-sm">No historical data available</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Main Content Layout - Simplified since charts moved above */}
+        <div className="flex gap-8">
+          {/* Additional content space if needed */}
         </div>
       </div>
     </div>
