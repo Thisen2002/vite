@@ -10,6 +10,7 @@ const fs = require('fs/promises');
 
 const app = express();
 
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {origin: "*"}
@@ -18,7 +19,7 @@ const io = new Server(server, {
 app.use(cors());
 app.use(bodyParser.json()); // parse JSON payloads
 
-const HTTP_PORT = 3001;
+const HTTP_PORT = process.env.PORT || process.env.BACKEND_MAPS_SERVICE_PORT || 3001;
 
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
@@ -29,6 +30,18 @@ io.on("connection", (socket) => {
     console.log(`Received from ${socket.id}: lat=${data.coords[0]}, lng=${data.coords[1]}, dest=${data.node}`);
 
     // Do calculations
+    if (data.node === null || data.node === undefined) {
+      console.log(`No destination node provided by ${socket.id}`);
+      return;
+    }
+
+    if (data.coords === null || data.coords === undefined || data.coords.length !== 2) {
+      console.log(`Invalid coordinates provided by ${socket.id}`);
+      return;
+      
+    }
+
+
     const route = routeFromArbitraryPoint(data.coords, data.node);
 
     // Send back response
@@ -58,17 +71,7 @@ app.get("/api/building/:id", (req, res) => {
   res.json({ ...detailsById[id], traffic: traffic[id] });
 });
 
-app.get("/routing", (req, res) => {
-  var {lat, long, dest} = req.query;
-  //console.log(req.query)
-  if(!dest){
-    console.log(`requested /routing : undefined`);
-    res.status(500).json({ error: 'Failed to find the path' });
-  }else {
-    console.log(`requested /routing : lat=${lat} long=${long} dest=${dest}`);
-    res.json(routeFromArbitraryPoint([lat,long], Number(dest)));
-  }
-});
+
 
 app.get('/map', async (req, res) => {
   try {

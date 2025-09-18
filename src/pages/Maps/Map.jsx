@@ -14,14 +14,19 @@ import {
   setUserPosition, 
   addMessageListner, 
   sendMessage, 
-  stopGps 
+
+  stopGps, 
+  setBuildingAccent
+
 } from "./map_module";  
 
 function MapComponent() {
   const mapRef = useRef(null);
 
-  // const building_clicked = useRef(null);
-  // const is_navigation_enabled = useRef(true);
+
+  const building_clicked = useRef(null);
+  const is_navigation_enabled = useRef(true);
+
 
   useEffect(() => {
     if (mapRef.current) return; // prevent re-init
@@ -33,8 +38,15 @@ function MapComponent() {
     // let unsubscribeGps = addGpsListner((latLng) => {
     //   if (is_navigation_enabled) {
     //     if (building_clicked.current) {
-    //       sendMessage('position-update', {coords:latLng, node: buildingToNode(building_clicked.current)})
+
+    //       let c = buildingToNode(building_clicked.current)
+    //       // if (c) {
+    //       //   sendMessage('position-update', {coords:latLng, node: c})
+    //       // }
+    //       sendMessage('position-update', {coords:latLng, node: c})
     //     }
+        
+
     //   }
       
     // })
@@ -53,12 +65,12 @@ function MapComponent() {
     //   //getRouteToBuilding(getUserPosition(), buildingId)
     //   // .then(r => drawRoute(r));
     //   building_clicked.current = buildingId;
+
+    //   // setBuildingAccent(buildingId, "unassigned");
     // });
 
     // return () => {
-    //   stopGps();
-    //   unsubscrbeBuildingListner();
-    //   unsubscribeGps();
+
     // }
 
   }, []);

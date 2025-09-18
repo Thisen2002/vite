@@ -1,11 +1,11 @@
-$1<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 26.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 549.2 549.2" style="enable-background:new 0 0 549.2 549.2;" xml:space="preserve">
 <style type="text/css">
-	.clicked{fill:#254E6A;}
-	.unassigned{fill:#E2EFE6;}
-	.assigned{fill:#56B0CC;stroke:#254E6A;stroke-width:0.5;stroke-miterlimit:10;}
+	.st0{fill:#254E6A;}
+	.st1{fill:#E2EFE6;}
+	.st2{fill:#56B0CC;stroke:#254E6A;stroke-width:0.5;stroke-miterlimit:10;}
 	.st3{fill:#E8F5F9;}
 	.st4{clip-path:url(#SVGID_00000014621774596685053910000009287791876788460733_);}
 	.st5{display:none;}
@@ -23,9 +23,9 @@ $1<?xml version="1.0" encoding="utf-8"?>
 	.st17{fill:#F9F8F3;}
 </style>
 <g id="_x3C_colour_x3E_">
-	<rect id="_x3C_clicked_x3E_" x="15.5" y="483.1" class="clicked" width="23.7" height="23.7"/>
-	<rect id="_x3C_non_assigned_x3E_" x="15.5" y="512.6" class="unassigned" width="23.7" height="23.7"/>
-	<rect id="_x3C_assigned_x3E_" x="15.5" y="455.3" class="assigned" width="23.7" height="23.7"/>
+	<rect id="_x3C_clicked_x3E_" x="15.5" y="483.1" class="st0" width="23.7" height="23.7"/>
+	<rect id="_x3C_non_assigned_x3E_" x="15.5" y="512.6" class="st1" width="23.7" height="23.7"/>
+	<rect id="_x3C_assigned_x3E_" x="15.5" y="455.3" class="st2" width="23.7" height="23.7"/>
 </g>
 <g id="Layer_1_00000078008789202663611310000000120151748141201539_">
 	<rect id="_x3C_ground_x3E_" y="0" class="st3" width="549.2" height="549.2"/>
@@ -1066,79 +1066,79 @@ $1<?xml version="1.0" encoding="utf-8"?>
 	</g>
 	<g id="_x3C_buildings_x3E_">
 		
-			<rect id="b35" x="98.8" y="115" onclick="buildingClick('b35')" class="assigned" width="11.7" height="26.6"/>
-		<polygon id="b34" onclick="buildingClick('b34')" class="assigned" points="
+			<rect id="b35" x="98.8" y="115" onclick="buildingClick('b35')" class="st2" width="11.7" height="26.6"/>
+		<polygon id="b34" onclick="buildingClick('b34')" class="st2" points="
 			125.9,91.9 240.1,92.1 239.8,118.7 125.7,118.5 		"/>
 		
-			<rect id="b33" x="256.7" y="92.7" onclick="buildingClick('b33')" class="assigned" width="95" height="30.6"/>
-		<polygon id="b32" onclick="buildingClick('b32')" class="assigned" points="
+			<rect id="b33" x="256.7" y="92.7" onclick="buildingClick('b33')" class="st2" width="95" height="30.6"/>
+		<polygon id="b32" onclick="buildingClick('b32')" class="st2" points="
 			345.7,62.1 345.7,86.2 256.7,86.2 256.7,62.1 289.8,62.1 289.8,59.7 305.3,59.7 305.3,62.1 		"/>
 		
-			<rect id="b31" x="127.2" y="154" onclick="buildingClick('b31')" class="assigned" width="115.8" height="19.8"/>
+			<rect id="b31" x="127.2" y="154" onclick="buildingClick('b31')" class="st2" width="115.8" height="19.8"/>
 		
-			<rect id="b30" x="125.6" y="260.2" onclick="buildingClick('b30')" class="assigned" width="107.9" height="24"/>
+			<rect id="b30" x="125.6" y="260.2" onclick="buildingClick('b30')" class="st2" width="107.9" height="24"/>
 		
-			<rect id="b29" x="125.6" y="318.7" onclick="buildingClick('b29')" class="assigned" width="113.9" height="24.2"/>
-		<polygon id="b28" onclick="buildingClick('b28')" class="assigned" points="
+			<rect id="b29" x="125.6" y="318.7" onclick="buildingClick('b29')" class="st2" width="113.9" height="24.2"/>
+		<polygon id="b28" onclick="buildingClick('b28')" class="st2" points="
 			243,203.3 243,232 120.1,232 120.1,195.9 141.8,195.9 141.8,203.3 156.7,203.3 156.7,199.1 147,199.1 147,186.2 175,186.2 
 			175,203.3 		"/>
 		
-			<rect id="b27" x="174.7" y="430.3" onclick="buildingClick('b27')" class="assigned" width="21.2" height="14.1"/>
-		<polygon id="b26" onclick="buildingClick('b26')" class="assigned" points="
+			<rect id="b27" x="174.7" y="430.3" onclick="buildingClick('b27')" class="st2" width="21.2" height="14.1"/>
+		<polygon id="b26" onclick="buildingClick('b26')" class="st2" points="
 			140,374.6 155.5,374.7 155.5,397.1 140,396.9 		"/>
-		<polygon id="b25" onclick="buildingClick('b25')" class="assigned" points="
+		<polygon id="b25" onclick="buildingClick('b25')" class="st2" points="
 			146.8,405.1 166.2,405.1 166.2,425.2 153.4,425.2 153.5,416.2 146.8,416.2 		"/>
 		
-			<rect id="b24" x="125.6" y="288.4" onclick="buildingClick('b24')" class="assigned" width="46" height="26.2"/>
+			<rect id="b24" x="125.6" y="288.4" onclick="buildingClick('b24')" class="st2" width="46" height="26.2"/>
 		
-			<rect id="b23" x="182" y="290.5" onclick="buildingClick('b23')" class="assigned" width="32.5" height="22"/>
-		<polygon id="b22" onclick="buildingClick('b22')" class="assigned" points="
+			<rect id="b23" x="182" y="290.5" onclick="buildingClick('b23')" class="st2" width="32.5" height="22"/>
+		<polygon id="b22" onclick="buildingClick('b22')" class="st2" points="
 			233.5,241.8 233.5,249.9 219.9,249.9 219.9,256.3 185.5,256.3 185.5,235.3 219.9,235.3 219.9,241.8 		"/>
 		
-			<rect id="b21" x="218.6" y="186.2" onclick="buildingClick('b21')" class="assigned" width="24.4" height="12.3"/>
+			<rect id="b21" x="218.6" y="186.2" onclick="buildingClick('b21')" class="st2" width="24.4" height="12.3"/>
 		
-			<rect id="b20" x="133.5" y="122.3" onclick="buildingClick('b20')" class="assigned" width="37.1" height="21.3"/>
+			<rect id="b20" x="133.5" y="122.3" onclick="buildingClick('b20')" class="st2" width="37.1" height="21.3"/>
 		
-			<rect id="b19" x="178.6" y="122.3" onclick="buildingClick('b19')" class="assigned" width="19.7" height="21.3"/>
-		<polygon id="b18" onclick="buildingClick('B18A')" class="assigned" points="
+			<rect id="b19" x="178.6" y="122.3" onclick="buildingClick('b19')" class="st2" width="19.7" height="21.3"/>
+		<polygon id="b18" onclick="buildingClick('B18A')" class="st2" points="
 			236.8,130.3 236.8,134.8 232.7,134.8 232.7,138.2 219.4,138.2 219.4,126.9 232.7,126.9 232.7,130.3 		"/>
-		<polygon id="b18" onclick="buildingClick('b18')" class="assigned" points="
+		<polygon id="b18" onclick="buildingClick('b18')" class="st2" points="
 			215.3,123.3 215.3,138.2 206.6,138.2 206.6,126.9 211.2,126.9 211.2,123.3 		"/>
 		
-			<rect id="b17" x="210.9" y="63.5" onclick="buildingClick('b17')" class="assigned" width="23.1" height="23.1"/>
-		<polygon id="b16" onclick="buildingClick('b16')" class="assigned" points="
+			<rect id="b17" x="210.9" y="63.5" onclick="buildingClick('b17')" class="st2" width="23.1" height="23.1"/>
+		<polygon id="b16" onclick="buildingClick('b16')" class="st2" points="
 			324.7,140.8 324.7,171.4 279.6,171.4 279.6,166.2 273.4,166.2 273.4,163.9 265.5,163.9 265.5,148.4 273.4,148.4 273.4,146 
 			278.6,146 278.6,140.8 		"/>
-		<polygon id="b15" onclick="buildingClick('b15')" class="assigned" points="
+		<polygon id="b15" onclick="buildingClick('b15')" class="st2" points="
 			354.1,415.3 354.1,424.7 346.5,424.7 346.5,436.6 337,436.6 337,431.4 252.8,431.4 252.8,408.3 337,408.3 337,403.9 346.5,403.9 
 			346.5,415.3 		"/>
-		<polygon id="b14" onclick="buildingClick('b14')" class="assigned" points="
+		<polygon id="b14" onclick="buildingClick('b14')" class="st2" points="
 			350.3,449.5 350.3,458.1 341.1,458.1 341.1,465.5 309.3,465.5 309.3,442.1 341.1,442.1 341.1,449.5 		"/>
 		
-			<rect id="b13" x="254.5" y="258.7" onclick="buildingClick('b13')" class="assigned" width="94.9" height="30.3"/>
-		<polygon id="b12" onclick="buildingClick('b12')" class="assigned" points="
+			<rect id="b13" x="254.5" y="258.7" onclick="buildingClick('b13')" class="st2" width="94.9" height="30.3"/>
+		<polygon id="b12" onclick="buildingClick('b12')" class="st2" points="
 			302.7,207.6 302.7,239.8 285.7,239.8 285.7,240.7 274.5,240.7 274.5,206.7 285.7,206.7 285.7,207.6 		"/>
 		
-			<rect id="b11" x="284.3" y="17.7" onclick="buildingClick('b11')" class="assigned" width="66.9" height="25.5"/>
-		<polygon id="b10" onclick="buildingClick('b10')" class="assigned" points="
+			<rect id="b11" x="284.3" y="17.7" onclick="buildingClick('b11')" class="st2" width="66.9" height="25.5"/>
+		<polygon id="b10" onclick="buildingClick('b10')" class="st2" points="
 			413.5,317 413.5,383 413.5,383 413.5,401.9 365.8,401.9 365.8,367.7 384.7,367.7 384.7,383 394.6,383 394.6,317 		"/>
 		
-			<rect id="b9" x="365.8" y="316.9" onclick="buildingClick('b9')" class="assigned" width="19" height="40.8"/>
-		<polygon id="b8" onclick="buildingClick('b8')" class="assigned" points="
+			<rect id="b9" x="365.8" y="316.9" onclick="buildingClick('b9')" class="st2" width="19" height="40.8"/>
+		<polygon id="b8" onclick="buildingClick('b8')" class="st2" points="
 			146.3,73.7 146.3,87.3 138.2,87.3 138.2,73.7 140.1,73.7 140.1,68.7 143.5,68.7 143.5,73.7 		"/>
-		<polygon id="b7" onclick="buildingClick('b7')" class="assigned" points="
+		<polygon id="b7" onclick="buildingClick('b7')" class="st2" points="
 			366.2,205.3 354.4,205.3 354.4,244.2 332.7,244.2 332.7,136.6 354.4,136.6 354.4,175.3 366.2,175.3 		"/>
-		<polygon id="b6" onclick="buildingClick('b6')" class="assigned" points="
+		<polygon id="b6" onclick="buildingClick('b6')" class="st2" points="
 			415.9,259.2 415.9,297.3 375.7,297.3 375.7,285 366.6,285 366.6,271.8 375.7,271.8 375.7,259.2 		"/>
 		
-			<rect id="b5" x="178.7" y="348.4" onclick="buildingClick('b5')" class="assigned" width="6.7" height="6.7"/>
-		<polygon id="b4" onclick="buildingClick('b4')" class="assigned" points="
+			<rect id="b5" x="178.7" y="348.4" onclick="buildingClick('b5')" class="st2" width="6.7" height="6.7"/>
+		<polygon id="b4" onclick="buildingClick('b4')" class="st2" points="
 			212.8,349.1 212.8,354.3 211.3,354.3 211.3,355.1 192.4,355.1 192.4,348.4 211.3,348.4 211.3,349.1 		"/>
 		
-			<rect id="b3" x="130.9" y="346.4" onclick="buildingClick('b3')" class="assigned" width="24.6" height="15.7"/>
+			<rect id="b3" x="130.9" y="346.4" onclick="buildingClick('b3')" class="st2" width="24.6" height="15.7"/>
 		
-			<rect id="b2" x="158.7" y="359.6" onclick="buildingClick('b2')" class="assigned" width="80.8" height="28.2"/>
-		<polygon id="b1" onclick="buildingClick('b1')" class="assigned" points="
+			<rect id="b2" x="158.7" y="359.6" onclick="buildingClick('b2')" class="st2" width="80.8" height="28.2"/>
+		<polygon id="b1" onclick="buildingClick('b1')" class="st2" points="
 			239.5,398.6 239.5,447.8 218.3,447.8 218.3,430.2 199.1,430.2 199.1,398.6 		"/>
 	</g>
 	<g id="_x3C_entry_x3E_">
@@ -1181,7 +1181,7 @@ $1<?xml version="1.0" encoding="utf-8"?>
 	</g>
 	<g id="_x3C_user_location_x3E_">
 		<g>
-			<path class="clicked" d="M163.2,117.2v-0.6c0-0.2,0-0.3-0.1-0.5c0-0.1-0.1-0.2-0.1-0.4c-0.1-0.3-0.2-0.7-0.4-1c0-0.1-0.1-0.2-0.1-0.4
+			<path class="st0" d="M163.2,117.2v-0.6c0-0.2,0-0.3-0.1-0.5c0-0.1-0.1-0.2-0.1-0.4c-0.1-0.3-0.2-0.7-0.4-1c0-0.1-0.1-0.2-0.1-0.4
 				c-0.2-0.3-0.3-0.7-0.5-1c-0.1-0.1-0.1-0.2-0.2-0.4c-0.1-0.1-0.2-0.3-0.3-0.4c-0.1-0.2-0.2-0.3-0.4-0.5c-0.1-0.1-0.2-0.2-0.4-0.4
 				c-0.2-0.2-0.5-0.5-0.8-0.7c-0.2-0.2-0.4-0.3-0.6-0.4s-0.4-0.3-0.6-0.4c-0.2-0.1-0.4-0.2-0.7-0.3c-0.2-0.1-0.5-0.2-0.7-0.3
 				s-0.4-0.1-0.6-0.2c-0.1,0-0.2,0-0.3-0.1c-0.2-0.1-0.5-0.1-0.8-0.1H153c-0.2,0-0.5,0.1-0.8,0.1c-0.1,0-0.2,0-0.3,0.1
@@ -1201,7 +1201,7 @@ $1<?xml version="1.0" encoding="utf-8"?>
 	</g>
 </g>
 <g id="_x3C_washroom-f_x3E_">
-	<circle class="clicked" cx="371.3" cy="373.3" r="4"/>
+	<circle class="st0" cx="371.3" cy="373.3" r="4"/>
 	<path class="st15" d="M372.5,373.6h-0.1l-0.1-0.1l-0.3-0.9l-0.1-0.4h-0.1l0.1,0.4l0.3,1l0.1,0.3h-0.4v1.6c0,0.2-0.1,0.3-0.3,0.3
 		c-0.1,0-0.1,0-0.2-0.1s-0.1-0.1-0.1-0.2v-1.6h-0.1v1.6c0,0.2-0.1,0.3-0.3,0.3c-0.1,0-0.1,0-0.2-0.1s-0.1-0.1-0.1-0.2v-1.6h-0.4
 		l0.1-0.3l0.3-1l0.1-0.4h-0.1l-0.1,0.4l-0.3,0.9c0,0.1-0.1,0.1-0.2,0.1s-0.2-0.1-0.2-0.2c0,0,0,0,0-0.1l0.2-0.7l0.2-0.6v-0.1l0,0
@@ -1210,7 +1210,7 @@ $1<?xml version="1.0" encoding="utf-8"?>
 		S371.1,371.4,371.3,371.4z"/>
 </g>
 <g id="_x3C_wahroom-f_x3E_">
-	<circle class="clicked" cx="210.9" cy="132.5" r="4"/>
+	<circle class="st0" cx="210.9" cy="132.5" r="4"/>
 	<path class="st15" d="M212.1,132.8H212l-0.1-0.1l-0.3-0.9l-0.1-0.4h-0.1l0.1,0.4l0.3,1l0.1,0.3h-0.4v1.6c0,0.2-0.1,0.3-0.3,0.3
 		c-0.1,0-0.1,0-0.2-0.1c-0.1-0.1-0.1-0.1-0.1-0.2v-1.6h-0.1v1.6c0,0.2-0.1,0.3-0.3,0.3c-0.1,0-0.1,0-0.2-0.1
 		c-0.1-0.1-0.1-0.1-0.1-0.2v-1.6H210l0.1-0.3l0.3-1l0.1-0.4h-0.1l-0.1,0.4l-0.3,0.9c0,0.1-0.1,0.1-0.2,0.1c-0.1,0-0.2-0.1-0.2-0.2
@@ -1219,21 +1219,21 @@ $1<?xml version="1.0" encoding="utf-8"?>
 		s-0.2-0.5-0.5-0.5s-0.5,0.2-0.5,0.5S210.7,130.6,211,130.6z"/>
 </g>
 <g id="_x3C_washroom-m_x3E_">
-	<circle class="clicked" cx="214.5" cy="245.8" r="4"/>
+	<circle class="st0" cx="214.5" cy="245.8" r="4"/>
 	<path class="st15" d="M215.6,244.7v1.4c0,0.1-0.1,0.2-0.2,0.2l0,0c-0.1,0-0.2-0.1-0.2-0.2v-1.4h-0.1v3.3c0,0.2-0.1,0.3-0.3,0.3l0,0
 		c-0.2,0-0.3-0.1-0.3-0.3v-1.6h-0.1v1.6c0,0.2-0.1,0.3-0.3,0.3l0,0c-0.2,0-0.3-0.1-0.3-0.3v-3.3h-0.1v1.4c0,0.1-0.1,0.2-0.2,0.2l0,0
 		c-0.1,0-0.2-0.1-0.2-0.2v-1.4c0-0.4,0.3-0.7,0.7-0.7h0.9C215.3,244,215.6,244.3,215.6,244.7z M214.5,243.9c0.3,0,0.5-0.2,0.5-0.5
 		s-0.2-0.5-0.5-0.5s-0.5,0.2-0.5,0.5S214.2,243.9,214.5,243.9z"/>
 </g>
 <g id="_x3C_washroom-m_x3E__00000169545089474147052140000012696100698050610345_">
-	<circle class="clicked" cx="226.4" cy="132.5" r="4"/>
+	<circle class="st0" cx="226.4" cy="132.5" r="4"/>
 	<path class="st15" d="M227.6,131.4v1.4c0,0.1-0.1,0.2-0.2,0.2l0,0c-0.1,0-0.2-0.1-0.2-0.2v-1.4H227v3.3c0,0.2-0.1,0.3-0.3,0.3l0,0
 		c-0.2,0-0.3-0.1-0.3-0.3v-1.6h-0.1v1.6c0,0.2-0.1,0.3-0.3,0.3l0,0c-0.2,0-0.3-0.1-0.3-0.3v-3.3h-0.1v1.4c0,0.1-0.1,0.2-0.2,0.2l0,0
 		c-0.1,0-0.2-0.1-0.2-0.2v-1.4c0-0.4,0.3-0.7,0.7-0.7h0.9C227.3,130.7,227.6,131,227.6,131.4z M226.4,130.6c0.3,0,0.5-0.2,0.5-0.5
 		s-0.2-0.5-0.5-0.5s-0.5,0.2-0.5,0.5S226.2,130.6,226.4,130.6z"/>
 </g>
 <g id="_x3C_washroom_x3E__00000085226864546833890150000012285265157222688907_">
-	<path class="clicked" d="M239.8,511.1h14c1.5,0,2.7,1.2,2.7,2.7v14c0,1.5-1.2,2.7-2.7,2.7h-14c-1.5,0-2.7-1.2-2.7-2.7v-14
+	<path class="st0" d="M239.8,511.1h14c1.5,0,2.7,1.2,2.7,2.7v14c0,1.5-1.2,2.7-2.7,2.7h-14c-1.5,0-2.7-1.2-2.7-2.7v-14
 		c0-1.1,0.6-2,1.6-2.4C239,511.2,239.4,511.1,239.8,511.1z"/>
 	<g>
 		<path class="st15" d="M253.8,518.7v3.7c0,0.3-0.3,0.6-0.6,0.6l0,0c-0.3,0-0.6-0.3-0.6-0.6v-3.6h-0.2v8.4c0,0.4-0.3,0.7-0.7,0.7
@@ -1252,7 +1252,7 @@ $1<?xml version="1.0" encoding="utf-8"?>
 	<rect x="246.5" y="513.5" class="st15" width="0.5" height="14.5"/>
 </g>
 <g id="_x3C_washroom_x3E_">
-	<path class="clicked" d="M101,29.2h14.3c1.5,0,2.8,1.2,2.8,2.8v14.3c0,1.5-1.2,2.8-2.8,2.8H101c-1.5,0-2.8-1.2-2.8-2.8V32
+	<path class="st0" d="M101,29.2h14.3c1.5,0,2.8,1.2,2.8,2.8v14.3c0,1.5-1.2,2.8-2.8,2.8H101c-1.5,0-2.8-1.2-2.8-2.8V32
 		c0-1.1,0.7-2.1,1.6-2.5C100.2,29.3,100.6,29.2,101,29.2z"/>
 	<g>
 		<path class="st15" d="M115.3,37.1v3.7c0,0.3-0.3,0.6-0.6,0.6l0,0c-0.3,0-0.6-0.3-0.6-0.6v-3.6h-0.2v8.4c0,0.4-0.3,0.7-0.7,0.7l0,0
@@ -1271,7 +1271,7 @@ $1<?xml version="1.0" encoding="utf-8"?>
 	<rect x="107.9" y="31.9" class="st15" width="0.5" height="14.5"/>
 </g>
 <g id="_x3C_foodstall_x3E__00000138574430572165829500000014212966043668779142_">
-	<circle class="clicked" cx="392.5" cy="57.9" r="9.8"/>
+	<circle class="st0" cx="392.5" cy="57.9" r="9.8"/>
 	<g>
 		<g>
 			<path class="st17" d="M396.9,51.2c-0.1-0.1-0.2-0.3-0.2-0.4c0-0.1-0.1-0.1-0.2-0.2h-7.6c-0.1,0-0.1,0.1-0.2,0.2
@@ -1311,7 +1311,7 @@ $1<?xml version="1.0" encoding="utf-8"?>
 	</g>
 </g>
 <g id="_x3C_foodstall_x3E_">
-	<circle class="clicked" cx="260.8" cy="312.5" r="9.8"/>
+	<circle class="st0" cx="260.8" cy="312.5" r="9.8"/>
 	<g>
 		<g>
 			<path class="st17" d="M265.2,305.8c-0.1-0.1-0.2-0.3-0.2-0.4s-0.1-0.1-0.2-0.2h-7.6c-0.1,0-0.1,0.1-0.2,0.2

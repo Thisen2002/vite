@@ -6,7 +6,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || process.env.BACKEND_API_GATEWAY_PORT || 5000;
 
 // Middleware
 app.use(cors());
@@ -25,38 +25,37 @@ app.use('/api/auth', createProxyMiddleware({
 }));
 */
 
-app.use('/organizers', createProxyMiddleware({
-    target: 'http://localhost:5001',
+app.use('/organizers',createProxyMiddleware({
+    target: process.env.BACKEND_ORG_MANAGEMENT_SERVICE_URL || `http://localhost:${process.env.BACKEND_ORG_MANAGEMENT_SERVICE_PORT || 5001}`,
     changeOrigin: true,
     pathRewrite: (path, req) => req.originalUrl.replace(/^\/users/, '/users')
 }));
 
-app.use('/events', createProxyMiddleware({
-    target: 'http://localhost:5002',
+app.use('/events',createProxyMiddleware({
+    target: process.env.BACKEND_EVENT_SERVICE_URL || `http://localhost:${process.env.BACKEND_EVENT_SERVICE_PORT || 5002}`,
     changeOrigin: true,
     pathRewrite: (path, req) => req.originalUrl.replace(/^\/events/, '/events')
 }));
 
-app.use('/buildings', createProxyMiddleware({
-    target: 'http://localhost:5003',
+app.use('/buildings',createProxyMiddleware({
+    target: process.env.BACKEND_BUILDING_SERVICE_URL || `http://localhost:${process.env.BACKEND_BUILDING_SERVICE_PORT || 5003}`,
     changeOrigin: true,
     pathRewrite: (path, req) => req.originalUrl.replace(/^\/buildings/, '/buildings')
-}));
-
-
-app.use('/auths', createProxyMiddleware({
-    target: 'http://localhost:5004',
-    changeOrigin: true,
-    pathRewrite: (path, req) => req.originalUrl.replace(/^\/auths/, '/auths')
 }));
 
 /*
 app.use('/auths', createProxyMiddleware({
     target: 'http://localhost:5004',
     changeOrigin: true,
-    pathRewrite: { '^/auths': '' } // remove /auths before sending
+    pathRewrite: (path, req) => req.originalUrl.replace(/^\/auths/, '/auths')
 }));
 */
+
+app.use('/auths', createProxyMiddleware({
+    target: process.env.BACKEND_AUTH_SERVICE_URL || `http://localhost:${process.env.BACKEND_AUTH_SERVICE_PORT || 5004}`,
+    changeOrigin: true,
+    pathRewrite: { '^/auths': '' } // remove /auths before sending
+}));
 
 
 

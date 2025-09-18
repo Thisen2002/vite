@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './Dashboard.css';
-import MapComponent from './Map.jsx';
+import MapExtra from './MapExtra.jsx';
 import { searchDatabase } from './search.js';
 
 const categories = {
@@ -217,8 +217,22 @@ function ZoneFilterPopup({
   zoneDropdown, allSubzones
 }) {
   if (!showZoneFilter) return null;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
   return (
-    <div className="dashboard-zone-filter-popup" style={{ position: 'absolute', top: '110%', left: '0px', minWidth: 260, background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(37,99,235,0.12)', padding: '18px 18px 12px 18px', zIndex: 9999 }}>
+    <div
+      className="dashboard-zone-filter-popup"
+      style={{
+        position: 'absolute',
+        top: '110%',
+        ...(isMobile ? { left: '0px' } : { right: 0, left: 'auto' }),
+        minWidth: 260,
+        background: '#fff',
+        borderRadius: 16,
+        boxShadow: '0 8px 32px rgba(37,99,235,0.12)',
+        padding: '18px 18px 12px 18px',
+        zIndex: 9999
+      }}
+    >
       <div style={{ fontWeight: 600, color: '#2563eb', marginBottom: 8 }}>Zone/Subzone Filters</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <select
@@ -324,7 +338,7 @@ function MapLegend({ categories, activeCategories, handleLegendFilter }) {
   );
 }
 
-function BookmarkSidebar({ bookmarkedPoints, categories, setSelectedPoint }) {
+function BookmarkSidebar({ bookmarkedPoints, categories, setSelectedPoint, onRemove }) {
   return (
     <div className="dashboard-bookmarks-list">
       {bookmarkedPoints.length === 0 ? (
@@ -344,7 +358,23 @@ function BookmarkSidebar({ bookmarkedPoints, categories, setSelectedPoint }) {
             <span className="dashboard-bookmark-dot" style={{ backgroundColor: '#f59e0b' }} />
             <span className="dashboard-bookmark-name">{bookmark.name}</span>
             <span className="dashboard-bookmark-icon">
-              <BookmarkIcon filled />
+              <button
+                type="button"
+                aria-label="Remove bookmark"
+                onClick={(e) => { e.stopPropagation(); onRemove?.(bookmark.id); }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title="Remove"
+              >
+                <BookmarkIcon filled />
+              </button>
             </span>
           </button>
         ))
@@ -370,6 +400,52 @@ const Dashboard = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [buildingRelatedResults, setBuildingRelatedResults] = useState([]);
   const [showBuildingResults, setShowBuildingResults] = useState(false);
+
+  // --- Bookmark persistence via cookie (shared with MapExtra) ---
+  const COOKIE_KEY = 'iem_bookmarks';
+  const getCookie = (name) => {
+    if (typeof document === 'undefined') return '';
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+  };
+  const setCookie = (name, value, days = 365) => {
+    if (typeof document === 'undefined') return;
+    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+  };
+  const readBookmarksFromCookie = () => {
+    try {
+      const raw = getCookie(COOKIE_KEY);
+      if (!raw) return [];
+      return JSON.parse(decodeURIComponent(raw));
+    } catch {
+      return [];
+    }
+  };
+  const writeBookmarksToCookie = (list) => {
+    try {
+      const serialized = encodeURIComponent(JSON.stringify(list));
+      setCookie(COOKIE_KEY, serialized);
+    } catch {
+      // ignore
+    }
+  };
+
+  // Initialize bookmarks from cookie on first load
+  useEffect(() => {
+    const initial = readBookmarksFromCookie();
+    if (Array.isArray(initial) && initial.length > 0) {
+      setBookmarks(initial);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keep cookie in sync when bookmarks change
+  useEffect(() => {
+    writeBookmarksToCookie(bookmarks);
+  }, [bookmarks]);
 
   const visiblePoints = useMemo(() => {
     // Use search results when available
@@ -576,6 +652,11 @@ const Dashboard = () => {
     });
   };
 
+  // Remove bookmark by id (updates UI and cookie via sync effect)
+  const removeBookmark = (id) => {
+    setBookmarks(prev => prev.filter(b => String(b.id) !== String(id)));
+  };
+
   // Memo for bookmarked points
   const bookmarkedPoints = useMemo(
     () => {
@@ -595,8 +676,10 @@ const Dashboard = () => {
   // Expose addBookmark function globally for Map component
   useEffect(() => {
     window.addBookmark = addBookmark;
+    window.removeBookmark = removeBookmark;
     return () => {
       delete window.addBookmark;
+      delete window.removeBookmark;
     };
   }, []);
 
@@ -797,7 +880,7 @@ const Dashboard = () => {
           <div className="map-main">
             <div className="map-card">
               <div className="map-viewport">
-                <MapComponent />
+                <MapExtra />
                 {/* Custom Controls */}
                 <div className="map-controls">
                   <button className={`map-ctrl ${isLocating ? 'loading' : ''}`} onClick={locateMe} aria-label="Locate me">
@@ -828,21 +911,18 @@ const Dashboard = () => {
             minHeight: '400px'
           }}>
             <div className="dashboard-sidebar-tabs">
-              <button
-                className={`dashboard-sidebar-tab${sidebarTab === 'bookmarks' ? ' active' : ''}`}
-                onClick={() => setSidebarTab('bookmarks')}
-                type="button"
-              >
+              <div className="dashboard-sidebar-heading">
                 Bookmarks
                 {bookmarks.length > 0 && (
                   <span className="dashboard-bookmark-count">{bookmarks.length}</span>
                 )}
-              </button>
+              </div>
             </div>
             <BookmarkSidebar
               bookmarkedPoints={bookmarkedPoints}
               categories={categories}
               setSelectedPoint={setSelectedPoint}
+              onRemove={removeBookmark}
             />
           </div>
         </div>
