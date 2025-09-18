@@ -2,8 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 const predictRouter = require('./predict');
-const { createSourceClient } = require('../infrastructure/db/sourceClient');
-const { createTargetClient } = require('../infrastructure/db/targetClient');
+// Switch from per-request clients to shared pools
+const { sourcePool, targetPool } = require('../infrastructure/db/pools');
 const cfg = require('../config/env');
 
 const app = express();
@@ -18,17 +18,10 @@ app.use('/api/predict', predictRouter);
 
 // Provide data for HeatMapAnalysis.js expectations
 app.get('/api/crowd', async (req, res) => {
-  // interval=minutes to pick which predicted horizon to show; defaults to 30
   const interval = Number(req.query.interval) || 30;
-  let src, tgt;
   try {
-    src = createSourceClient();
-    tgt = createTargetClient();
-    await src.connect();
-    await tgt.connect();
-
-    // Fetch latest observed per building from source DB
-    const latestObs = await src.query(
+    if (!sourcePool || !targetPool) return res.status(500).json({ error: 'DB pools not configured' });
+    const latestObs = await sourcePool.query(
       `SELECT DISTINCT ON (cs.building_id)
               cs.building_id,
               cs.building_name,
@@ -37,9 +30,7 @@ app.get('/api/crowd', async (req, res) => {
          FROM crowd_stream cs
          ORDER BY cs.building_id, cs.ts DESC`
     );
-
-    // Fetch the most recent predictions at requested horizon from target DB
-    const preds = await tgt.query(
+    const preds = await targetPool.query(
       `SELECT DISTINCT ON (p.building_id)
               p.building_id,
               p.building_name,
@@ -51,11 +42,8 @@ app.get('/api/crowd', async (req, res) => {
          ORDER BY p.building_id, p.prediction_time DESC`,
       [interval]
     );
-
-    // Optional: capacities/colors from catalog
-    const caps = await src.query('SELECT building_id, capacity, color FROM building_catalog');
+    const caps = await sourcePool.query('SELECT building_id, capacity, color FROM building_catalog');
     const capMap = new Map(caps.rows.map(r => [r.building_id, { capacity: r.capacity, color: r.color }]));
-
     const predMap = new Map(preds.rows.map(r => [r.building_id, r]));
     const out = latestObs.rows.map(r => {
       const p = predMap.get(r.building_id);
@@ -70,23 +58,17 @@ app.get('/api/crowd', async (req, res) => {
         predictedCount: p?.predicted_count ?? r.current_count,
       };
     });
-
     res.json(out);
   } catch (e) {
     res.status(500).json({ error: 'Failed to load crowd data', details: e.message });
-  } finally {
-    try { await src?.end(); } catch {}
-    try { await tgt?.end(); } catch {}
   }
 });
 
 app.get('/api/building-history/:name', async (req, res) => {
-  let src;
   try {
+    if (!sourcePool) return res.status(500).json({ error: 'Source DB pool not configured' });
     const name = decodeURIComponent(req.params.name);
-    src = createSourceClient();
-    await src.connect();
-    const { rows } = await src.query(
+    const { rows } = await sourcePool.query(
       `SELECT ts, crowd_count FROM crowd_stream WHERE building_name = $1 AND ts >= NOW() - INTERVAL '2 minutes' ORDER BY ts ASC`,
       [name]
     );
@@ -94,8 +76,30 @@ app.get('/api/building-history/:name', async (req, res) => {
     res.json(out);
   } catch (e) {
     res.status(500).json({ error: 'Failed to fetch building history', details: e.message });
-  } finally {
-    try { await src?.end(); } catch {}
+  }
+});
+
+// Health/status endpoint
+app.get('/api/health', async (req, res) => {
+  try {
+    if (!sourcePool || !targetPool) return res.status(500).json({ status: 'error', reason: 'Pools not configured' });
+    const latestInsert = await sourcePool.query(
+      `SELECT building_id, MAX(ts) AS last_ts FROM crowd_stream GROUP BY building_id ORDER BY building_id`
+    );
+    const latestPreds = await targetPool.query(
+      `SELECT interval_minutes, MAX(prediction_time) AS last_prediction FROM predictions GROUP BY interval_minutes ORDER BY interval_minutes`
+    );
+    res.json({
+      status: 'ok',
+      generator: latestInsert.rows,
+      predictor: latestPreds.rows,
+      intervals: cfg.predictionIntervals,
+      pollIntervalMs: cfg.pollIntervalMs,
+      generatorIntervalMs: cfg.generatorIntervalMs,
+      minHistoryMinutes: cfg.minHistoryMinutes
+    });
+  } catch (e) {
+    res.status(500).json({ status: 'error', message: e.message });
   }
 });
 

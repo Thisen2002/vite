@@ -16,7 +16,7 @@ import {
 import GaugeChart from './HeatMapAnalysis/GaugeChart';
 import EnhancedSearchBar from "./HeatMapAnalysis/EnhancedSearchBar";
 import { LoadingView, ErrorView } from "./utils/uiHelpers";
-import { fetchBuildingHistoryByName, getIntervalOptions, getPollOptions } from "./utils/api";
+import { fetchBuildingHistoryByName, getIntervalOptions, getPollOptions, fetchCrowd } from "./utils/api";
 
 interface CrowdData {
   buildingId: string;  // Changed from number to string to match database
@@ -134,127 +134,65 @@ const CrowdManagement: React.FC = () => {
     return newAlerts;
   }, [alertSettings]);
 
-  // Fetch building history data when a building is selected, and refresh every 5 seconds
+  // Fetch building history helper (moved above effects to satisfy ordering)
+  const fetchBuildingHistory = useCallback(async (): Promise<void> => {
+    if (selectedBuilding === "all") return;
+    try {
+      const selectedBuildingData = crowdData.find((d) => d.buildingId === selectedBuilding);
+      if (selectedBuildingData) {
+        const data = await fetchBuildingHistoryByName(selectedBuildingData.buildingName);
+        setBuildingHistory(data);
+      }
+    } catch (err) {
+      console.error("Error fetching building history:", err);
+      const mockHistory: BuildingHistoryData[] = Array.from({ length: 24 }, (_, i) => ({
+        timestamp: new Date(Date.now() - (23 - i) * 5000).toLocaleTimeString(),
+        current_count: Math.floor(Math.random() * 100) + 20,
+      }));
+      setBuildingHistory(mockHistory);
+    }
+  }, [crowdData, selectedBuilding]);
+
+  // Initial short interval history updater (5s cadence separate from pollSeconds)
   useEffect(() => {
     if (selectedBuilding !== "all") {
       fetchBuildingHistory();
       historyIntervalRef.current = setInterval(fetchBuildingHistory, 5000);
     } else {
       setBuildingHistory([]);
-      if (historyIntervalRef.current) {
-        clearInterval(historyIntervalRef.current);
-      }
+      if (historyIntervalRef.current) clearInterval(historyIntervalRef.current);
     }
-
-    return () => {
-      if (historyIntervalRef.current) {
-        clearInterval(historyIntervalRef.current);
-      }
-    };
-  }, [selectedBuilding]);
+    return () => { if (historyIntervalRef.current) clearInterval(historyIntervalRef.current); };
+  }, [selectedBuilding, fetchBuildingHistory]);
 
   const fetchData = useCallback(async (): Promise<void> => {
     setError(null);
-    
-    // For now, always use the real building data since we're integrating with the database
-    // Later, this can be updated to fetch from the actual database API
-    setError("Using real building data from database.");
-    
-    // Real buildings data from database
-    const realBuildings = [
-      { id: 'B1', name: 'Engineering Carpentry Shop', capacity: 25 },
-      { id: 'B2', name: 'Engineering Workshop', capacity: 60 },
-      { id: 'B3', name: 'Building B3', capacity: 100 },
-      { id: 'B4', name: 'Generator Room', capacity: 10 },
-      { id: 'B5', name: 'Building B5', capacity: 100 },
-      { id: 'B6', name: 'Structure Lab', capacity: 50 },
-      { id: 'B7', name: 'Administrative Building', capacity: 100 },
-      { id: 'B8', name: 'Canteen', capacity: 30 },
-      { id: 'B9', name: 'Lecture Room 10/11', capacity: 80 },
-      { id: 'B10', name: 'Engineering Library', capacity: 120 },
-      { id: 'B11', name: 'Department of Chemical and Process Engineering', capacity: 80 },
-      { id: 'B12', name: 'Security Unit', capacity: 20 },
-      { id: 'B13', name: 'Drawing Office 2', capacity: 60 },
-      { id: 'B14', name: 'Faculty Canteen', capacity: 30 },
-      { id: 'B15', name: 'Department of Manufacturing and Industrial Engineering', capacity: 30 },
-      { id: 'B16', name: 'Professor E.O.E. Perera Theater', capacity: 200 },
-      { id: 'B17', name: 'Electronic Lab', capacity: 35 },
-      { id: 'B18', name: 'Washrooms', capacity: 100 },
-      { id: 'B19', name: 'Electrical and Electronic Workshop', capacity: 45 },
-      { id: 'B20', name: 'Department of Computer Engineering', capacity: 30 },
-      { id: 'B21', name: 'Building B21', capacity: 50 },
-      { id: 'B22', name: 'Environmental Lab', capacity: 30 },
-      { id: 'B23', name: 'Applied Mechanics Lab', capacity: 30 },
-      { id: 'B24', name: 'New Mechanics Lab', capacity: 35 },
-      { id: 'B25', name: 'Building B25', capacity: 50 },
-      { id: 'B26', name: 'Building B26', capacity: 50 },
-      { id: 'B27', name: 'Building B27', capacity: 50 },
-      { id: 'B28', name: 'Materials Lab', capacity: 40 },
-      { id: 'B29', name: 'Thermodynamics Lab', capacity: 40 },
-      { id: 'B30', name: 'Fluids Lab', capacity: 50 },
-      { id: 'B31', name: 'Surveying and Soil Lab', capacity: 70 },
-      { id: 'B32', name: 'Department of Engineering Mathematics', capacity: 120 },
-      { id: 'B33', name: 'Drawing Office 1', capacity: 50 },
-      { id: 'B34', name: 'Department of Electrical and Electronic Engineering', capacity: 150 }
-    ];
-
-    const colors = ['#ff6b6b', '#4ecdc4', '#ff9f43', '#6c5ce7', '#a29bfe', '#74b9ff', '#fd79a8', '#fdcb6e', '#6c5ce7', '#55a3ff'];
-    
-    // Generate realistic crowd data based on building types and capacity
-    const mockData: CrowdData[] = realBuildings.map((building, index) => {
-      // Generate realistic occupancy based on building type and time
-      let occupancyRate = 0.3; // Default 30%
-      
-      // Adjust occupancy based on building type
-      if (building.name.toLowerCase().includes('canteen') || building.name.toLowerCase().includes('library')) {
-        occupancyRate = 0.6 + Math.random() * 0.3; // 60-90% for popular areas
-      } else if (building.name.toLowerCase().includes('lab') || building.name.toLowerCase().includes('workshop')) {
-        occupancyRate = 0.4 + Math.random() * 0.4; // 40-80% for labs
-      } else if (building.name.toLowerCase().includes('theater') || building.name.toLowerCase().includes('lecture')) {
-        occupancyRate = 0.2 + Math.random() * 0.6; // 20-80% for lecture spaces
-      } else if (building.name.toLowerCase().includes('washroom') || building.name.toLowerCase().includes('generator')) {
-        occupancyRate = 0.1 + Math.random() * 0.2; // 10-30% for utility spaces
-      }
-      
-      const currentCount = Math.floor(building.capacity * occupancyRate);
-      const predictedCount = Math.max(0, Math.min(building.capacity, 
-        currentCount + Math.floor((Math.random() - 0.5) * 20))); // ±10 people prediction
-      
-      return {
-        buildingId: building.id,
-        buildingName: building.name,
-        currentCount,
-        predictedCount,
-        timestamp: new Date().toLocaleTimeString(),
-        color: colors[index % colors.length],
-        capacity: building.capacity
-      };
-    });
-    
-    setCrowdData(mockData);
-    
-    // Check for capacity alerts
-    const newAlerts = checkCapacityAlerts(mockData);
-    setAlerts(newAlerts);
-    
-    // Show notifications for new alerts
-    newAlerts.forEach(alert => {
-      if (alertSettings.showNotifications && "Notification" in window && Notification.permission === "granted") {
-        const alertMessages = {
-          warning: `⚠️ ${alert.buildingName} is at ${alert.percentage}% capacity`,
-          critical: `🚨 ${alert.buildingName} is at ${alert.percentage}% capacity - Near Full!`,
-          full: `🔴 ${alert.buildingName} is at FULL capacity (${alert.percentage}%)`
-        };
-        
-        new Notification("Capacity Alert", {
-          body: alertMessages[alert.alertLevel],
-          icon: "/logo.png"
-        });
-      }
-    });
-    
-    setLoading(false);
-  }, [intervalMinutes, alertSettings, checkCapacityAlerts]);
+    try {
+      const data = await fetchCrowd(intervalMinutes);
+      // Backend already returns required shape
+      setCrowdData(data as CrowdData[]);
+      const newAlerts = checkCapacityAlerts(data as CrowdData[]);
+      setAlerts(newAlerts);
+      newAlerts.forEach(alert => {
+        if (alertSettings.showNotifications && "Notification" in window && Notification.permission === "granted") {
+          const alertMessages = {
+            warning: `⚠️ ${alert.buildingName} is at ${alert.percentage}% capacity`,
+            critical: `🚨 ${alert.buildingName} is at ${alert.percentage}% capacity - Near Full!`,
+            full: `🔴 ${alert.buildingName} is at FULL capacity (${alert.percentage}%)`
+          };
+          new Notification("Capacity Alert", { body: alertMessages[alert.alertLevel], icon: "/logo.png" });
+        }
+      });
+      setLoading(false);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error('Failed to fetch backend data, falling back to mock.', msg);
+      setError('Backend unavailable - showing mock data');
+      // Minimal fallback: keep existing data if present; otherwise empty with loading false
+      if (crowdData.length === 0) setCrowdData([]);
+      setLoading(false);
+    }
+  }, [intervalMinutes, alertSettings.showNotifications, checkCapacityAlerts, crowdData.length]);
 
   // Fetch crowd data initially and then on a user-defined cadence (seconds). 0 means paused.
   useEffect(() => {
@@ -284,27 +222,7 @@ const CrowdManagement: React.FC = () => {
     }
   }, [crowdData, selectedBuilding, searchTerm]);
 
-  const fetchBuildingHistory = useCallback(async (): Promise<void> => {
-    if (selectedBuilding === "all") return;
-    try {
-      const selectedBuildingData = crowdData.find(
-        (d) => d.buildingId === selectedBuilding
-      );
-      if (selectedBuildingData) {
-        const buildingName = selectedBuildingData.buildingName;
-        const data = await fetchBuildingHistoryByName(buildingName);
-        setBuildingHistory(data);
-      }
-    } catch (err) {
-      console.error("Error fetching building history:", err);
-      // Use mock history data for development
-      const mockHistory: BuildingHistoryData[] = Array.from({ length: 24 }, (_, i) => ({
-        timestamp: new Date(Date.now() - (23 - i) * 5000).toLocaleTimeString(),
-        current_count: Math.floor(Math.random() * 100) + 20
-      }));
-      setBuildingHistory(mockHistory);
-    }
-  }, [crowdData, selectedBuilding]);
+  // (fetchBuildingHistory already defined above)
 
   // Fetch building history when a building is selected, with periodic refresh (same cadence)
   useEffect(() => {

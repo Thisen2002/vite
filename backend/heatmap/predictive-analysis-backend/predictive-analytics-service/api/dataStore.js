@@ -1,4 +1,6 @@
 // Simple in-memory data store and utilities to serve the frontend without DB
+// LEGACY / UNUSED: The running backend now uses PostgreSQL source & target databases.
+// This module is retained only for reference and is not imported by the API.
 const ARIMAEngine = require('../core/services/ARIMAEngine');
 const PredictionRequest = require('../core/models/PredictionRequest');
 const TimeSeriesData = require('../core/models/TimeSeriesData');
