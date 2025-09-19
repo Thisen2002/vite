@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { RefreshCw, AlertTriangle, Bell, BellOff } from "lucide-react";
 import SvgHeatmap from "./SvgHeatmap.jsx";
 import {
@@ -16,7 +16,7 @@ import {
 import GaugeChart from './HeatMapAnalysis/GaugeChart';
 import EnhancedSearchBar from "./HeatMapAnalysis/EnhancedSearchBar";
 import { LoadingView, ErrorView } from "./utils/uiHelpers";
-import { fetchBuildingHistoryByName, getIntervalOptions, getPollOptions } from "./utils/api";
+import { getIntervalOptions, fetchPredictionsByHorizon, fetchHealth, fetchBuildings } from "./utils/api";
 
 interface CrowdData {
   buildingId: string;  // Changed from number to string to match database
@@ -54,8 +54,10 @@ interface AlertSettings {
 
 const CrowdManagement: React.FC = () => {
   const [crowdData, setCrowdData] = useState<CrowdData[]>([]);
+  const [buildingCatalog, setBuildingCatalog] = useState<{ buildingId: string; buildingName: string; capacity: number }[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [backendOnline, setBackendOnline] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<"current" | "predicted">("current");
   const [selectedBuilding, setSelectedBuilding] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -76,13 +78,7 @@ const CrowdManagement: React.FC = () => {
     intervalOptions.includes(30) ? 30 : intervalOptions[0]
   );
   
-  const pollOptions = getPollOptions();
-  const [pollSeconds, setPollSeconds] = useState<number>(() => 
-    pollOptions.includes(10) ? 10 : pollOptions[0]
-  );
-
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const historyIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Remove auto-refresh controls; data loads on demand (Refresh button)
 
   // Request notification permission on component mount
   useEffect(() => {
@@ -91,11 +87,13 @@ const CrowdManagement: React.FC = () => {
     }
   }, []);
 
-  // Get building capacity from the building data
+  // Get building capacity from catalog (fallback to crowd data)
   const getBuildingCapacity = useCallback((buildingId: string): number => {
-    const building = crowdData.find(d => d.buildingId === buildingId);
-    return building?.capacity || 100; // Default fallback
-  }, [crowdData]);
+    const fromCatalog = buildingCatalog.find(b => b.buildingId === buildingId)?.capacity;
+    if (typeof fromCatalog === 'number') return fromCatalog;
+    const fromData = crowdData.find(d => d.buildingId === buildingId)?.capacity;
+    return typeof fromData === 'number' ? fromData : 100; // Default fallback
+  }, [crowdData, buildingCatalog]);
 
   // Check for capacity alerts
   const checkCapacityAlerts = useCallback((data: CrowdData[]): CapacityAlert[] => {
@@ -134,139 +132,74 @@ const CrowdManagement: React.FC = () => {
     return newAlerts;
   }, [alertSettings]);
 
-  // Fetch building history data when a building is selected, and refresh every 5 seconds
-  useEffect(() => {
-    if (selectedBuilding !== "all") {
-      fetchBuildingHistory();
-      historyIntervalRef.current = setInterval(fetchBuildingHistory, 5000);
-    } else {
-      setBuildingHistory([]);
-      if (historyIntervalRef.current) {
-        clearInterval(historyIntervalRef.current);
-      }
-    }
+  // Building history fetching from old server is removed for now.
 
-    return () => {
-      if (historyIntervalRef.current) {
-        clearInterval(historyIntervalRef.current);
-      }
-    };
-  }, [selectedBuilding]);
+  interface PredictionRecord {
+    building_id?: string; buildingId?: string;
+    building_name?: string; buildingName?: string;
+    horizon_min?: number;
+    current_count?: number; currentCount?: number;
+    predicted_count?: number; predictedCount?: number;
+    created_at?: string;
+  }
 
   const fetchData = useCallback(async (): Promise<void> => {
-    setError(null);
-    
-    // For now, always use the real building data since we're integrating with the database
-    // Later, this can be updated to fetch from the actual database API
-    setError("Using real building data from database.");
-    
-    // Real buildings data from database
-    const realBuildings = [
-      { id: 'B1', name: 'Engineering Carpentry Shop', capacity: 25 },
-      { id: 'B2', name: 'Engineering Workshop', capacity: 60 },
-      { id: 'B3', name: 'Building B3', capacity: 100 },
-      { id: 'B4', name: 'Generator Room', capacity: 10 },
-      { id: 'B5', name: 'Building B5', capacity: 100 },
-      { id: 'B6', name: 'Structure Lab', capacity: 50 },
-      { id: 'B7', name: 'Administrative Building', capacity: 100 },
-      { id: 'B8', name: 'Canteen', capacity: 30 },
-      { id: 'B9', name: 'Lecture Room 10/11', capacity: 80 },
-      { id: 'B10', name: 'Engineering Library', capacity: 120 },
-      { id: 'B11', name: 'Department of Chemical and Process Engineering', capacity: 80 },
-      { id: 'B12', name: 'Security Unit', capacity: 20 },
-      { id: 'B13', name: 'Drawing Office 2', capacity: 60 },
-      { id: 'B14', name: 'Faculty Canteen', capacity: 30 },
-      { id: 'B15', name: 'Department of Manufacturing and Industrial Engineering', capacity: 30 },
-      { id: 'B16', name: 'Professor E.O.E. Perera Theater', capacity: 200 },
-      { id: 'B17', name: 'Electronic Lab', capacity: 35 },
-      { id: 'B18', name: 'Washrooms', capacity: 100 },
-      { id: 'B19', name: 'Electrical and Electronic Workshop', capacity: 45 },
-      { id: 'B20', name: 'Department of Computer Engineering', capacity: 30 },
-      { id: 'B21', name: 'Building B21', capacity: 50 },
-      { id: 'B22', name: 'Environmental Lab', capacity: 30 },
-      { id: 'B23', name: 'Applied Mechanics Lab', capacity: 30 },
-      { id: 'B24', name: 'New Mechanics Lab', capacity: 35 },
-      { id: 'B25', name: 'Building B25', capacity: 50 },
-      { id: 'B26', name: 'Building B26', capacity: 50 },
-      { id: 'B27', name: 'Building B27', capacity: 50 },
-      { id: 'B28', name: 'Materials Lab', capacity: 40 },
-      { id: 'B29', name: 'Thermodynamics Lab', capacity: 40 },
-      { id: 'B30', name: 'Fluids Lab', capacity: 50 },
-      { id: 'B31', name: 'Surveying and Soil Lab', capacity: 70 },
-      { id: 'B32', name: 'Department of Engineering Mathematics', capacity: 120 },
-      { id: 'B33', name: 'Drawing Office 1', capacity: 50 },
-      { id: 'B34', name: 'Department of Electrical and Electronic Engineering', capacity: 150 }
-    ];
-
-    const colors = ['#ff6b6b', '#4ecdc4', '#ff9f43', '#6c5ce7', '#a29bfe', '#74b9ff', '#fd79a8', '#fdcb6e', '#6c5ce7', '#55a3ff'];
-    
-    // Generate realistic crowd data based on building types and capacity
-    const mockData: CrowdData[] = realBuildings.map((building, index) => {
-      // Generate realistic occupancy based on building type and time
-      let occupancyRate = 0.3; // Default 30%
-      
-      // Adjust occupancy based on building type
-      if (building.name.toLowerCase().includes('canteen') || building.name.toLowerCase().includes('library')) {
-        occupancyRate = 0.6 + Math.random() * 0.3; // 60-90% for popular areas
-      } else if (building.name.toLowerCase().includes('lab') || building.name.toLowerCase().includes('workshop')) {
-        occupancyRate = 0.4 + Math.random() * 0.4; // 40-80% for labs
-      } else if (building.name.toLowerCase().includes('theater') || building.name.toLowerCase().includes('lecture')) {
-        occupancyRate = 0.2 + Math.random() * 0.6; // 20-80% for lecture spaces
-      } else if (building.name.toLowerCase().includes('washroom') || building.name.toLowerCase().includes('generator')) {
-        occupancyRate = 0.1 + Math.random() * 0.2; // 10-30% for utility spaces
+    try {
+      setError(null);
+      setLoading(true);
+      const health = await fetchHealth();
+      const online = !!(health && health.ok);
+      setBackendOnline(online);
+      if (!online) {
+        setCrowdData([]);
+        setBuildingCatalog([]);
+        setAlerts([]);
+        setLoading(false);
+        return;
       }
-      
-      const currentCount = Math.floor(building.capacity * occupancyRate);
-      const predictedCount = Math.max(0, Math.min(building.capacity, 
-        currentCount + Math.floor((Math.random() - 0.5) * 20))); // ±10 people prediction
-      
-      return {
-        buildingId: building.id,
-        buildingName: building.name,
-        currentCount,
-        predictedCount,
-        timestamp: new Date().toLocaleTimeString(),
-        color: colors[index % colors.length],
-        capacity: building.capacity
-      };
-    });
-    
-    setCrowdData(mockData);
-    
-    // Check for capacity alerts
-    const newAlerts = checkCapacityAlerts(mockData);
-    setAlerts(newAlerts);
-    
-    // Show notifications for new alerts
-    newAlerts.forEach(alert => {
-      if (alertSettings.showNotifications && "Notification" in window && Notification.permission === "granted") {
-        const alertMessages = {
-          warning: `⚠️ ${alert.buildingName} is at ${alert.percentage}% capacity`,
-          critical: `🚨 ${alert.buildingName} is at ${alert.percentage}% capacity - Near Full!`,
-          full: `🔴 ${alert.buildingName} is at FULL capacity (${alert.percentage}%)`
+      // Load predictions and building catalog in parallel
+      const [predictions, buildings] = await Promise.all([
+        fetchPredictionsByHorizon(intervalMinutes) as Promise<PredictionRecord[]>,
+        fetchBuildings().catch(() => []) as Promise<Array<{ id?: string; building_id?: string; name?: string; building_name?: string; capacity?: number }>>
+      ]);
+
+      const catalog = (buildings || []).map(b => ({
+        buildingId: String(b.building_id || b.id),
+        buildingName: b.building_name || b.name || String(b.building_id || b.id),
+        capacity: typeof b.capacity === 'number' ? b.capacity : 100
+      }));
+      setBuildingCatalog(catalog);
+
+      // predictions expected shape: [{ building_id, building_name, horizon_min, current_count, predicted_count, created_at }]
+      const transformed: CrowdData[] = (predictions || []).map((p: PredictionRecord) => {
+        const id = String(p.building_id || p.buildingId);
+        const fromCat = catalog.find(c => c.buildingId === id);
+        return {
+          buildingId: id,
+          buildingName: p.building_name || p.buildingName || fromCat?.buildingName || id,
+          currentCount: Number(p.current_count ?? p.currentCount ?? 0),
+          predictedCount: Number(p.predicted_count ?? p.predictedCount ?? 0),
+          timestamp: p.created_at || new Date().toISOString(),
+          color: '#55a3ff',
+          capacity: typeof fromCat?.capacity === 'number' ? fromCat.capacity : 100
         };
-        
-        new Notification("Capacity Alert", {
-          body: alertMessages[alert.alertLevel],
-          icon: "/logo.png"
-        });
-      }
-    });
-    
-    setLoading(false);
-  }, [intervalMinutes, alertSettings, checkCapacityAlerts]);
+      });
 
-  // Fetch crowd data initially and then on a user-defined cadence (seconds). 0 means paused.
+      setCrowdData(transformed);
+      const newAlerts = checkCapacityAlerts(transformed);
+      setAlerts(newAlerts);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to load predictions';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [intervalMinutes, checkCapacityAlerts]);
+
+  // Load once on mount and when horizon changes; no auto-refresh
   useEffect(() => {
     fetchData();
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (pollSeconds > 0) {
-      intervalRef.current = setInterval(fetchData, pollSeconds * 1000);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [fetchData, pollSeconds]);
+  }, [fetchData]);
 
   // Filter data by building or search term
   const filteredData: CrowdData[] = useMemo(() => {
@@ -285,43 +218,18 @@ const CrowdManagement: React.FC = () => {
   }, [crowdData, selectedBuilding, searchTerm]);
 
   const fetchBuildingHistory = useCallback(async (): Promise<void> => {
-    if (selectedBuilding === "all") return;
-    try {
-      const selectedBuildingData = crowdData.find(
-        (d) => d.buildingId === selectedBuilding
-      );
-      if (selectedBuildingData) {
-        const buildingName = selectedBuildingData.buildingName;
-        const data = await fetchBuildingHistoryByName(buildingName);
-        setBuildingHistory(data);
-      }
-    } catch (err) {
-      console.error("Error fetching building history:", err);
-      // Use mock history data for development
-      const mockHistory: BuildingHistoryData[] = Array.from({ length: 24 }, (_, i) => ({
-        timestamp: new Date(Date.now() - (23 - i) * 5000).toLocaleTimeString(),
-        current_count: Math.floor(Math.random() * 100) + 20
-      }));
-      setBuildingHistory(mockHistory);
-    }
-  }, [crowdData, selectedBuilding]);
+    // History endpoint not available yet on prediction backend; omit for now
+    setBuildingHistory([]);
+  }, []);
 
-  // Fetch building history when a building is selected, with periodic refresh (same cadence)
+  // Fetch building history when a building is selected (no auto refresh)
   useEffect(() => {
     if (selectedBuilding !== "all") {
       fetchBuildingHistory();
-      if (historyIntervalRef.current) clearInterval(historyIntervalRef.current);
-      if (pollSeconds > 0) {
-        historyIntervalRef.current = setInterval(fetchBuildingHistory, pollSeconds * 1000);
-      }
     } else {
       setBuildingHistory([]);
-      if (historyIntervalRef.current) clearInterval(historyIntervalRef.current);
     }
-    return () => {
-      if (historyIntervalRef.current) clearInterval(historyIntervalRef.current);
-    };
-  }, [selectedBuilding, fetchBuildingHistory, pollSeconds]);
+  }, [selectedBuilding, fetchBuildingHistory]);
 
   const handleSearch = (query: string): void => {
     setSearchTerm(query);
@@ -397,6 +305,12 @@ const CrowdManagement: React.FC = () => {
           </button>
         </div>
 
+        {!backendOnline && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3">
+            Backend is offline. Showing no data.
+          </div>
+        )}
+
         {/* Live Timestamp */}
         <div className="text-sm text-gray-500 mb-6 bg-white px-4 py-3 rounded-lg border-l-4 border-emerald-500">
           <strong>Live Data Time:</strong> {crowdData[0]?.timestamp || "--:--"}
@@ -446,7 +360,7 @@ const CrowdManagement: React.FC = () => {
                   className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
                 >
                   <option value="all">All Buildings</option>
-                  {crowdData.map((d) => (
+                  {(buildingCatalog.length ? buildingCatalog : crowdData).map((d) => (
                     <option key={d.buildingId} value={d.buildingId}>
                       {d.buildingName}
                     </option>
@@ -469,27 +383,11 @@ const CrowdManagement: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2 flex-shrink-0">
-              <label className="text-sm font-medium text-gray-700">Auto-refresh (sec):</label>
-              <select
-                value={pollSeconds}
-                onChange={(e) => setPollSeconds(Number(e.target.value))}
-                className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
-              >
-                {pollOptions.map(s => (
-                  <option key={s} value={s}>{s === 0 ? "Paused" : s}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-2 flex-shrink-0">
               <label className="text-sm font-medium text-gray-700">Search Buildings:</label>
               <EnhancedSearchBar 
                 onSearch={handleSearch}
                 onBuildingSelect={handleBuildingSelect}
-                buildings={crowdData.map(d => ({
-                  buildingId: d.buildingId,
-                  buildingName: d.buildingName
-                }))}
+                buildings={(buildingCatalog.length ? buildingCatalog : crowdData.map(d => ({ buildingId: d.buildingId, buildingName: d.buildingName, capacity: d.capacity })) ).map(b => ({ buildingId: b.buildingId, buildingName: b.buildingName }))}
                 placeholder="Search buildings..."
               />
             </div>
