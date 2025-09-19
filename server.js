@@ -14,7 +14,7 @@ const pool = new Pool({
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'peraverse',
-  password: process.env.DB_PASSWORD || 'MND=mano#99', // replace with your password
+  password: process.env.DB_PASSWORD || '1323', // replace with your password
   port: process.env.DB_PORT || 5432,
 });
 

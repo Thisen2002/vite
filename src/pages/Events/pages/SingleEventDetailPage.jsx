@@ -296,11 +296,33 @@ export default function SingleEventDetailPage() {
                         </div>
                     </div>
 
-                    {/* Rate Event button -> FeedbackPage */}
-                    <Link to={`/events/${eventId}/feedback`} className="rate-button">
-                        <img src={RateIcon} alt="Rate" className="rate-icon" />
-                        Rate Event
-                    </Link>
+                    {/* Navigation buttons */}
+                    <div className="event-navigation-buttons">
+                        {/* Navigate to Location button */}
+                        {event.location && (
+                            <button
+                                className="navigate-location-button"
+                                onClick={() => {
+                                    window.open(`/map?location=${encodeURIComponent(event.location)}`, '_blank');
+                                }}
+                            >
+                                <img src={LocationIcon} alt="Navigate" className="navigate-icon" />
+                                Navigate to Location
+                            </button>
+                        )}
+
+                        {/* Rate Event button -> FeedbackPage */}
+                        <Link to={`/events/${eventId}/feedback`} className="rate-button">
+                            <img src={RateIcon} alt="Rate" className="rate-icon" />
+                            Rate Event
+                        </Link>
+
+                        {/* Back to Events List button */}
+                        <Link to="/events" className="back-to-events-button">
+                            <img src={ArrowLeftIcon} alt="Back to Events" className="back-to-events-icon" />
+                            Back to Events
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Right section with photo carousel */}

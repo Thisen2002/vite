@@ -483,7 +483,7 @@ export default function MapExtra() {
 
             {getBuildingInfo(selectedBuilding)?.exhibits && getBuildingInfo(selectedBuilding).exhibits.length > 0 && (
                   <div style={{ marginBottom: 12 }}>
-                    <div style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>Exhibits</div>
+                    <div style={{ color: "#252644ff", fontWeight: 600, marginBottom: 6 }}>Exhibits</div>
               <div style={{ color: "#374151" }}>
                       {getBuildingInfo(selectedBuilding).exhibits.map((exhibit, index) => (
                         <span key={index} style={{

@@ -8,7 +8,7 @@ const pool = new Pool({
   host: 'localhost',          // Database server host (default: 'localhost')
   database: 'heatmap_db',     // Database name (the one you created in pgAdmin)
   password: '1323',  // Your chosen password
-  port: process.env.DATABASE_PORT || 5432,                 // PostgreSQL server port (default: 5432)
+  port: process.env.DATABASE_PORT || 5432,      // PostgreSQL server port (default: 5432)
 });
 
 // Test the connection when the module is loaded
