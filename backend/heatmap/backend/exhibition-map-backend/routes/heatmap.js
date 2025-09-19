@@ -10,12 +10,12 @@ const router = express.Router();
 const CCTV_API_URL = process.env.CCTV_API_URL || process.env.VITE_KIOSK_NOTIFICATION_API_URL || "http://localhost:3000/api/buildings";
 
 // Define API base URL for QR API
-const API_BASE_URL = "https://ynqcwlpuzgcdqoslmgqy.supabase.co/rest/v1";
+const API_BASE_URL = "https://ulckzxbsufwjlsyxxzoz.supabase.co/rest/v1";
 
 // Define headers
 const headers = {
-  apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlucWN3bHB1emdjZHFvc2xtZ3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzI3NzAsImV4cCI6MjA3MjkwODc3MH0.R5iu6lfMuQy6monisDOUA2sf6_94ZIzFDiC0QJK_OZg",
-  Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlucWN3bHB1emdjZHFvc2xtZ3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzI3NzAsImV4cCI6MjA3MjkwODc3MH0.R5iu6lfMuQy6monisDOUA2sf6_94ZIzFDiC0QJK_OZg"
+  apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2t6eGJzdWZ3amxzeXh4em96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMTAwODcsImV4cCI6MjA3MzU4NjA4N30.J8MMNsdLQh6dw7QC1pFtWIZsYV5e2S2iRfWD_vWMsPM",
+  Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY2t6eGJzdWZ3amxzeXh4em96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMTAwODcsImV4cCI6MjA3MzU4NjA4N30.J8MMNsdLQh6dw7QC1pFtWIZsYV5e2S2iRfWD_vWMsPM"
 };
 
 
