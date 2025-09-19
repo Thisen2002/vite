@@ -256,10 +256,18 @@ body {
     line-height: 1.4;
 }
 
-/* Rate event button */
-.rate-button {
+/* Navigation buttons container */
+.event-navigation-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+}
+
+/* Navigate to Location button */
+.navigate-location-button {
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: #0D6EFD;
     color: white;
     border: none;
     padding: 16px;
@@ -272,11 +280,71 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: auto;
+    text-decoration: none;
+}
+
+.navigate-location-button:hover {
+    background-color: #0B5ED7;
+    transform: translateY(-1px);
+}
+
+.navigate-icon {
+    width: 18px;
+    height: 18px;
+    filter: invert(100%);
+}
+
+/* Back to Events button */
+.back-to-events-button {
+    width: 100%;
+    background-color: #6C757D;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.back-to-events-button:hover {
+    background-color: #5A6268;
+    transform: translateY(-1px);
+}
+
+.back-to-events-icon {
+    width: 18px;
+    height: 18px;
+    filter: invert(100%);
+}
+
+/* Rate event button */
+.rate-button {
+    width: 100%;
+    background-color: #198754;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
 }
 
 .rate-button:hover {
-    background-color: rgba(0, 0, 0, 1);
+    background-color: #157347;
     transform: translateY(-1px);
 }
 
@@ -452,6 +520,18 @@ body {
     /* Hide desktop back button */
     .back-button {
         display: none;
+    }
+
+    /* Mobile navigation buttons */
+    .event-navigation-buttons {
+        margin-top: 20px;
+    }
+
+    .navigate-location-button,
+    .rate-button,
+    .back-to-events-button {
+        padding: 14px;
+        font-size: 15px;
     }
 
     /* Collapsible description */

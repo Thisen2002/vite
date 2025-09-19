@@ -339,6 +339,32 @@ const EventsScreen = () => {
                           Save
                         </button>
                         <button
+                            className="py-2 px-3 rounded-lg font-medium text-white bg-green-600 border border-green-600 hover:bg-green-700 transition-colors text-sm flex items-center justify-center"
+                            onClick={() => {
+                              if (event.location) {
+                                navigate(`/map?location=${encodeURIComponent(event.location)}`);
+                              } else {
+                                alert('No location set for this event');
+                              }
+                            }}
+                            title="Navigate to location"
+                        >
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            width="22" 
+                            height="22" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                          >
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                          </svg>
+                        </button>
+                        <button
                             className="flex-1 py-2 px-4 rounded-lg font-medium text-black border border-black bg-transparent hover:bg-black hover:text-white transition-colors"
                             onClick={() => navigate(`/events/${event.event_id}`)}
                         >

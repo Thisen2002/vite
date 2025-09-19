@@ -1,7 +1,19 @@
 // controllers/eventController.js
 
-// Correct import
-const pool = require('../../../../db/db.js');
+// Create database pool directly to ensure correct password
+const { Pool } = require('pg');
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'organizer_dashboard',
+  password: '1323',
+  port: 5432,
+});
+
+// Test database connection on import
+pool.query('SELECT NOW()')
+  .then(() => console.log('✅ Event Controller: Database connection successful'))
+  .catch(err => console.error('❌ Event Controller: Database connection failed:', err.message));
 
 // ==============================
 // GET ALL EVENTS

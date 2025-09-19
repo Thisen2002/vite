@@ -26,6 +26,45 @@ function buildingClick(id) {
   buildingClickListner.forEach(fn => fn(id));
 }
 
+// Setup click handlers for all buildings after SVG loads
+function setupBuildingClickHandlers() {
+  // Find all clickable elements in the SVG (this may vary based on your SVG structure)
+  const clickableElements = document.querySelectorAll('[onclick*="buildingClick"]');
+  
+  clickableElements.forEach(element => {
+    // Ensure pointer events are enabled
+    element.style.pointerEvents = 'all';
+    element.style.cursor = 'pointer';
+    
+    // Re-register click handler if needed
+    if (!element.onclick && element.id) {
+      element.onclick = function() {
+        buildingClick(element.id);
+      };
+    }
+  });
+  
+  // Also ensure buildings in the buildings object have proper handlers
+  Object.keys(buildings).forEach(buildingId => {
+    // Look for the encoded building ID pattern (_x3C_b34_x3E_)
+    const encodedId = `_x3C_${buildingId}_x3E_`;
+    const element = document.getElementById(encodedId);
+    
+    if (element) {
+      element.style.pointerEvents = 'all';
+      element.style.cursor = 'pointer';
+      
+      if (!element.onclick) {
+        element.onclick = function() {
+          buildingClick(encodedId);
+        };
+      }
+    }
+  });
+  
+  console.log("Building click handlers setup complete");
+}
+
 window.buildingClick = buildingClick;
 
 function initWebSocket() {
@@ -61,7 +100,11 @@ function initMap(map_div) {
       const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
       const svgElement = svgDoc.documentElement;
       L.svgOverlay(svgElement, bounds).addTo(map);      
-    
+      
+      // After SVG loads, ensure all buildings have proper click handlers
+      setTimeout(() => {
+        setupBuildingClickHandlers();
+      }, 100);
     })
     .catch(err => console.error('Error loading SVG:', err));
 
@@ -143,7 +186,7 @@ function drawMarker(latLng) {
       className: "",
       html: `
         <svg width="40" height="40" viewBox="0 0 40 40">
-          <circle cx="20" cy="20" r="14" fill="rgba(37, 99, 235, 0.2)">
+          <circle cx="20" cy="20" r="14" fill="rgba(56, 239, 114, 0.2)">
             <animate attributeName="r" values="14;20;14" dur="1.5s" repeatCount="indefinite" />
             <animate attributeName="opacity" values="0.5;0;0.5" dur="1.5s" repeatCount="indefinite" />
           </circle>
@@ -180,6 +223,35 @@ function setBuildingAccent(buildingId ,accent) {
 if (building) {
   building.classList.remove("st1", "st2", "st0"); // remove previous accent classes
   building.classList.add(cls);
+  
+  // Ensure the building remains clickable regardless of accent
+  building.style.pointerEvents = 'all';
+  building.style.cursor = 'pointer';
+  
+  // Apply dark orange color specifically for events navigation (clicked state)
+  if (accent === "clicked") {
+    building.style.fill = '#FF6600'; // Dark orange for events navigation
+    building.style.stroke = '#CC5200';
+    building.style.strokeWidth = '2px';
+    building.style.filter = 'drop-shadow(0 2px 6px rgba(255, 102, 0, 0.4))';
+    console.log(`Applied dark orange highlight to building: ${buildingId} for events navigation`);
+  } else {
+    // Remove inline styles for other accents to use default CSS
+    building.style.fill = '';
+    building.style.stroke = '';
+    building.style.strokeWidth = '';
+    building.style.filter = '';
+  }
+  
+  // Re-register onclick handler if it doesn't exist
+  if (!building.onclick) {
+    building.onclick = function() {
+      buildingClick(buildingId);
+    };
+    console.log(`Added click handler to building: ${buildingId}`);
+  }
+  
+  console.log(`Applied accent '${accent}' (class: ${cls}) to building: ${buildingId}`);
 } else {
   console.warn("Building not found:", buildingId);
 }
@@ -221,9 +293,9 @@ function addGpsListner(listener) {
 }
 
 function removeGpsListner(listener) {
-  const index = buildingClickListner.indexOf(listener);
+  const index = gpsListners.indexOf(listener);
   if (index !== -1) {
-    buildingClickListner.splice(index, 1);
+    gpsListners.splice(index, 1);
   }
 }
 
