@@ -22,7 +22,7 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
   database: process.env.DB_NAME || 'crowd_predictions',
   user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'your_password_here',
+  password: process.env.DB_PASSWORD || '9295',
   
   // Pool configuration for optimal performance
   max: 20,                    // Maximum number of connections

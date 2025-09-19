@@ -104,10 +104,19 @@ export async function getPredictionSystemStatus() {
     if (!res.ok) {
       throw new Error(`Failed to get prediction status (${res.status})`);
     }
-    return await res.json();
+    const data = await res.json();
+    // Backend returns { success: true, status: { isRunning: boolean, ... } }
+    const available = data && data.success === true;
+    const engineActive = Boolean(data?.status?.isRunning);
+    if (!available || !engineActive) {
+      throw new Error('Prediction engine unavailable');
+    }
+    return { ...data, available, engineActive };
   } catch (error) {
-    console.warn('Prediction system status unavailable:', error.message);
-    return { available: false, error: error.message };
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    console.warn('Prediction system status unavailable:', msg);
+    // Re-throw so callers can switch to fallback mode deterministically
+    throw new Error(msg);
   }
 }
 

@@ -166,9 +166,10 @@ const CrowdManagement: React.FC = () => {
     
     // Check prediction system availability
     try {
-      await getPredictionSystemStatus();
+      const status = await getPredictionSystemStatus();
+      // If the call did not throw, consider the engine active
       setPredictionSystemStatus('active');
-      console.log('🔮 Holt\'s Linear Prediction System: ACTIVE');
+      console.log('🔮 Holt\'s Linear Prediction System: ACTIVE', status);
     } catch {
       setPredictionSystemStatus('fallback');
       console.log('⚠️ Could not connect to prediction system, using fallback predictions');
@@ -237,34 +238,28 @@ const CrowdManagement: React.FC = () => {
       const currentCount = Math.floor(building.capacity * occupancyRate);
       
       // Try to get real prediction from our Holt's Linear Model backend
-      let predictedCount = currentCount; // Fallback to current count
-      
-      try {
-        // Submit current data to prediction backend for model training
-        await submitCrowdData(building.id, currentCount);
-        
-        // Get real prediction from Holt's Linear Model
-        const predictions = await fetchPredictions(15); // 15-minute forecast
-        if (predictions && predictions.length > 0) {
-          const buildingPrediction = predictions.find(p => p.buildingId === building.id);
-          if (buildingPrediction) {
-            predictedCount = Math.max(0, Math.min(building.capacity, buildingPrediction.prediction));
-            console.log(`🔮 Using Holt's prediction for ${building.name}: ${predictedCount} (confidence: ${buildingPrediction.confidence})`);
-          } else {
-            // Fallback: use simple ±10 people prediction
-            predictedCount = Math.max(0, Math.min(building.capacity, 
-              currentCount + Math.floor((Math.random() - 0.5) * 20)));
+      let predictedCount = currentCount; // Default to current count
+
+      if (predictionSystemStatus === 'active') {
+        try {
+          // Submit current data to prediction backend for model training
+          await submitCrowdData(building.id, currentCount);
+          // Get real prediction from Holt's Linear Model
+          const predictions = await fetchPredictions(15); // 15-minute forecast
+          if (predictions && predictions.length > 0) {
+            const buildingPrediction = predictions.find(p => p.buildingId === building.id);
+            if (buildingPrediction) {
+              predictedCount = Math.max(0, Math.min(building.capacity, buildingPrediction.prediction));
+              console.log(`🔮 Using Holt's prediction for ${building.name}: ${predictedCount} (confidence: ${buildingPrediction.confidence})`);
+            }
           }
-        } else {
-          // Fallback: use simple ±10 people prediction
-          predictedCount = Math.max(0, Math.min(building.capacity, 
-            currentCount + Math.floor((Math.random() - 0.5) * 20)));
+        } catch (error) {
+          console.warn(`Prediction failed for ${building.name}, using current count:`, error instanceof Error ? error.message : 'Unknown error');
+          // keep predictedCount = currentCount in case of error
         }
-      } catch (error) {
-        console.warn(`Prediction failed for ${building.name}, using fallback:`, error instanceof Error ? error.message : 'Unknown error');
-        // Fallback: use simple ±10 people prediction
-        predictedCount = Math.max(0, Math.min(building.capacity, 
-          currentCount + Math.floor((Math.random() - 0.5) * 20)));
+      } else {
+        // In fallback mode, keep predictions steady to reflect backend offline
+        predictedCount = currentCount;
       }
       
       return {
@@ -301,7 +296,7 @@ const CrowdManagement: React.FC = () => {
     });
     
     setLoading(false);
-  }, [intervalMinutes, alertSettings, checkCapacityAlerts]);
+  }, [alertSettings, checkCapacityAlerts, predictionSystemStatus]);
 
   // Fetch crowd data initially and then on a user-defined cadence (seconds). 0 means paused.
   useEffect(() => {
@@ -461,7 +456,7 @@ const CrowdManagement: React.FC = () => {
             predictionSystemStatus === 'active' 
               ? '🔮 Holt\'s Linear Model Active - Real-time crowd forecasting enabled'
               : predictionSystemStatus === 'fallback'
-              ? '⚠️ Using fallback predictions (±10 people random variation)'
+              ? '⚠️ Backend offline — using steady predictions (equal to current count)'
               : '🔄 Checking prediction system status...'
           }
         </div>
