@@ -1,10 +1,13 @@
 // API client for prediction backend
 // Uses env overrides; default to backend dev port 3897
 const API_BASE =
-  import.meta.env.VITE_API_BASE ||
   import.meta.env.VITE_HEATMAP_API_URL ||
+  import.meta.env.VITE_API_BASE ||
   import.meta.env.VITE_MAIN_API_URL ||
   'http://localhost:3897';
+
+// Exported for diagnostics in UI
+export const API_BASE_URL = API_BASE;
 
 // Horizons (minutes) selectable in UI
 export function getIntervalOptions() {

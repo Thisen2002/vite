@@ -16,7 +16,7 @@ import {
 import GaugeChart from './HeatMapAnalysis/GaugeChart';
 import EnhancedSearchBar from "./HeatMapAnalysis/EnhancedSearchBar";
 import { LoadingView, ErrorView } from "./utils/uiHelpers";
-import { getIntervalOptions, fetchPredictionsByHorizon, fetchHealth, fetchBuildings } from "./utils/api";
+import { getIntervalOptions, fetchPredictionsByHorizon, fetchHealth, fetchBuildings, API_BASE_URL } from "./utils/api";
 
 interface CrowdData {
   buildingId: string;  // Changed from number to string to match database
@@ -303,6 +303,14 @@ const CrowdManagement: React.FC = () => {
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
+        </div>
+
+        <div className="mb-4 flex items-center gap-3 text-sm">
+          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded ${backendOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+            <span className={`w-2 h-2 rounded-full ${backendOnline ? 'bg-green-600' : 'bg-red-600'}`}></span>
+            {backendOnline ? 'Backend online' : 'Backend offline'}
+          </span>
+          <span className="text-gray-500">API: {API_BASE_URL}</span>
         </div>
 
         {!backendOnline && (
