@@ -1,6 +1,14 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+const path = require('path');
+
+// Load .env from the root directory
+require('dotenv').config({ path: path.join(__dirname, '../../../../../.env') });
+
+console.log('🔧 Environment check:');
+console.log('DB_PASSWORD set:', !!process.env.DB_PASSWORD);
+console.log('DB_NAME:', process.env.DB_NAME || 'organizer_dashboard');
+console.log('Working directory:', process.cwd());
 
 const app = express();
 const PORT = process.env.PORT || process.env.BACKEND_EVENT_SERVICE_PORT || 5002;

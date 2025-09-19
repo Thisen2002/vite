@@ -109,7 +109,7 @@ export default function MapExtra() {
         "Department of Manufacturing and Industrial Engineering": "b15",
         "Corridor": null,
         "Lecture Room (middle-right)": null,
-        "Structures Laboratory": null,
+        "Structures Laboratory": "b6",
         "Lecture Room (bottom-right)": "b9",
         "Engineering Library": "b10",
         "Process Laboratory": null,
