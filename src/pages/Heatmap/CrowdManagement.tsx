@@ -16,7 +16,14 @@ import {
 import GaugeChart from './HeatMapAnalysis/GaugeChart';
 import EnhancedSearchBar from "./HeatMapAnalysis/EnhancedSearchBar";
 import { LoadingView, ErrorView } from "./utils/uiHelpers";
-import { fetchBuildingHistoryByName, getIntervalOptions, getPollOptions } from "./utils/api";
+import { 
+  fetchBuildingHistoryByName, 
+  getIntervalOptions, 
+  getPollOptions,
+  fetchPredictions,
+  submitCrowdData,
+  getPredictionSystemStatus
+} from "./utils/api";
 
 interface CrowdData {
   buildingId: string;  // Changed from number to string to match database
@@ -60,6 +67,7 @@ const CrowdManagement: React.FC = () => {
   const [selectedBuilding, setSelectedBuilding] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [buildingHistory, setBuildingHistory] = useState<BuildingHistoryData[]>([]);
+  const [predictionSystemStatus, setPredictionSystemStatus] = useState<'checking' | 'active' | 'fallback'>('checking');
   
   // Capacity Alert States
   const [alerts, setAlerts] = useState<CapacityAlert[]>([]);
@@ -156,6 +164,16 @@ const CrowdManagement: React.FC = () => {
   const fetchData = useCallback(async (): Promise<void> => {
     setError(null);
     
+    // Check prediction system availability
+    try {
+      await getPredictionSystemStatus();
+      setPredictionSystemStatus('active');
+      console.log('🔮 Holt\'s Linear Prediction System: ACTIVE');
+    } catch {
+      setPredictionSystemStatus('fallback');
+      console.log('⚠️ Could not connect to prediction system, using fallback predictions');
+    }
+    
     // For now, always use the real building data since we're integrating with the database
     // Later, this can be updated to fetch from the actual database API
     setError("Using real building data from database.");
@@ -201,7 +219,7 @@ const CrowdManagement: React.FC = () => {
     const colors = ['#ff6b6b', '#4ecdc4', '#ff9f43', '#6c5ce7', '#a29bfe', '#74b9ff', '#fd79a8', '#fdcb6e', '#6c5ce7', '#55a3ff'];
     
     // Generate realistic crowd data based on building types and capacity
-    const mockData: CrowdData[] = realBuildings.map((building, index) => {
+    const mockData: CrowdData[] = await Promise.all(realBuildings.map(async (building, index) => {
       // Generate realistic occupancy based on building type and time
       let occupancyRate = 0.3; // Default 30%
       
@@ -217,8 +235,37 @@ const CrowdManagement: React.FC = () => {
       }
       
       const currentCount = Math.floor(building.capacity * occupancyRate);
-      const predictedCount = Math.max(0, Math.min(building.capacity, 
-        currentCount + Math.floor((Math.random() - 0.5) * 20))); // ±10 people prediction
+      
+      // Try to get real prediction from our Holt's Linear Model backend
+      let predictedCount = currentCount; // Fallback to current count
+      
+      try {
+        // Submit current data to prediction backend for model training
+        await submitCrowdData(building.id, currentCount);
+        
+        // Get real prediction from Holt's Linear Model
+        const predictions = await fetchPredictions(15); // 15-minute forecast
+        if (predictions && predictions.length > 0) {
+          const buildingPrediction = predictions.find(p => p.buildingId === building.id);
+          if (buildingPrediction) {
+            predictedCount = Math.max(0, Math.min(building.capacity, buildingPrediction.prediction));
+            console.log(`🔮 Using Holt's prediction for ${building.name}: ${predictedCount} (confidence: ${buildingPrediction.confidence})`);
+          } else {
+            // Fallback: use simple ±10 people prediction
+            predictedCount = Math.max(0, Math.min(building.capacity, 
+              currentCount + Math.floor((Math.random() - 0.5) * 20)));
+          }
+        } else {
+          // Fallback: use simple ±10 people prediction
+          predictedCount = Math.max(0, Math.min(building.capacity, 
+            currentCount + Math.floor((Math.random() - 0.5) * 20)));
+        }
+      } catch (error) {
+        console.warn(`Prediction failed for ${building.name}, using fallback:`, error instanceof Error ? error.message : 'Unknown error');
+        // Fallback: use simple ±10 people prediction
+        predictedCount = Math.max(0, Math.min(building.capacity, 
+          currentCount + Math.floor((Math.random() - 0.5) * 20)));
+      }
       
       return {
         buildingId: building.id,
@@ -229,7 +276,7 @@ const CrowdManagement: React.FC = () => {
         color: colors[index % colors.length],
         capacity: building.capacity
       };
-    });
+    }));
     
     setCrowdData(mockData);
     
@@ -400,6 +447,23 @@ const CrowdManagement: React.FC = () => {
         {/* Live Timestamp */}
         <div className="text-sm text-gray-500 mb-6 bg-white px-4 py-3 rounded-lg border-l-4 border-emerald-500">
           <strong>Live Data Time:</strong> {crowdData[0]?.timestamp || "--:--"}
+        </div>
+
+        {/* Prediction System Status */}
+        <div className={`text-sm mb-6 px-4 py-3 rounded-lg border-l-4 ${
+          predictionSystemStatus === 'active' 
+            ? 'bg-green-50 border-green-500 text-green-700' 
+            : predictionSystemStatus === 'fallback'
+            ? 'bg-yellow-50 border-yellow-500 text-yellow-700'
+            : 'bg-gray-50 border-gray-400 text-gray-600'
+        }`}>
+          <strong>Prediction System:</strong> {
+            predictionSystemStatus === 'active' 
+              ? '🔮 Holt\'s Linear Model Active - Real-time crowd forecasting enabled'
+              : predictionSystemStatus === 'fallback'
+              ? '⚠️ Using fallback predictions (±10 people random variation)'
+              : '🔄 Checking prediction system status...'
+          }
         </div>
 
         {/* Controls Section */}
