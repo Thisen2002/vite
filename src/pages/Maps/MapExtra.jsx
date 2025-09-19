@@ -9,7 +9,8 @@ import {
   buildingToNode,
   drawRoute,
   stopGps, 
-  getUserPosition
+  getUserPosition,
+  setBuildingAccent
 } from "./map_module";
 import buildingApiService from "./buildingApi";
 
@@ -97,6 +98,113 @@ export default function MapExtra() {
           window.highlightBuilding(buildingId);
         }
       } catch {}
+    };
+    // Expose a helper to highlight a building by svg id, building code (B34/b34) or by known friendly name
+    window.highlightBuildingByName = (nameOrId) => {
+      if (!nameOrId) return;
+
+      // User-provided mapping (from your input). Keys should match the event location strings.
+      const nameToMapCode = {
+        "Drawing Office 2": "b13",
+        "Department of Manufacturing and Industrial Engineering": "b15",
+        "Corridor": null,
+        "Lecture Room (middle-right)": null,
+        "Structures Laboratory": null,
+        "Lecture Room (bottom-right)": "b9",
+        "Engineering Library": "b10",
+        "Process Laboratory": null,
+        "Faculty Canteen": "b14",
+
+        "Drawing Office 1": "b33",
+        "Professor E.O.E. Pereira Theatre": "b16",
+        "Administrative Building": "b7",
+        "Security Unit": "b12",
+        "Department of Chemical and Process Engineering": "b11",
+        "Department of Engineering Mathematics / Department of Engineering Management / Computer Center": "b32",
+
+        "Department of Electrical and Electronic Engineering": "b34",
+        "Department of Computer Engineering": "b20",
+        "Electrical and Electronic Workshop": "b19",
+        "Surveying Lab": "b31",
+        "Soil Lab": "b31",
+        "Materials Lab": "b28",
+        "Electronic Lab": "b17",
+        "Environmental Lab": "b22",
+
+        "Fluids Lab": "b30",
+        "New Mechanics Lab": "b24",
+        "Applied Mechanics Lab": "b23",
+        "Thermodynamics Lab": "b29",
+        "Generator Room": null,
+        "Engineering Workshop": "b2",
+        "Engineering Carpentry Shop": "b1"
+      };
+
+      // Normalize input and attempt to resolve a DOM element id in multiple ways
+      const normalize = (s) => (typeof s === 'string' ? s.trim() : s);
+      const input = normalize(nameOrId);
+
+      const tryResolveByMapCode = (mapCode) => {
+        if (!mapCode) return null;
+        const codeUpper = mapCode.toUpperCase().replace(/^B/, 'B');
+
+        // 1) Try finding element by onclick handler that contains the building code (B34)
+        try {
+          const byOnclick = document.querySelector(`[onclick*="${codeUpper}"]`);
+          if (byOnclick && byOnclick.id) return byOnclick.id;
+        } catch (e) {}
+
+        // 2) Try the encoded DOM id pattern used in the SVG: _x3C_b34_x3E_
+        try {
+          const domId = `_x3C_${mapCode}_x3E_`;
+          const byId = document.getElementById(domId);
+          if (byId) return domId;
+        } catch (e) {}
+
+        // 3) Try a plain id (in case SVG has a plain id like 'b34')
+        try {
+          const byPlain = document.getElementById(mapCode);
+          if (byPlain && byPlain.id) return byPlain.id;
+        } catch (e) {}
+
+        return null;
+      };
+
+      const tryResolve = () => {
+        // If input looks like a building code (B34 or b34), treat it as mapCode
+        const bcodeMatch = String(input).match(/^b\d{1,3}a?$/i) || String(input).match(/^B\d{1,3}A?$/);
+        if (bcodeMatch) {
+          const mapCode = String(input).toLowerCase();
+          return tryResolveByMapCode(mapCode);
+        }
+
+        // If input matches a friendly name in the mapping, use the mapped mapCode
+        if (Object.prototype.hasOwnProperty.call(nameToMapCode, input)) {
+          const mapped = nameToMapCode[input];
+          if (mapped) return tryResolveByMapCode(mapped);
+          return null;
+        }
+
+        // Last resort: try searching for an element whose onclick contains the raw string
+        try {
+          const byOnclick = document.querySelector(`[onclick*="${input}"]`);
+          if (byOnclick && byOnclick.id) return byOnclick.id;
+        } catch (e) {}
+
+        return null;
+      };
+
+      const resolvedDomId = tryResolve();
+      if (!resolvedDomId) {
+        console.warn("Could not resolve building for:", nameOrId);
+        return;
+      }
+
+      try {
+        setBuildingAccent(resolvedDomId, "clicked");
+      } catch (e) {
+        console.warn('Highlight failed', e);
+      }
     };
     return () => {
       if (typeof unsubscribe === "function") unsubscribe();

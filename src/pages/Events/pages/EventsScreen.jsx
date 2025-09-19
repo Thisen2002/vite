@@ -339,6 +339,18 @@ const EventsScreen = () => {
                           Save
                         </button>
                         <button
+                            className="flex-1 py-2 px-4 rounded-lg font-medium text-white bg-green-600 border border-green-600 hover:bg-green-700 transition-colors"
+                            onClick={() => {
+                              if (event.location) {
+                                navigate(`/map?location=${encodeURIComponent(event.location)}`);
+                              } else {
+                                alert('No location set for this event');
+                              }
+                            }}
+                        >
+                          Navigate
+                        </button>
+                        <button
                             className="flex-1 py-2 px-4 rounded-lg font-medium text-black border border-black bg-transparent hover:bg-black hover:text-white transition-colors"
                             onClick={() => navigate(`/events/${event.event_id}`)}
                         >
