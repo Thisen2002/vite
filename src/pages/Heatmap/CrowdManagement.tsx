@@ -641,18 +641,6 @@ const CrowdManagement: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Fixed Legend */}
-                <div className="flex justify-center items-center gap-6 py-4 px-8 bg-white border-b border-gray-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-0.5 bg-blue-500 rounded"></div>
-                    <span className="text-sm font-medium text-gray-700">Current Count</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-0.5 bg-green-500 rounded border-t-2 border-dashed border-green-500"></div>
-                    <span className="text-sm font-medium text-gray-700">Predicted Count</span>
-                  </div>
-                </div>
                 
                 {/* Chart Container */}
                 <div className="p-8">
@@ -671,12 +659,12 @@ const CrowdManagement: React.FC = () => {
                       <div 
                         style={{ 
                           width: Math.max(1200, filteredData.length * 140), // Increased spacing for better readability
-                          height: 400, // Increased height for better visibility
+                          height: 400, // Increased height
                           padding: '20px'
                         }}
                       >
                         <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={filteredData} margin={{ top: 30, right: 40, left: 30, bottom: 10 }}>
+                          <LineChart data={filteredData} margin={{ top: 30, right: 40, left: 30, bottom: 100 }}>
                             <defs>
                               <linearGradient id="currentGradient" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
@@ -693,43 +681,22 @@ const CrowdManagement: React.FC = () => {
                               tick={({ x, y, payload }) => {
                                 const isSelected = selectedBuilding !== "all" && payload.value && 
                                   filteredData.find(d => d.buildingName === payload.value)?.buildingId === selectedBuilding;
-                                
-                                // Split long building names into multiple lines for horizontal display
-                                const text = payload.value || '';
-                                const words = text.split(' ');
-                                const lines = [];
-                                let currentLine = '';
-                                
-                                words.forEach((word: string) => {
-                                  if (currentLine.length + word.length + 1 <= 15) { // Max 15 chars per line
-                                    currentLine += (currentLine ? ' ' : '') + word;
-                                  } else {
-                                    if (currentLine) lines.push(currentLine);
-                                    currentLine = word;
-                                  }
-                                });
-                                if (currentLine) lines.push(currentLine);
-                                
                                 return (
-                                  <g>
-                                    {lines.map((line, index) => (
-                                      <text 
-                                        key={index}
-                                        x={x} 
-                                        y={y + (index * 12)} 
-                                        dy={16} 
-                                        textAnchor="middle" 
-                                        fill={isSelected ? '#ff6b6b' : '#374151'} 
-                                        fontSize={9}
-                                        fontWeight={isSelected ? 'bold' : 'normal'}
-                                      >
-                                        {line}
-                                      </text>
-                                    ))}
-                                  </g>
+                                  <text 
+                                    x={x} 
+                                    y={y} 
+                                    dy={16} 
+                                    textAnchor="end" 
+                                    fill={isSelected ? '#ff6b6b' : '#374151'} 
+                                    fontSize={10}
+                                    fontWeight={isSelected ? 'bold' : 'normal'}
+                                    transform={`rotate(-45 ${x} ${y})`}
+                                  >
+                                    {payload.value}
+                                  </text>
                                 );
                               }}
-                              height={100}
+                              height={90}
                               interval={0}
                               stroke="#6b7280"
                             />
@@ -769,6 +736,13 @@ const CrowdManagement: React.FC = () => {
                                     {label} {isSelected ? '(Selected Building)' : ''}
                                   </span>
                                 );
+                              }}
+                            />
+                            <Legend 
+                              wrapperStyle={{
+                                paddingTop: '20px',
+                                fontSize: '13px',
+                                fontWeight: '500'
                               }}
                             />
                             <Line 
@@ -855,21 +829,6 @@ const CrowdManagement: React.FC = () => {
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Chart Description */}
-                  <div className="bg-blue-25 px-8 py-4 border-t border-gray-100">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1">
-                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        This chart shows the current occupancy count for each building (blue line) and the predicted occupancy for the next hour (green dotted line). 
-                        The prediction helps you anticipate crowd levels, so you can plan visits to less crowded buildings and avoid congestion.
-                      </p>
                     </div>
                   </div>
                 </div>
