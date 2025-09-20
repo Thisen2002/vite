@@ -1,3 +1,4 @@
+import { u } from "framer-motion/client";
 import L from "leaflet";
 import io, { Socket } from "socket.io-client";
 
@@ -5,7 +6,7 @@ let map, socket;
 const API = 'http://localhost:3001';
 
 let userPosition;
-
+let userMarkerLayer;
 function setUserPosition(latLng) {
   userPosition = latLng
   console.log(`user position set to: ${userPosition[0]}, ${userPosition[1]}`)
@@ -38,23 +39,28 @@ function initMap(map_div) {
   const northEast = L.latLng(7.255500, 80.593809);
   const bounds = L.latLngBounds(southWest, northEast);
 
+  const MsouthWest = L.latLng(7.251000, 80.589249);
+  const MnorthEast = L.latLng(7.256500, 80.594809);
+  const mapB = L.latLngBounds(MsouthWest, MnorthEast);
+
   map = L.map(map_div, {
     maxZoom: 22,
-    minZoom: 18,
-    maxBounds: bounds,
-    maxBoundsViscosity: 1.0
-  }).setView([7.253750, 80.592028], 19);
+    minZoom: 17,
+    maxBounds: mapB,
+    maxBoundsViscosity: 1.0,
+    zoomControl: false,
+  }).setView([7.253750, 80.592028], 18);
 
   // Create custom panes
   map.createPane('routePane');
   map.getPane('routePane').style.zIndex = 650;
 
-  // Load SVG overlay
- //Updated upstream
-  fetch(`${API}/map`)
+  userMarkerLayer = L.layerGroup().addTo(map);
 
-//   fetch('http://localhost:3001/map')
-// >>>>>>> Stashed changes
+
+
+  // Load SVG overlay
+  fetch(`${API}/map`)
     .then(res => res.text())
     .then(svgText => {
       const parser = new DOMParser();
@@ -65,23 +71,10 @@ function initMap(map_div) {
     })
     .catch(err => console.error('Error loading SVG:', err));
 
-  map.fitBounds(bounds);
+  map.fitBounds(mapB);
 
-//<<<<<<< Updated upstream
   initWebSocket();
-// =======
 
-// }
-
-// async function getRouteToNode(userLatLng, dest) {
-//   if(dest === undefined){
-//     console.log("undefined route")
-//   } else{
-//     console.log(dest);
-//   var result = await fetch(`http://localhost:3001/routing?lat=${userLatLng[0]}&long=${userLatLng[1]}&dest=${dest}`);
-//   return result.json();
-//   }
-// >>>>>>> Stashed changes
 }
 
 const buildings = {
@@ -129,38 +122,48 @@ function drawRoute(result) {
   if (result) {
 
     L.circleMarker(result.snappedAt, { radius: 8, color: 'orange', pane: 'routePane' }).addTo(map).bindTooltip('Snapped');
-    L.polyline(result.routeCoords, { color: 'red', weight: 5, pane: 'routePane' }).addTo(map);
-    L.circleMarker(result.routeCoords.at(-1), { radius: 7, color: 'red', pane: 'routePane' }).addTo(map).bindTooltip('end');
-    map.fitBounds(result.routeCoords);
+    L.polyline(result.routeCoords, { color: '#254E6A', weight: 5, pane: 'routePane' }).addTo(map);
+    L.circleMarker(result.routeCoords.at(-1), { radius: 7, color: '#254E6A', pane: 'routePane' }).addTo(map).bindTooltip('end');
+    //map.fitBounds(result.routeCoords);
   }
+
+  setTimeout(() => {
+    map.invalidateSize(); 
+  }, 50);
+
+  setTimeout(() => {
+    focus(result.snappedAt); 
+  }, 700);
 
 }
 
+let userMarker = null;
+
 function drawMarker(latLng) {
-  
+  if(userMarker){
+    userMarker.remove();
+    userMarker = null;
+  }
   if(latLng){
-    const userIcon = L.divIcon({
-      className: "",
+    const svgIcon = L.divIcon({
       html: `
-        <svg width="40" height="40" viewBox="0 0 40 40">
-          <circle cx="20" cy="20" r="14" fill="rgba(37, 99, 235, 0.2)">
-            <animate attributeName="r" values="14;20;14" dur="1.5s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.5;0;0.5" dur="1.5s" repeatCount="indefinite" />
-          </circle>
-          <circle cx="20" cy="20" r="8" fill="#2563EB" stroke="#fff" stroke-width="2"/>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 18 32">
+          <path fill="#264f6b" d="M15.85,14.46,8.9,23.14,2,14.46a8.9,8.9,0,1,1,13.9,0Z"/>
+          <circle fill="#faf9f4" cx="8.9" cy="8.9" r="3.75"/>
         </svg>
       `,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20] // center the icon
+      className: "custom-svg-marker",        // prevents Leaflet default styles
+      iconSize: [32, 32],   // fixed size (doesn't scale with zoom)
+      iconAnchor: [16, 32], // bottom center = marker tip
     });
     
-    const marker = L.marker(latLng, { icon: userIcon }).addTo(map);
+    // Add marker
+    userMarker = L.marker(latLng, { icon: svgIcon }).addTo(userMarkerLayer).bindTooltip('You are here');
     
   }
 }
 
 function setBuildingAccent(buildingId ,accent) {
-
   let cls = "";
   switch(accent) {
     case "unassigned":
@@ -184,7 +187,6 @@ if (building) {
   console.warn("Building not found:", buildingId);
 }
 
-
 }
 
 
@@ -194,15 +196,12 @@ let buildingClickListner = [];
 // Add a listener and return a function to remove it
 function addBuildingClickListner(listener) {
   buildingClickListner.push(listener);
-
   console.log("Added building click listener. Total:", buildingClickListner.length);
-
 
   // Return an "unsubscribe" function
   return () => {
     removeBuildingClickListner(listener);
   };
-
 }
 
 function removeBuildingClickListner(listener) {
@@ -270,6 +269,10 @@ function stopGps() {
   console.log("GPS tracking stopped.");
 }
 
+function focus(latLng) {
+  map.setView(latLng, map.getZoom(), { animate: true, duration: 1.0 });
+  
+}
 
 export {
   map, 
@@ -284,10 +287,9 @@ export {
   stopGps, 
   drawMarker, 
   addMessageListner, 
-
   sendMessage,
-  setBuildingAccent
-
+  setBuildingAccent,
+  focus
 };
 
 
