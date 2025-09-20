@@ -1,7 +1,21 @@
 # Predictive Analysis Service
 
-A small Node/Express service that:
-- Polls a data source every minute for building crowd counts (defaults to a built‑in generator).
+### Model Notes
+- Algorithm: Holt’s linear method with optional damped trend (Gardner & McKenzie). When ≥ 6 historical points are available per building, a lightweight grid search tunes `alpha`, `beta`, and the damping factor `phi` to minimize one-step-ahead SSE during smoothing. For shorter histories (≤ 5), it falls back to provided `ALPHA`/`BETA` with an undamped trend.
+- Initialization: Level from the first observation; trend from the average of the first few differences for stability.
+- Clamping: Forecasts are non-negative and capped at the building capacity, when known from the built-in catalog.
+- Traceability: Inserted predictions include `model = 'holt-damped'` in the database.
+
+Quick verify (PowerShell):
+```
+cd "D:\CO227 Project\new code\vite\backend\heatmap\predictiveAnalysis"
+npm run dev
+
+# In a separate PowerShell
+Invoke-WebRequest -Uri http://localhost:3897/health | Select-Object -ExpandProperty Content
+Start-Sleep -Seconds 75
+Invoke-WebRequest -Uri http://localhost:3897/predictions/latest | Select-Object -ExpandProperty Content
+```
 - Stores samples in `crowd_data.crowds`.
 - Computes Holt’s linear forecasts for configured horizons.
 - Stores predictions in `crowd_predictions.predictions` and exposes REST endpoints for the frontend.
@@ -32,6 +46,7 @@ BETA=0.3
 ```powershell
 cd backend/heatmap/predictiveAnalysis
 npm install
+npm install node-fetch@2
 npm run db:init
 npm run dev
 ```
@@ -41,6 +56,7 @@ The service listens on `http://localhost:3897` by default.
 - `GET /health` → `{ ok: true }` when running
 - `GET /buildings` → building catalog (id, name, capacity)
 - `GET /generator/snapshot` → random counts for all buildings (for testing)
+- `GET /heatmap/map-data` → payload for `SvgHeatmap.jsx` (data array with id/building_id/name/capacity/count)
 - `GET /predictions?horizons=15,30&buildingId=B8` → latest per (building,horizon)
 - `GET /predictions/latest` → latest per building across all horizons
 
@@ -58,7 +74,47 @@ Set `EXTERNAL_API_URL` to your real API that returns an array of:
 ```
 `building_name` is optional; the service fills it using the internal catalog when missing.
 
+## Frontend Setup
+Set the Heatmap API URL in the root frontend `.env` (same folder as `vite.config.ts`):
+
+```env
+VITE_HEATMAP_API_URL=http://localhost:3897
+```
+
+Then run the Vite dev server:
+
+```powershell
+cd "d:\CO227 Project\new code\vite"
+npm install
+npm run dev
+```
+
+The Heatmap page reads predictions via `VITE_HEATMAP_API_URL` and will show a small status chip with backend status and the API base.
+
 ## Notes
 - Schema is idempotent; safe to run `npm run db:init` repeatedly.
 - Predictions are appended; the latest per horizon is retrieved via DISTINCT ON.
 - Adjust `ALPHA`/`BETA` to tune responsiveness.
+
+## Troubleshooting
+- SASL: SCRAM “client password must be a string”
+  - Your `SOURCE_DB_URL`/`TARGET_DB_URL` is missing or the password is undefined/incorrect. Copy `.env.example` to `.env` and set full URLs. URL-encode special characters like `@ : #`.
+  - Example: `postgres://postgres:P%40ss%23rd!@localhost:5432/crowd_data`
+
+- Poller error: Cannot find package 'node-fetch'
+  - Install node-fetch v2 (timeout option compatible): `npm install node-fetch@2` in this folder, then `npm run dev`.
+
+- Frontend shows “Backend offline”
+  - Ensure backend health: open `http://localhost:3897/health` → `{ ok: true }`.
+  - Ensure frontend env has `VITE_HEATMAP_API_URL=http://localhost:3897` and restart Vite.
+  - Avoid mixed-content (HTTPS page calling HTTP API) and port conflicts.
+
+- Predictions empty
+  - Wait a minute for the poller and predictor to run; verify `http://localhost:3897/generator/snapshot` returns data.
+  - Check `http://localhost:3897/predictions?horizons=30` returns rows; otherwise confirm the source DB `crowds` table has recent rows.
+
+## Verify endpoints quickly
+Open in a browser:
+- Health: `http://localhost:3897/health`
+- Map data: `http://localhost:3897/heatmap/map-data`
+- Predictions: `http://localhost:3897/predictions?horizons=30`

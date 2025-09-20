@@ -1,6 +1,7 @@
 const { sourcePool } = require('../db/source');
 const { targetPool } = require('../db/target');
 const { holtForecast } = require('../model/holt');
+const { getById } = require('../buildings');
 const { PREDICTION_INTERVALS, MIN_HISTORY_MINUTES, ALPHA, BETA } = require('../config');
 
 let timer = null;
@@ -24,13 +25,15 @@ async function computeOnce() {
     const current = series[series.length - 1];
     const name = hist.rows[hist.rowCount - 1].building_name || id;
 
+    const info = getById(id);
+    const maxCap = info?.capacity && Number.isFinite(info.capacity) ? info.capacity : undefined;
     for (const h of PREDICTION_INTERVALS) {
       const steps = Math.max(1, Math.round(h));
-      const pred = holtForecast(series, steps, ALPHA, BETA);
+      const pred = holtForecast(series, steps, ALPHA, BETA, { max: maxCap });
       await targetPool.query(
-        `INSERT INTO predictions (building_id, building_name, horizon_min, current_count, predicted_count)
-         VALUES ($1,$2,$3,$4,$5)`,
-        [id, name, h, current, pred]
+        `INSERT INTO predictions (building_id, building_name, horizon_min, current_count, predicted_count, model)
+         VALUES ($1,$2,$3,$4,$5,$6)`,
+        [id, name, h, current, pred, 'holt-damped']
       );
     }
   }
