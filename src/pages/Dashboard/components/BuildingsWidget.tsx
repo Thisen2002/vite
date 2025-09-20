@@ -9,12 +9,17 @@ interface Building {
   building_name: string;
   description: string;
   exhibits: string[];
+  exhibit_tags: Record<string, string[]>;  // Changed to store multiple tags for each exhibit
 }
 
 const BuildingsWidget: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [tags] = useState<string[]>([
+    "Artificial Intelligence Machine Learning and Data Science", "Biomedical Engineering and Mechatronics", "Electronics and Embedded Systems", "Robotics,Automation and Manufacturing", "Information Technology and Computing", "Energy Environment and Sustainability & Nature Based Technologies", "Materials and Nanotechnology", "Science,Entertainment and Mathematics Nanotechnoloy of Engineering"
+  ]);
+
   const [formData, setFormData] = useState<Building>({
     id: "",
     building_id: 0,
@@ -22,12 +27,13 @@ const BuildingsWidget: React.FC = () => {
     building_name: "",
     description: "",
     exhibits: [],
+    exhibit_tags: {}, // Initially empty object
   });
 
   const [newExhibit, setNewExhibit] = useState<string>("");
 
   // Hardcoded building IDs
-  const [zoneBuildings, setZoneBuildings] = useState<{
+  const [zoneBuildings] = useState<{
     [key: string]: { name: string; id: number }[];
   }>({
     "1": [
@@ -82,8 +88,9 @@ const BuildingsWidget: React.FC = () => {
       .then((res) => {
         const formatted = res.data.map((b: any) => ({
           ...b,
-          id: b.building_id.toString(),
+          id: String(b.building_id),
           exhibits: Array.isArray(b.exhibits) ? b.exhibits : [],
+          exhibit_tags: b.exhibit_tags && typeof b.exhibit_tags === "object" ? b.exhibit_tags : {},
         }));
         setBuildings(formatted);
       })
@@ -93,7 +100,7 @@ const BuildingsWidget: React.FC = () => {
           window.location.href = "/login";
         }
       });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +118,7 @@ const BuildingsWidget: React.FC = () => {
           building_name: formData.building_name,
           description: formData.description,
           exhibits: formData.exhibits,
+          exhibit_tags: formData.exhibit_tags, // Send multiple tags
         });
 
         setBuildings((prev) =>
@@ -119,13 +127,14 @@ const BuildingsWidget: React.FC = () => {
 
         alert("Building updated successfully");
       } else {
-        // Create new (use fixed hardcoded building_id)
+        // Create new
         const res = await axiosInstance.post("/buildings", {
           building_id: formData.building_id,
           zone_id: formData.zone_id,
           building_name: formData.building_name,
           description: formData.description,
           exhibits: formData.exhibits,
+          exhibit_tags: formData.exhibit_tags, // Send multiple tags
         });
 
         if (res.status === 201) {
@@ -157,13 +166,17 @@ const BuildingsWidget: React.FC = () => {
       building_name: "",
       description: "",
       exhibits: [],
+      exhibit_tags: {},
     });
     setShowForm(false);
     setNewExhibit("");
   };
 
   const handleEdit = (building: Building) => {
-    setFormData(building);
+    setFormData({
+      ...building,
+      exhibit_tags: building.exhibit_tags || {}, // Ensure exhibit_tags is an object
+    });
     setNewExhibit("");
     setShowForm(true);
   };
@@ -190,20 +203,78 @@ const BuildingsWidget: React.FC = () => {
   };
 
   const addExhibit = () => {
-    if (newExhibit.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        exhibits: [...prev.exhibits, newExhibit.trim()],
-      }));
-      setNewExhibit("");
+    const trimmed = newExhibit.trim();
+    if (!trimmed) return;
+
+    // Avoid duplicates
+    if (formData.exhibits.includes(trimmed)) {
+      alert("Exhibit already added.");
+      return;
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      exhibits: [...prev.exhibits, trimmed],
+      exhibit_tags: { ...prev.exhibit_tags, [trimmed]: [] }, // Initialize with empty array for multiple tags
+    }));
+    setNewExhibit("");
   };
 
   const removeExhibit = (exhibit: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      exhibits: prev.exhibits.filter((e) => e !== exhibit),
-    }));
+    setFormData((prev) => {
+      const updatedTags = { ...prev.exhibit_tags };
+      delete updatedTags[exhibit]; // Clear tags for removed exhibit
+      return {
+        ...prev,
+        exhibits: prev.exhibits.filter((e) => e !== exhibit),
+        exhibit_tags: updatedTags,
+      };
+    });
+  };
+
+  const addTagToExhibit = (exhibit: string, tag: string) => {
+    setFormData((prev) => {
+      const updatedTags = { ...prev.exhibit_tags };
+      if (!updatedTags[exhibit]) {
+        updatedTags[exhibit] = [];
+      }
+      if (!updatedTags[exhibit].includes(tag)) {
+        updatedTags[exhibit].push(tag);
+      }
+      return {
+        ...prev,
+        exhibit_tags: updatedTags,
+      };
+    });
+  };
+
+  const removeTagFromExhibit = (exhibit: string, tag: string) => {
+    setFormData((prev) => {
+      const updatedTags = { ...prev.exhibit_tags };
+      updatedTags[exhibit] = updatedTags[exhibit].filter((t) => t !== tag);
+      return {
+        ...prev,
+        exhibit_tags: updatedTags,
+      };
+    });
+  };
+
+  const renderExhibitsSummary = (b: Building) => {
+    if (!b.exhibits?.length) return "No exhibits available";
+    return b.exhibits.map((ex) => {
+      const tags = b.exhibit_tags?.[ex];
+      return (
+        <div key={ex}>
+          <span className="font-semibold">{ex}</span>:{" "}
+          {tags?.map((tag, index) => (
+            <span key={index} className="text-gray-600">
+              {tag}
+              {index < tags.length - 1 && ", "}
+            </span>
+          ))}
+        </div>
+      );
+    });
   };
 
   return (
@@ -245,13 +316,14 @@ const BuildingsWidget: React.FC = () => {
                 <select
                   value={formData.building_name}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      building_name: e.target.value,
-                      building_id:
-                        zoneBuildings[String(formData.zone_id)].find(
-                          (b) => b.name === e.target.value
-                        )?.id || 0,
+                    setFormData((prev) => {
+                      const zb = zoneBuildings[String(prev.zone_id)] || [];
+                      const chosen = zb.find((b) => b.name === e.target.value);
+                      return {
+                        ...prev,
+                        building_name: e.target.value,
+                        building_id: chosen?.id || 0,
+                      };
                     })
                   }
                   className="w-full border p-2 rounded"
@@ -295,20 +367,41 @@ const BuildingsWidget: React.FC = () => {
                     <Plus size={16} />
                   </button>
                 </div>
-                <div className="mt-2 space-y-1">
+
+                {/* Exhibits list with tag dropdowns */}
+                <div className="mt-3 space-y-2">
                   {formData.exhibits.map((exhibit, index) => (
                     <div
-                      key={index}
-                      className="flex justify-between items-center bg-gray-100 p-2 rounded"
+                      key={`${exhibit}-${index}`}
+                      className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-gray-50 p-2 rounded"
                     >
-                      <span>{exhibit}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeExhibit(exhibit)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        Remove
-                      </button>
+                      <div className="sm:col-span-6">
+                        <span className="font-medium">{exhibit}</span>
+                      </div>
+                      <div className="sm:col-span-5">
+                        <div className="flex flex-wrap gap-2">
+                          {tags.map((t) => (
+                            <button
+                              type="button"
+                              key={t}
+                              onClick={() => addTagToExhibit(exhibit, t)}
+                              className={`px-2 py-1 border rounded ${formData.exhibit_tags[exhibit]?.includes(t) ? "bg-blue-600 text-white" : ""}`}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="sm:col-span-1 text-right">
+                        <button
+                          type="button"
+                          onClick={() => removeExhibit(exhibit)}
+                          className="text-red-600 hover:text-red-800"
+                          title="Remove exhibit"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -358,7 +451,7 @@ const BuildingsWidget: React.FC = () => {
                 </p>
                 <p>
                   <span className="font-semibold">Exhibits:</span>{" "}
-                  {b.exhibits.length > 0 ? b.exhibits.join(", ") : "No exhibits available"}
+                  {renderExhibitsSummary(b)}
                 </p>
 
                 <div className="flex gap-3 mt-2">
