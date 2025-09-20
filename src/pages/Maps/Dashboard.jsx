@@ -442,6 +442,22 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Check if URL has a location query param (e.g. /map?location=Faculty%20Canteen)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const loc = params.get('location');
+      if (loc && typeof window.highlightBuildingByName === 'function') {
+        // Delay slightly to ensure map has initialized
+        setTimeout(() => {
+          try { window.highlightBuildingByName(decodeURIComponent(loc)); } catch (e) { console.warn(e); }
+        }, 500);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
   // Keep cookie in sync when bookmarks change
   useEffect(() => {
     writeBookmarksToCookie(bookmarks);
