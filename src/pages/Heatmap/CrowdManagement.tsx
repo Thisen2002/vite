@@ -17,6 +17,7 @@ import GaugeChart from './HeatMapAnalysis/GaugeChart';
 import EnhancedSearchBar from "./HeatMapAnalysis/EnhancedSearchBar";
 import { LoadingView, ErrorView } from "./utils/uiHelpers";
 import { getIntervalOptions, fetchPredictionsByHorizon, fetchHealth, fetchBuildings, API_BASE_URL } from "./utils/api";
+import StatusRibbon from './HeatMapAnalysis/StatusRibbon';
 
 interface CrowdData {
   buildingId: string;  // Changed from number to string to match database
@@ -62,6 +63,8 @@ const CrowdManagement: React.FC = () => {
   const [selectedBuilding, setSelectedBuilding] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [buildingHistory, setBuildingHistory] = useState<BuildingHistoryData[]>([]);
+  // Minimal layout; no grid/list toggle or sorting controls
+  const [lastSync, setLastSync] = useState<string>('');
   
   // Capacity Alert States
   const [alerts, setAlerts] = useState<CapacityAlert[]>([]);
@@ -186,6 +189,7 @@ const CrowdManagement: React.FC = () => {
       });
 
       setCrowdData(transformed);
+      setLastSync(new Date().toLocaleTimeString());
       const newAlerts = checkCapacityAlerts(transformed);
       setAlerts(newAlerts);
     } catch (e: unknown) {
@@ -247,6 +251,41 @@ const CrowdManagement: React.FC = () => {
     }
   };
 
+  // View helpers
+  const isSingleBuildingView = selectedBuilding !== "all";
+
+  // Adaptive chart width for better density at low N
+  const trendChartWidth = useMemo(() => {
+    if (isSingleBuildingView) return 640;
+    const n = filteredData.length;
+    const base = n < 5 ? 840 : 1200;
+    return Math.max(base, n * 140);
+  }, [isSingleBuildingView, filteredData.length]);
+
+  // Custom tooltip for overall trend
+  const TrendTooltip: React.FC<{ active?: boolean; payload?: Array<{ payload: CrowdData }> }> = ({ active, payload }) => {
+    if (!active || !payload || !payload.length) return null;
+    const d = payload[0].payload as CrowdData;
+    const delta = (d.predictedCount ?? 0) - (d.currentCount ?? 0);
+    const pct = d.capacity ? Math.round(((d.currentCount ?? 0) / d.capacity) * 100) : null;
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white/95 backdrop-blur p-3 shadow-lg min-w-[220px]">
+        <div className="font-semibold text-slate-800 mb-1">{d.buildingName}</div>
+        <div className="text-sm text-slate-600 grid grid-cols-2 gap-x-3 gap-y-1">
+          <span>Current</span><span className="text-slate-900 font-medium">{d.currentCount}</span>
+          <span>Predicted</span><span className="text-slate-900 font-medium">{d.predictedCount}</span>
+          <span>Delta</span>
+          <span className={delta >= 0 ? 'text-emerald-600 font-medium' : 'text-rose-600 font-medium'}>
+            {delta >= 0 ? '+' : ''}{delta}
+          </span>
+          {pct !== null && <>
+            <span>Utilization</span><span className="text-slate-900 font-medium">{pct}%</span>
+          </>}
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="pt-24 pb-8 min-h-screen bg-gray-50">
@@ -269,6 +308,7 @@ const CrowdManagement: React.FC = () => {
 
   return (
     <div className="pt-24 pb-8 min-h-screen bg-gray-50">
+      {/* Removed legacy ribbon (using unified StatusRibbon below) */}
       <style>{`
         .chart-scroll-container::-webkit-scrollbar {
           height: 14px;
@@ -294,7 +334,7 @@ const CrowdManagement: React.FC = () => {
       `}</style>
       <div className="max-w-7xl mx-auto px-6">
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-8 bg-white p-6 rounded-xl shadow-sm">
+        <div className="flex items-center justify-between mb-4 bg-white p-6 rounded-xl shadow-sm">
           <h1 className="text-3xl font-bold text-gray-800 m-0">Crowd Management</h1>
           <button
             onClick={fetchData}
@@ -305,13 +345,25 @@ const CrowdManagement: React.FC = () => {
           </button>
         </div>
 
-        <div className="mb-4 flex items-center gap-3 text-sm">
-          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded ${backendOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-            <span className={`w-2 h-2 rounded-full ${backendOnline ? 'bg-green-600' : 'bg-red-600'}`}></span>
-            {backendOnline ? 'Backend online' : 'Backend offline'}
-          </span>
-          <span className="text-gray-500">API: {API_BASE_URL}</span>
-        </div>
+        {/* Sleek Status Ribbon */}
+        <StatusRibbon
+          backendOnline={backendOnline}
+          apiBase={API_BASE_URL}
+          horizonMin={intervalMinutes}
+          lastSync={lastSync}
+          crowded={(() => {
+            const withUtil = crowdData.map(d => ({ id: d.buildingId, name: d.buildingName, value: Math.round((d.currentCount / Math.max(1, d.capacity)) * 100) }));
+            return withUtil
+              .sort((a,b)=>b.value-a.value)
+              .slice(0,3)
+              .map(c => ({ ...c, tone: c.value>=90?'crit': c.value>=75?'warn':'ok' }));
+          })()}
+          risers={(() => {
+            const arr = crowdData.map(d => ({ id: d.buildingId, name: d.buildingName, value: d.predictedCount - d.currentCount }));
+            return arr.sort((a,b)=>b.value-a.value).slice(0,2);
+          })()}
+          onChipClick={(id) => setSelectedBuilding(id)}
+        />
 
         {!backendOnline && (
           <div className="mb-6 rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3">
@@ -325,14 +377,15 @@ const CrowdManagement: React.FC = () => {
         </div>
 
         {/* Controls Section */}
-        <div className="bg-white p-6 rounded-xl shadow-sm mb-8 relative z-20">
-          <div className="flex flex-wrap items-center gap-6">
+        <div className="relative z-10 mb-8 rounded-2xl border border-slate-200/70 bg-white/60 backdrop-blur-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+          <div className="absolute -top-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
+          <div className="flex flex-wrap items-end gap-6">
             <div className="flex flex-col gap-2 flex-shrink-0">
-              <label className="text-sm font-medium text-gray-700">View Mode:</label>
+              <label className="text-xs font-semibold tracking-wide text-slate-600 uppercase">View Mode</label>
               <select
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value as "current" | "predicted")}
-                className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
+                className="h-11 px-5 min-w-[160px] rounded-full border border-slate-300/70 bg-white/80 text-slate-700 text-sm shadow-sm transition focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 hover:border-blue-400"
               >
                 <option value="current">Current</option>
                 <option value="predicted">Predicted</option>
@@ -340,17 +393,17 @@ const CrowdManagement: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2 flex-shrink-0">
-              <label className="text-sm font-medium text-gray-700">Building:</label>
+              <label className="text-xs font-semibold tracking-wide text-slate-600 uppercase">Building</label>
               <div className="flex gap-2">
                 <button
                   onClick={() => {
                     setSelectedBuilding("all");
                     setSearchTerm("");
                   }}
-                  className={`px-4 py-3 border rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none ${
+                  className={`h-11 px-5 rounded-full font-medium text-sm transition focus:outline-none ${
                     selectedBuilding === "all"
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm hover:shadow-md'
+                      : 'bg-white/80 text-slate-700 border border-slate-200/80 hover:bg-white hover:shadow-sm'
                   }`}
                 >
                   All
@@ -360,12 +413,11 @@ const CrowdManagement: React.FC = () => {
                   onChange={(e) => {
                     const value = e.target.value;
                     setSelectedBuilding(value);
-                    // Clear search when building is selected from dropdown
                     if (value !== "all") {
                       setSearchTerm("");
                     }
                   }}
-                  className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
+                  className="h-11 px-5 min-w-[180px] rounded-full border border-slate-300/70 bg-white/80 text-slate-700 text-sm shadow-sm transition focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 hover:border-blue-400"
                 >
                   <option value="all">All Buildings</option>
                   {(buildingCatalog.length ? buildingCatalog : crowdData).map((d) => (
@@ -378,11 +430,11 @@ const CrowdManagement: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2 flex-shrink-0">
-              <label className="text-sm font-medium text-gray-700">Horizon (mins):</label>
+              <label className="text-xs font-semibold tracking-wide text-slate-600 uppercase">Horizon (mins)</label>
               <select
                 value={intervalMinutes}
                 onChange={(e) => setIntervalMinutes(Number(e.target.value))}
-                className="px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm transition-all duration-150 min-w-[150px] focus:outline-none focus:border-blue-500 focus:shadow-sm focus:shadow-blue-100"
+                className="h-11 px-5 min-w-[160px] rounded-full border border-slate-300/70 bg-white/80 text-slate-700 text-sm shadow-sm transition focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 hover:border-blue-400"
               >
                 {intervalOptions.map(m => (
                   <option key={m} value={m}>{m}</option>
@@ -391,7 +443,7 @@ const CrowdManagement: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2 flex-shrink-0">
-              <label className="text-sm font-medium text-gray-700">Search Buildings:</label>
+              <label className="text-xs font-semibold tracking-wide text-slate-600 uppercase">Search Buildings</label>
               <EnhancedSearchBar 
                 onSearch={handleSearch}
                 onBuildingSelect={handleBuildingSelect}
@@ -401,22 +453,28 @@ const CrowdManagement: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2 flex-shrink-0">
-              <label className="text-sm font-medium text-gray-700">Alerts:</label>
+              <label className="text-xs font-semibold tracking-wide text-slate-600 uppercase">Alerts</label>
               <button
                 onClick={() => setAlertSettings(prev => ({ ...prev, enabled: !prev.enabled }))}
-                className={`flex items-center gap-2 px-3 py-3 border rounded-lg font-medium text-sm transition-all duration-150 min-w-[120px] focus:outline-none ${
+                className={`flex items-center gap-2 h-11 px-5 rounded-full font-medium text-sm transition focus:outline-none ${
                   alertSettings.enabled 
-                    ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700' 
-                    : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm hover:shadow-md' 
+                    : 'bg-white/80 text-slate-700 border border-slate-200/80 hover:bg-white hover:shadow-sm'
                 }`}
               >
                 {alertSettings.enabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                 {alertSettings.enabled ? 'Enabled' : 'Disabled'}
               </button>
             </div>
+
+            {/* Minimal controls retained above; removed grid/sort/export */}
           </div>
         </div>
 
+        {/* Heat Map Section */}
+        <div className="mb-8">
+          <SvgHeatmap />
+        </div>
         {/* Capacity Alerts Display */}
         {alerts.length > 0 && (
           <div className="bg-white p-6 rounded-xl shadow-sm mb-8 border-l-4 border-orange-500">
@@ -426,16 +484,13 @@ const CrowdManagement: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {alerts.map(alert => (
-                <div
-                  key={alert.id}
-                  className={`p-4 rounded-lg border-l-4 ${
-                    alert.alertLevel === 'full' 
-                      ? 'bg-red-50 border-red-500' 
-                      : alert.alertLevel === 'critical'
-                      ? 'bg-orange-50 border-orange-500'
-                      : 'bg-yellow-50 border-yellow-500'
-                  }`}
-                >
+                <div key={alert.id} className={`p-4 rounded-lg border-l-4 ${
+                  alert.alertLevel === 'full' 
+                    ? 'bg-red-50 border-red-500' 
+                    : alert.alertLevel === 'critical'
+                    ? 'bg-orange-50 border-orange-500'
+                    : 'bg-yellow-50 border-yellow-500'
+                }`}>
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium text-gray-800">{alert.buildingName}</h4>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -448,37 +503,36 @@ const CrowdManagement: React.FC = () => {
                       {alert.percentage}%
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    {alert.currentCount} / {alert.capacity} capacity
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {alert.timestamp}
-                  </p>
+                  <p className="text-sm text-gray-600">{alert.currentCount} / {alert.capacity} capacity</p>
+                  <p className="text-xs text-gray-500 mt-1">{alert.timestamp}</p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Heat Map Section */}
-        <div className="mb-8">
-          {/* <HeatMap /> */}
-          <SvgHeatmap />
-        </div>
-
-        {/* Main Content Layout */}
+        {/* Trend Section */}
         <div className="flex gap-8">
           {/* Main Content */}
           <div className={`flex-1 transition-all duration-300 ${selectedBuilding !== "all" ? 'mr-96' : ''}`}>
             <div className="flex flex-col gap-8">
-              {/* Overall Crowd Trend */}
+              {/* Overall Crowd Trend / Single Building Snapshot */}
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 {/* Chart Header */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-800 mb-1">Overall Crowd Trend</h2>
-                      <p className="text-sm text-gray-600">Real-time occupancy data across all buildings</p>
+                      {isSingleBuildingView ? (
+                        <>
+                          <h2 className="text-2xl font-bold text-gray-800 mb-1">Building Snapshot</h2>
+                          <p className="text-sm text-gray-600">Current vs predicted for selected building</p>
+                        </>
+                      ) : (
+                        <>
+                          <h2 className="text-2xl font-bold text-gray-800 mb-1">Overall Crowd Trend</h2>
+                          <p className="text-sm text-gray-600">Real-time occupancy data across all buildings</p>
+                        </>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
@@ -489,94 +543,112 @@ const CrowdManagement: React.FC = () => {
                 
                 {/* Chart Container */}
                 <div className="p-8">
-                  <div className="flex justify-center">
-                    <div 
-                      className="border-2 border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white chart-scroll-container shadow-inner"
-                      style={{ 
-                        maxWidth: 'calc(100vw - 200px)', // Account for page margins and padding
-                        width: '100%',
-                        overflowX: 'auto',
-                        overflowY: 'hidden',
-                        scrollbarWidth: 'thin',
-                        scrollbarColor: '#CBD5E0 #F7FAFC'
-                      }}
-                    >
-                      <div 
-                        style={{ 
-                          width: Math.max(1200, filteredData.length * 140), // Increased spacing for better readability
-                          height: 400, // Increased height
-                          padding: '20px'
-                        }}
-                      >
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={filteredData} margin={{ top: 30, right: 40, left: 30, bottom: 100 }}>
-                            <defs>
-                              <linearGradient id="currentGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                                <stop offset="95%" stopColor="#8884d8" stopOpacity={0.1}/>
-                              </linearGradient>
-                              <linearGradient id="predictedGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                                <stop offset="95%" stopColor="#82ca9d" stopOpacity={0.1}/>
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" opacity={0.7} />
-                            <XAxis 
-                              dataKey="buildingName"
-                              tick={{ fontSize: 10, fill: '#374151' }}
-                              angle={-45}
-                              textAnchor="end"
-                              height={90}
-                              interval={0}
-                              stroke="#6b7280"
-                            />
-                            <YAxis 
-                              tick={{ fontSize: 11, fill: '#374151' }}
-                              stroke="#6b7280"
-                              label={{ value: 'Occupancy Count', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#374151' } }}
-                            />
-                            <Tooltip 
-                              contentStyle={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                border: '1px solid #e5e7eb',
-                                borderRadius: '12px',
-                                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                                fontSize: '13px'
-                              }}
-                            />
-                            <Legend 
-                              wrapperStyle={{
-                                paddingTop: '20px',
-                                fontSize: '13px',
-                                fontWeight: '500'
-                              }}
-                            />
-                            <Line 
-                              type="monotone" 
-                              dataKey="currentCount" 
-                              name="Current Count" 
-                              stroke="#8884d8" 
-                              strokeWidth={3}
-                              dot={{ r: 6, fill: '#8884d8', strokeWidth: 2, stroke: '#ffffff' }}
-                              activeDot={{ r: 8, fill: '#8884d8', strokeWidth: 3, stroke: '#ffffff' }} 
-                            />
-                            <Line 
-                              type="monotone" 
-                              dataKey="predictedCount" 
-                              name="Predicted Count" 
-                              stroke="#82ca9d" 
-                              strokeWidth={3}
-                              strokeDasharray="5 5"
-                              dot={{ r: 6, fill: '#82ca9d', strokeWidth: 2, stroke: '#ffffff' }}
-                              activeDot={{ r: 8, fill: '#82ca9d', strokeWidth: 3, stroke: '#ffffff' }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
+                  {isSingleBuildingView ? (
+                    <div className="grid place-items-center">
+                      <div className="w-full max-w-3xl border-2 border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-inner p-6">
+                        {(() => {
+                          const single = filteredData[0];
+                          const cap = single ? getBuildingCapacity(single.buildingId) : 100;
+                          const data = single ? [{ name: single.buildingName, current: single.currentCount, predicted: single.predictedCount }] : [];
+                          const delta = single ? (single.predictedCount - single.currentCount) : 0;
+                          const deltaTone = delta >= 0 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : 'text-rose-600 bg-rose-50 border-rose-200';
+                          return (
+                            <>
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="text-sm text-slate-600">Capacity: <span className="font-medium text-slate-800">{cap}</span></div>
+                                <div className={`text-xs px-3 py-1 rounded-full border ${deltaTone}`}>Δ {delta >= 0 ? '+' : ''}{delta}</div>
+                              </div>
+                              <ResponsiveContainer width="100%" height={260}>
+                                <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" opacity={0.7} />
+                                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} stroke="#6b7280" />
+                                  <YAxis domain={[0, Math.max(cap, (single?.currentCount ?? 0), (single?.predictedCount ?? 0)) * 1.2]} tick={{ fontSize: 11, fill: '#374151' }} stroke="#6b7280" />
+                                  <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid #e5e7eb', borderRadius: 12 }} />
+                                  <Legend wrapperStyle={{ fontSize: '13px', fontWeight: 500 }} />
+                                  <Bar dataKey="current" name="Current" fill="#8884d8" radius={[8,8,0,0]} />
+                                  <Bar dataKey="predicted" name="Predicted" fill="#82ca9d" radius={[8,8,0,0]} />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Chart Info */}
+                  ) : (
+                    <div className="flex justify-center">
+                      <div 
+                        className="border-2 border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white chart-scroll-container shadow-inner"
+                        style={{ 
+                          maxWidth: 'calc(100vw - 200px)',
+                          width: '100%',
+                          overflowX: 'auto',
+                          overflowY: 'hidden',
+                          scrollbarWidth: 'thin',
+                          scrollbarColor: '#CBD5E0 #F7FAFC'
+                        }}
+                      >
+                        <div 
+                          style={{ 
+                            width: trendChartWidth,
+                            height: 400,
+                            padding: '20px'
+                          }}
+                        >
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={filteredData} margin={{ top: 30, right: 40, left: 30, bottom: 100 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" opacity={0.7} />
+                              <XAxis 
+                                dataKey="buildingName"
+                                tick={{ fontSize: 10, fill: '#374151' }}
+                                angle={-45}
+                                textAnchor="end"
+                                height={90}
+                                interval={0}
+                                stroke="#6b7280"
+                              />
+                              <YAxis 
+                                tick={{ fontSize: 11, fill: '#374151' }}
+                                stroke="#6b7280"
+                                domain={[0, (dataMax: number) => Math.ceil(dataMax * 1.15)]}
+                                label={{ value: 'Occupancy Count', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#374151' } }}
+                              />
+                              <Tooltip content={(props) => <TrendTooltip {...props} />} />
+                              <Legend 
+                                wrapperStyle={{
+                                  paddingTop: '20px',
+                                  fontSize: '13px',
+                                  fontWeight: '500'
+                                }}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="currentCount" 
+                                name="Current Count" 
+                                stroke="#8884d8" 
+                                strokeWidth={3}
+                                dot={{ r: 5, fill: '#8884d8', strokeWidth: 2, stroke: '#ffffff' }}
+                                activeDot={{ r: 7, fill: '#8884d8', strokeWidth: 3, stroke: '#ffffff' }} 
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="predictedCount" 
+                                name="Predicted Count" 
+                                stroke="#82ca9d" 
+                                strokeWidth={3}
+                                strokeDasharray="5 5"
+                                dot={{ r: 5, fill: '#82ca9d', strokeWidth: 2, stroke: '#ffffff' }}
+                                activeDot={{ r: 7, fill: '#82ca9d', strokeWidth: 3, stroke: '#ffffff' }}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Chart Info */}
+                {!isSingleBuildingView && (
                   <div className="mt-6 flex items-center justify-center">
                     <div className="bg-blue-50 px-6 py-3 rounded-full border border-blue-200">
                       <p className="text-sm text-blue-700 font-medium flex items-center gap-2">
@@ -587,7 +659,7 @@ const CrowdManagement: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

@@ -21,9 +21,10 @@ const GaugeChart = ({ value, max, title, width = '100%', height = 250 }) => {
   ];
   
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center transition-transform duration-300 hover:scale-[1.01]">
       <h3 className="text-lg font-medium mb-2">{title}</h3>
-      <div style={{ width, height }}>
+      <div style={{ width, height }} className="relative">
+        <div className="absolute inset-0 rounded-full blur-xl opacity-20" style={{ background: `radial-gradient(circle at 50% 60%, ${color}, transparent 60%)` }} aria-hidden></div>
         <ResponsiveContainer>
           <PieChart>
             <Pie
