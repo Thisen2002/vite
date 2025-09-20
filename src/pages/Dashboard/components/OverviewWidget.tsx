@@ -60,6 +60,9 @@ const OverviewWidget: React.FC = () => {
       { name: "Engineering Workshop", id: "B2" },
       { name: "Engineering Carpentry Shop", id: "B1" },
     ],
+    "5": [
+      { name: "Environmental Lab", id: "B22" },
+    ],
   };
 
   useEffect(() => {
@@ -173,6 +176,7 @@ const OverviewWidget: React.FC = () => {
           <option value="2">Zone B</option>
           <option value="3">Zone C</option>
           <option value="4">Zone D</option>
+          <option value="5">Other</option>
         </select>
 
         {/* Building Dropdown */}
