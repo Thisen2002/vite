@@ -1,3 +1,5 @@
+import React from 'react'
+
 interface FooterTailwindProps {}
 
 /**
@@ -16,7 +18,7 @@ const FooterTailwind: React.FC<FooterTailwindProps> = () => {
           © 2025 Faculty of Engineering, University of Peradeniya
         </p>
         <p className="my-1 text-xs font-light">
-          PeraVerse Digital Kiosk System
+          PeraVerse Digital Kiosk System by PeraCom
         </p>
       </div>
     </div>

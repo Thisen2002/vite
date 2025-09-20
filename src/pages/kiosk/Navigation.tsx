@@ -21,7 +21,7 @@ const NavigationTailwind: React.FC<NavigationTailwindProps> = ({ currentPage, on
   const [currentTime, setCurrentTime] = useState<Date>(new Date())
   
   // Page names corresponding to the components
-  const pageNames: string[] = ['Home', 'About', 'Events', 'Notifications', 'Map', 'Heat Map', 'Contact']
+  const pageNames: string[] = ['Home', 'Events', 'Exhibits', 'Map', 'Heat Map']
   
   // Update time every second
   useEffect(() => {
@@ -44,11 +44,11 @@ const NavigationTailwind: React.FC<NavigationTailwindProps> = ({ currentPage, on
       </div>
       
       {/* Navigation Menu */}
-      <div className="flex flex-col gap-3 flex-1 overflow-y-auto overflow-x-hidden px-2 py-0.5 scrollbar-thin scrollbar-thumb-blue-500/60 scrollbar-track-slate-700/30 hover:scrollbar-thumb-blue-500/80">
+      <div className="flex flex-col gap-4 flex-1 overflow-y-auto overflow-x-hidden px-2 pt-3 pb-0.5 scrollbar-thin scrollbar-thumb-blue-500/60 scrollbar-track-slate-700/30 hover:scrollbar-thumb-blue-500/80">
         {pages.map((_, index) => (
           <div
             key={index}
-            className={`nav-item flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-slate-700/60 backdrop-blur-md border-2 border-white/10 transition-all duration-300 ease-cubic-bezier(0.4,0,0.2,1) relative overflow-hidden cursor-pointer select-none ${
+            className={`nav-item flex items-center gap-2 px-4 py-3 rounded-2xl bg-slate-700/60 backdrop-blur-md border-2 border-white/10 transition-all duration-300 ease-cubic-bezier(0.4,0,0.2,1) relative overflow-hidden cursor-pointer select-none ${
               index === currentPage 
                 ? 'active bg-blue-500/30 border-blue-500/60 scale-105 shadow-[0_12px_35px_rgba(59,130,246,0.4)]' 
                 : 'hover:bg-sky-400/20 hover:border-sky-400/40 hover:scale-105 hover:shadow-[0_8px_25px_rgba(56,189,248,0.3)]'
@@ -56,7 +56,7 @@ const NavigationTailwind: React.FC<NavigationTailwindProps> = ({ currentPage, on
             onClick={() => onPageClick(index)}
             style={{ cursor: 'pointer' }}
           >
-            <span className="text-white/90 font-medium text-sm">
+            <span className="text-white/90 font-medium text-base">
               {pageNames[index]}
             </span>
           </div>
@@ -64,19 +64,19 @@ const NavigationTailwind: React.FC<NavigationTailwindProps> = ({ currentPage, on
       </div>
       
       {/* Date and Time Display */}
-      <div className="mt-auto pt-4 border-t border-white/15 space-y-2">
+      <div className="mt-auto pt-4 border-t border-white/15 space-y-3">
         {/* Time Display */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-slate-700/40 backdrop-blur-md rounded-xl border border-white/10">
-          <span className="text-lg">🕐</span>
-          <span className="text-white/90 font-medium text-sm">
+        <div className="flex items-center gap-3 px-4 py-3 bg-slate-700/40 backdrop-blur-md rounded-xl border border-white/10">
+          <span className="text-xl">🕐</span>
+          <span className="text-white/90 font-medium text-base">
             {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
           </span>
         </div>
         
         {/* Date Display */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-slate-700/40 backdrop-blur-md rounded-xl border border-white/10">
-          <span className="text-lg">📅</span>
-          <span className="text-white/90 font-medium text-sm">
+        <div className="flex items-center gap-3 px-4 py-3 bg-slate-700/40 backdrop-blur-md rounded-xl border border-white/10">
+          <span className="text-xl">📅</span>
+          <span className="text-white/90 font-medium text-base">
             {currentTime.toLocaleDateString()}
           </span>
         </div>
