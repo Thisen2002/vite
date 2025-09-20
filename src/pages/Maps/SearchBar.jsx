@@ -47,11 +47,25 @@ export const DesktopSearchBar = ({
   setHasSelectedResult,
   setIsSelecting
 }) => {
+  const [isDropdownHidden, setIsDropdownHidden] = useState(false);
+  
+  // Custom handleSelectResult that immediately hides dropdown
+  const handleSelectResultWithHide = (item) => {
+    setIsDropdownHidden(true); // Immediately hide dropdown
+    handleSelectResult(item); // Call original handler
+  };
+  
   return (
     <div className="map-search" style={{ position: 'relative' }}>
       <input
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          // Reset selection states when user types
+          setHasSelectedResult(false);
+          setIsSelecting(false);
+          setIsDropdownHidden(false); // Show dropdown when user types
+        }}
         placeholder="Search exhibits..."
         className="map-search-input"
         style={{ paddingRight: '48px' }}
@@ -81,7 +95,7 @@ export const DesktopSearchBar = ({
             Related items in {searchQuery}:
           </div>
           {buildingRelatedResults.slice(0, 8).map(item => (
-            <button key={item.id} className="map-search-result" onClick={() => handleSelectResult(item)}>
+            <button key={item.id} className="map-search-result" onClick={() => handleSelectResultWithHide(item)}>
               <span className="map-result-dot" style={{ backgroundColor: categories[item.category] || '#6b7280' }} />
               <div className="map-result-text">
                 <div className="map-result-title">{item.name}</div>
@@ -98,7 +112,20 @@ export const DesktopSearchBar = ({
       )}
       
       {/* Show regular search results when not showing building results */}
-      {searchQuery && !hasSelectedResult && !isSelecting && !showBuildingResults && (isSearching || allResults.length > 0) && (
+      {(() => {
+        const shouldShow = !isDropdownHidden && searchQuery && !hasSelectedResult && !isSelecting && !showBuildingResults && (isSearching || allResults.length > 0);
+        console.log('Dropdown visibility check:', {
+          isDropdownHidden,
+          searchQuery,
+          hasSelectedResult,
+          isSelecting,
+          showBuildingResults,
+          isSearching,
+          allResultsLength: allResults.length,
+          shouldShow
+        });
+        return shouldShow;
+      })() && (
         <div className="map-search-results">
           {isSearching ? (
             <div style={{ padding: '12px', textAlign: 'center', color: '#6b7280' }}>
@@ -106,7 +133,7 @@ export const DesktopSearchBar = ({
             </div>
           ) : allResults.length > 0 ? (
             allResults.slice(0, 8).map(item => (
-              <button key={item.id} className="map-search-result" onClick={() => handleSelectResult(item)}>
+              <button key={item.id} className="map-search-result" onClick={() => handleSelectResultWithHide(item)}>
                 <span className="map-result-dot" style={{ backgroundColor: categories[item.category] || '#6b7280' }} />
                 <div className="map-result-text">
                   <div className="map-result-title">{item.name}</div>
@@ -374,6 +401,7 @@ export const useSearchBar = (fetchedBuilding = null) => {
     searchResults,
     setSearchResults,
     isSearching,
+    setIsSearching,
     hasSelectedResult,
     setHasSelectedResult,
     isSelecting,
