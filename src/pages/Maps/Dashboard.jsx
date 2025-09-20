@@ -3,6 +3,7 @@ import './Dashboard.css';
 import MapExtra from './MapExtra.jsx';
 import buildingApiService from './buildingApi';
 import { DesktopSearchBar, useSearchBar } from './SearchBar';
+import BookmarkManager, { BookmarkButton, useBookmarkManager } from './BookmarkManager';
 
 const categories = {
   Exhibits: '#2563eb',
@@ -110,7 +111,9 @@ const Dashboard = () => {
     searchQuery,
     setSearchQuery,
     searchResults,
+    setSearchResults,
     isSearching,
+    setIsSearching,
     hasSelectedResult,
     setHasSelectedResult,
     isSelecting,
@@ -123,6 +126,42 @@ const Dashboard = () => {
     fetchBuildingRelatedItems,
     allResults
   } = useSearchBar();
+
+  // Use BookmarkManager hook for bookmark functionality
+  const {
+    bookmarks,
+    addBookmark,
+    removeBookmark,
+    toggleBookmark,
+    isBookmarked,
+    showNotification
+  } = useBookmarkManager();
+
+  // Debounced search effect - triggers search when user types
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim()) {
+        // Only search if no result has been selected
+        if (!hasSelectedResult && !isSelecting) {
+          // Reset selection states when user types new query
+          setHasSelectedResult(false);
+          setIsSelecting(false);
+          setShowBuildingResults(false);
+          setBuildingRelatedResults([]);
+          performSearch(searchQuery);
+        }
+      } else {
+        // Clear results when search is empty
+        setSearchResults([]);
+        setHasSelectedResult(false);
+        setIsSelecting(false);
+        setShowBuildingResults(false);
+        setBuildingRelatedResults([]);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, performSearch, hasSelectedResult, isSelecting]);
 
   const visiblePoints = useMemo(() => {
     // Use search results when available
@@ -146,10 +185,17 @@ const Dashboard = () => {
   const handleSelectResult = (item) => {
     // Immediately hide dropdown by setting all flags
     console.log('handleSelectResult called, hiding dropdown immediately');
+    console.log('Before state update:', { hasSelectedResult, isSelecting, searchQuery });
+    
     setIsSelecting(true);
     setHasSelectedResult(true);
     setSearchResults([]);
     setIsSearching(false);
+    setShowBuildingResults(false);
+    setBuildingRelatedResults([]);
+    setSearchQuery(''); // Clear the search input as well
+    
+    console.log('After state update calls:', { hasSelectedResult, isSelecting, searchQuery });
     
     // Convert API result to the format expected by the rest of the app
     const point = {
@@ -164,19 +210,31 @@ const Dashboard = () => {
       buildingId: item.buildingId,
       buildingName: item.buildingName,
       svgBuildingId: item.svgBuildingId,
-      type: item.type
+      type: item.type,
+      coordinates: item.coordinates
     };
     
     setSelectedPoint(point);
     setSearchQuery(item.name);
     
-    // Only highlight the building, don't show popup
+    // Highlight the building and show bottom sheet
     if (item.svgBuildingId) {
       // Use highlightBuilding from Map component via window object
       if (window.highlightBuilding) {
         window.highlightBuilding(item.svgBuildingId);
       }
     }
+    
+    // Show building info in bottom sheet (MapExtra component)
+    // Add a small delay to ensure MapExtra component is fully loaded
+    setTimeout(() => {
+      if (window.showBuildingInfo) {
+        console.log('Calling window.showBuildingInfo with:', item.svgBuildingId || item.buildingId, item.name);
+        window.showBuildingInfo(item.svgBuildingId || item.buildingId, item.name);
+      } else {
+        console.warn('window.showBuildingInfo not available yet');
+      }
+    }, 100);
     
     centerOnPoint(point);
     
@@ -188,6 +246,41 @@ const Dashboard = () => {
       setShowBuildingResults(false);
       setBuildingRelatedResults([]);
     }
+  };
+
+  const handleBookmarkClick = (bookmark) => {
+    // Convert bookmark to point format and select it
+    const point = {
+      id: bookmark.id,
+      name: bookmark.name,
+      category: bookmark.category,
+      description: bookmark.description,
+      buildingId: bookmark.buildingId,
+      buildingName: bookmark.buildingName,
+      svgBuildingId: bookmark.svgBuildingId,
+      coordinates: bookmark.coordinates,
+      type: bookmark.category === 'Building' ? 'building' : 
+            bookmark.category === 'Exhibits' ? 'exhibit' : 
+            bookmark.category === 'Amenities' ? 'amenity' : 'building'
+    };
+    
+    setSelectedPoint(point);
+    setSearchQuery(bookmark.name);
+    
+    // Highlight building on map if available
+    if (bookmark.svgBuildingId && window.highlightBuilding) {
+      window.highlightBuilding(bookmark.svgBuildingId);
+    }
+    
+    // Show building info if available
+    // Add a small delay to ensure MapExtra component is fully loaded
+    setTimeout(() => {
+      if (window.showBuildingInfo) {
+        window.showBuildingInfo(bookmark.id, bookmark.name);
+      } else {
+        console.warn('window.showBuildingInfo not available yet');
+      }
+    }, 100);
   };
 
   const toggleCategory = (cat) => {

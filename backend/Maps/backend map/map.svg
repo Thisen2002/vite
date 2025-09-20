@@ -1066,79 +1066,79 @@
 	</g>
 	<g id="_x3C_buildings_x3E_">
 		
-			<rect id="b35" x="98.8" y="115" onclick="buildingClick('b35')" class="st2" width="11.7" height="26.6"/>
-		<polygon id="b34" onclick="buildingClick('b34')" class="st2" points="
+			<rect id="b35_00000165924361240677967400000007576572886328939906_" x="98.8" y="115" onclick="buildingClick('b35')" class="st2" width="11.7" height="26.6"/>
+		<polygon id="b34_00000085941883511723648780000016375219745452847022_" onclick="buildingClick('b34')" class="st2" points="
 			125.9,91.9 240.1,92.1 239.8,118.7 125.7,118.5 		"/>
 		
-			<rect id="b33" x="256.7" y="92.7" onclick="buildingClick('b33')" class="st2" width="95" height="30.6"/>
-		<polygon id="b32" onclick="buildingClick('b32')" class="st2" points="
+			<rect id="b33_00000123421588444595258730000012771299110064480927_" x="256.7" y="92.7" onclick="buildingClick('b33')" class="st2" width="95" height="30.6"/>
+		<polygon id="b32_00000158014370495415592670000014175145805525211280_" onclick="buildingClick('b32')" class="st2" points="
 			345.7,62.1 345.7,86.2 256.7,86.2 256.7,62.1 289.8,62.1 289.8,59.7 305.3,59.7 305.3,62.1 		"/>
 		
-			<rect id="b31" x="127.2" y="154" onclick="buildingClick('b31')" class="st2" width="115.8" height="19.8"/>
+			<rect id="b31_00000032632566717105307160000016939010755063080887_" x="127.2" y="154" onclick="buildingClick('b31')" class="st2" width="115.8" height="19.8"/>
 		
-			<rect id="b30" x="125.6" y="260.2" onclick="buildingClick('b30')" class="st2" width="107.9" height="24"/>
+			<rect id="b30_00000052103942279566120670000000446359452652442503_" x="125.6" y="260.2" onclick="buildingClick('b30')" class="st2" width="107.9" height="24"/>
 		
-			<rect id="b29" x="125.6" y="318.7" onclick="buildingClick('b29')" class="st2" width="113.9" height="24.2"/>
-		<polygon id="b28" onclick="buildingClick('b28')" class="st2" points="
+			<rect id="b29_00000014635690757471045980000005699012343849470907_" x="125.6" y="318.7" onclick="buildingClick('b29')" class="st2" width="113.9" height="24.2"/>
+		<polygon id="b28_00000160168019097351048480000001832887797382547073_" onclick="buildingClick('b28')" class="st2" points="
 			243,203.3 243,232 120.1,232 120.1,195.9 141.8,195.9 141.8,203.3 156.7,203.3 156.7,199.1 147,199.1 147,186.2 175,186.2 
 			175,203.3 		"/>
 		
-			<rect id="b27" x="174.7" y="430.3" onclick="buildingClick('b27')" class="st2" width="21.2" height="14.1"/>
-		<polygon id="b26" onclick="buildingClick('b26')" class="st2" points="
+			<rect id="b27_00000045594324451212688850000004315830442905731462_" x="174.7" y="430.3" onclick="buildingClick('b27')" class="st2" width="21.2" height="14.1"/>
+		<polygon id="b26_00000069377639040803560430000008148798807343316656_" onclick="buildingClick('b26')" class="st2" points="
 			140,374.6 155.5,374.7 155.5,397.1 140,396.9 		"/>
-		<polygon id="b25" onclick="buildingClick('b25')" class="st2" points="
+		<polygon id="b25_00000011029039257626276280000001444163471159279757_" onclick="buildingClick('b25')" class="st2" points="
 			146.8,405.1 166.2,405.1 166.2,425.2 153.4,425.2 153.5,416.2 146.8,416.2 		"/>
 		
-			<rect id="b24" x="125.6" y="288.4" onclick="buildingClick('b24')" class="st2" width="46" height="26.2"/>
+			<rect id="b24_00000170278568418868301550000001133932908787925130_" x="125.6" y="288.4" onclick="buildingClick('b24')" class="st2" width="46" height="26.2"/>
 		
-			<rect id="b23" x="182" y="290.5" onclick="buildingClick('b23')" class="st2" width="32.5" height="22"/>
-		<polygon id="b22" onclick="buildingClick('b22')" class="st2" points="
+			<rect id="b23_00000090289753015582235140000003824354721198581174_" x="182" y="290.5" onclick="buildingClick('b23')" class="st2" width="32.5" height="22"/>
+		<polygon id="b22_00000129207501710937279290000000121127541204643737_" onclick="buildingClick('b22')" class="st2" points="
 			233.5,241.8 233.5,249.9 219.9,249.9 219.9,256.3 185.5,256.3 185.5,235.3 219.9,235.3 219.9,241.8 		"/>
 		
-			<rect id="b21" x="218.6" y="186.2" onclick="buildingClick('b21')" class="st2" width="24.4" height="12.3"/>
+			<rect id="b21_00000182523644253278490550000006274026872668633508_" x="218.6" y="186.2" onclick="buildingClick('b21')" class="st2" width="24.4" height="12.3"/>
 		
-			<rect id="b20" x="133.5" y="122.3" onclick="buildingClick('b20')" class="st2" width="37.1" height="21.3"/>
+			<rect id="b20_00000062159767736961601050000004614629669877579947_" x="133.5" y="122.3" onclick="buildingClick('b20')" class="st2" width="37.1" height="21.3"/>
 		
-			<rect id="b19" x="178.6" y="122.3" onclick="buildingClick('b19')" class="st2" width="19.7" height="21.3"/>
-		<polygon id="b18" onclick="buildingClick('B18A')" class="st2" points="
+			<rect id="b19_00000145047473922530243960000008730126682897899656_" x="178.6" y="122.3" onclick="buildingClick('b19')" class="st2" width="19.7" height="21.3"/>
+		<polygon id="b18_00000041271401868727197170000009767843794264736431_" onclick="buildingClick('B18A')" class="st2" points="
 			236.8,130.3 236.8,134.8 232.7,134.8 232.7,138.2 219.4,138.2 219.4,126.9 232.7,126.9 232.7,130.3 		"/>
-		<polygon id="b18" onclick="buildingClick('b18')" class="st2" points="
+		<polygon id="b18_00000000194035312564768440000018307536885655167670_" onclick="buildingClick('b18')" class="st2" points="
 			215.3,123.3 215.3,138.2 206.6,138.2 206.6,126.9 211.2,126.9 211.2,123.3 		"/>
 		
-			<rect id="b17" x="210.9" y="63.5" onclick="buildingClick('b17')" class="st2" width="23.1" height="23.1"/>
-		<polygon id="b16" onclick="buildingClick('b16')" class="st2" points="
+			<rect id="b17_00000067941044997972659100000012040976504930356126_" x="210.9" y="63.5" onclick="buildingClick('b17')" class="st2" width="23.1" height="23.1"/>
+		<polygon id="b16_00000159435364006107488530000000102526929284013755_" onclick="buildingClick('b16')" class="st2" points="
 			324.7,140.8 324.7,171.4 279.6,171.4 279.6,166.2 273.4,166.2 273.4,163.9 265.5,163.9 265.5,148.4 273.4,148.4 273.4,146 
 			278.6,146 278.6,140.8 		"/>
-		<polygon id="b15" onclick="buildingClick('b15')" class="st2" points="
+		<polygon id="b15_00000044164599285184526940000013558055968422357671_" onclick="buildingClick('b15')" class="st2" points="
 			354.1,415.3 354.1,424.7 346.5,424.7 346.5,436.6 337,436.6 337,431.4 252.8,431.4 252.8,408.3 337,408.3 337,403.9 346.5,403.9 
 			346.5,415.3 		"/>
-		<polygon id="b14" onclick="buildingClick('b14')" class="st2" points="
+		<polygon id="b14_00000147222431972516227700000017338618544834301347_" onclick="buildingClick('b14')" class="st2" points="
 			350.3,449.5 350.3,458.1 341.1,458.1 341.1,465.5 309.3,465.5 309.3,442.1 341.1,442.1 341.1,449.5 		"/>
 		
-			<rect id="b13" x="254.5" y="258.7" onclick="buildingClick('b13')" class="st2" width="94.9" height="30.3"/>
-		<polygon id="b12" onclick="buildingClick('b12')" class="st2" points="
+			<rect id="b13_00000079452575448343014050000015095600020307364494_" x="254.5" y="258.7" onclick="buildingClick('b13')" class="st2" width="94.9" height="30.3"/>
+		<polygon id="b12_00000183955202152372604610000005194055795094853302_" onclick="buildingClick('b12')" class="st2" points="
 			302.7,207.6 302.7,239.8 285.7,239.8 285.7,240.7 274.5,240.7 274.5,206.7 285.7,206.7 285.7,207.6 		"/>
 		
-			<rect id="b11" x="284.3" y="17.7" onclick="buildingClick('b11')" class="st2" width="66.9" height="25.5"/>
-		<polygon id="b10" onclick="buildingClick('b10')" class="st2" points="
+			<rect id="b11_00000088134704475326018070000012333480346928938424_" x="284.3" y="17.7" onclick="buildingClick('b11')" class="st2" width="66.9" height="25.5"/>
+		<polygon id="b10_00000008124986082778442800000014836258601556672654_" onclick="buildingClick('b10')" class="st2" points="
 			413.5,317 413.5,383 413.5,383 413.5,401.9 365.8,401.9 365.8,367.7 384.7,367.7 384.7,383 394.6,383 394.6,317 		"/>
 		
-			<rect id="b9" x="365.8" y="316.9" onclick="buildingClick('b9')" class="st2" width="19" height="40.8"/>
-		<polygon id="b8" onclick="buildingClick('b8')" class="st2" points="
+			<rect id="b9_00000176731503716370247530000004247203603149321600_" x="365.8" y="316.9" onclick="buildingClick('b9')" class="st2" width="19" height="40.8"/>
+		<polygon id="b8_00000005954557140299911960000009529385056371866276_" onclick="buildingClick('b8')" class="st2" points="
 			146.3,73.7 146.3,87.3 138.2,87.3 138.2,73.7 140.1,73.7 140.1,68.7 143.5,68.7 143.5,73.7 		"/>
-		<polygon id="b7" onclick="buildingClick('b7')" class="st2" points="
+		<polygon id="b7_00000104682193935784714550000011030337924444809640_" onclick="buildingClick('b7')" class="st2" points="
 			366.2,205.3 354.4,205.3 354.4,244.2 332.7,244.2 332.7,136.6 354.4,136.6 354.4,175.3 366.2,175.3 		"/>
-		<polygon id="b6" onclick="buildingClick('b6')" class="st2" points="
+		<polygon id="b6_00000096030944339860733490000013495237805447498171_" onclick="buildingClick('b6')" class="st2" points="
 			415.9,259.2 415.9,297.3 375.7,297.3 375.7,285 366.6,285 366.6,271.8 375.7,271.8 375.7,259.2 		"/>
 		
-			<rect id="b5" x="178.7" y="348.4" onclick="buildingClick('b5')" class="st2" width="6.7" height="6.7"/>
-		<polygon id="b4" onclick="buildingClick('b4')" class="st2" points="
+			<rect id="b5_00000111892709691686427300000018134313859228615821_" x="178.7" y="348.4" onclick="buildingClick('b5')" class="st2" width="6.7" height="6.7"/>
+		<polygon id="b4_00000139275018805147743370000001904193179475983745_" onclick="buildingClick('b4')" class="st2" points="
 			212.8,349.1 212.8,354.3 211.3,354.3 211.3,355.1 192.4,355.1 192.4,348.4 211.3,348.4 211.3,349.1 		"/>
 		
-			<rect id="b3" x="130.9" y="346.4" onclick="buildingClick('b3')" class="st2" width="24.6" height="15.7"/>
+			<rect id="b3_00000031203272158135420070000016612842100787150505_" x="130.9" y="346.4" onclick="buildingClick('b3')" class="st2" width="24.6" height="15.7"/>
 		
-			<rect id="b2" x="158.7" y="359.6" onclick="buildingClick('b2')" class="st2" width="80.8" height="28.2"/>
-		<polygon id="b1" onclick="buildingClick('b1')" class="st2" points="
+			<rect id="b2_00000044167940450157559710000005675375815707079580_" x="158.7" y="359.6" onclick="buildingClick('b2')" class="st2" width="80.8" height="28.2"/>
+		<polygon id="b1_00000176005263436478277940000009069163955402743202_" onclick="buildingClick('b1')" class="st2" points="
 			239.5,398.6 239.5,447.8 218.3,447.8 218.3,430.2 199.1,430.2 199.1,398.6 		"/>
 	</g>
 	<g id="_x3C_entry_x3E_">

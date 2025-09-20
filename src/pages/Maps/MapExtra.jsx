@@ -15,7 +15,7 @@ import {
   drawMarker
 } from "./map_module";
 import buildingApiService from "./buildingApi";
-import { MobileSearchBar, useSearchBar } from "./SearchBar";
+// Removed MobileSearchBar and useSearchBar imports - not needed for this component
 
 export default function MapExtra() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -27,22 +27,28 @@ export default function MapExtra() {
   const [isNavigating, setIsNavigating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Use SearchBar hook for mobile search functionality
-  const {
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    setSearchResults,
-    isSearchFocused,
-    setIsSearchFocused,
-    handleSearch
-  } = useSearchBar(fetchedBuilding);
+  // Removed mobile search functionality - not needed for this component
 
   // Engineering themed dummy building data (extend as needed)
 
   const getBuildingInfo = (buildingId) => {
-    const building = fetchedBuilding.current.find(b => "b"+b.building_id === buildingId);
-    console.log(`found building 71: ${building}`)
+    // Handle both building ID formats: "b1", "b2" etc. or direct building IDs like 101, 102
+    let building;
+    
+    if (typeof buildingId === 'string' && buildingId.startsWith('b')) {
+      // Convert "b33" to building ID 33, "b34" to 34, etc.
+      const svgIdToBuildingId = {
+        'b33': 33, 'b34': 34, 'b1': 1, 'b4': 4, 'b16': 16,
+        'b28': 28, 'b26': 26
+      };
+      const actualBuildingId = svgIdToBuildingId[buildingId];
+      building = fetchedBuilding.current.find(b => b.building_ID === actualBuildingId);
+    } else {
+      // Direct building ID lookup
+      building = fetchedBuilding.current.find(b => b.building_ID === buildingId || b.building_id === buildingId);
+    }
+    
+    console.log(`Looking for building ID: ${buildingId}, found:`, building);
     return building;
   };
 
@@ -123,21 +129,7 @@ export default function MapExtra() {
     }
   };
 
-  const selectSearchResult = (building) => {
-    const buildingId = "b" + building.building_id;
-    setSelectedBuilding(buildingId);
-    setIsSheetOpen(true);
-    setSearchQuery("");
-    setSearchResults([]);
-    setIsSearchFocused(false);
-    
-    // Optionally highlight building on the map if available
-    try {
-      if (typeof window.highlightBuilding === "function") {
-        window.highlightBuilding(buildingId);
-      }
-    } catch {}
-  };
+  // Removed selectSearchResult function - not needed for this component
 
   // Zoom functionality
   const zoomIn = () => {
@@ -489,16 +481,7 @@ export default function MapExtra() {
           padding: 0 !important;
         }
         /* Ensure fixed elements stay truly fixed */
-        .mobile-search-bar {
-          position: fixed !important;
-          top: 20px !important;
-          left: 20px !important;
-          right: 20px !important;
-          z-index: 10000 !important;
-          max-width: 600px !important;
-          margin: 0 auto !important;
-          transform: none !important;
-        }
+        /* Removed mobile search bar styles - not needed */
         @media (max-width: 640px){
           .map-card{margin-top:0 !important;}
           .map-viewport{margin-top:0 !important; padding-top:0 !important;}
@@ -512,30 +495,12 @@ export default function MapExtra() {
           .map-card{margin-top:0 !important;}
           /* Mobile limitless map */
           #map{height: 100vh !important; width: 100vw !important;}
-          /* Mobile search bar adjustments */
-          .mobile-search-bar {
-            top: 10px !important;
-            left: 10px !important;
-            right: 10px !important;
-            max-width: none !important;
-          }
-          .mobile-search-input {
-            font-size: 16px !important;
-            padding: 14px 16px !important;
-          }
+          /* Removed mobile search bar styles - not needed */
         }
       `}</style>
       <MapComponent />
 
-      {/* Mobile Search Bar */}
-      <MobileSearchBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        searchResults={searchResults}
-        handleSelectResult={selectSearchResult}
-        isSearchFocused={isSearchFocused}
-        setIsSearchFocused={setIsSearchFocused}
-      />
+      {/* Removed Mobile Search Bar - not needed for this component */}
 
       {/* Exit Fullscreen Button - appears only when in fullscreen */}
       {isFullscreen && (
