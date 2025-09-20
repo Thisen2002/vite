@@ -50,11 +50,7 @@ function initMap(map_div) {
   map.getPane('routePane').style.zIndex = 650;
 
   // Load SVG overlay
- //Updated upstream
   fetch(`${API}/map`)
-
-//   fetch('http://localhost:3001/map')
-// >>>>>>> Stashed changes
     .then(res => res.text())
     .then(svgText => {
       const parser = new DOMParser();
@@ -67,21 +63,7 @@ function initMap(map_div) {
 
   map.fitBounds(bounds);
 
-//<<<<<<< Updated upstream
   initWebSocket();
-// =======
-
-// }
-
-// async function getRouteToNode(userLatLng, dest) {
-//   if(dest === undefined){
-//     console.log("undefined route")
-//   } else{
-//     console.log(dest);
-//   var result = await fetch(`http://localhost:3001/routing?lat=${userLatLng[0]}&long=${userLatLng[1]}&dest=${dest}`);
-//   return result.json();
-//   }
-// >>>>>>> Stashed changes
 }
 
 const buildings = {
@@ -134,33 +116,38 @@ function drawRoute(result) {
     map.fitBounds(result.routeCoords);
   }
 
+  setTimeout(() => {
+    map.invalidateSize(); 
+  }, 50);
+
 }
 
+let userMarker = null;
 function drawMarker(latLng) {
-  
+  if(userMarker){
+    userMarker.remove();
+    userMarker = null;
+  }
   if(latLng){
-    const userIcon = L.divIcon({
-      className: "",
+    const svgIcon = L.divIcon({
       html: `
-        <svg width="40" height="40" viewBox="0 0 40 40">
-          <circle cx="20" cy="20" r="14" fill="rgba(37, 99, 235, 0.2)">
-            <animate attributeName="r" values="14;20;14" dur="1.5s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.5;0;0.5" dur="1.5s" repeatCount="indefinite" />
-          </circle>
-          <circle cx="20" cy="20" r="8" fill="#2563EB" stroke="#fff" stroke-width="2"/>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 18 32">
+          <path fill="#264f6b" d="M15.85,14.46,8.9,23.14,2,14.46a8.9,8.9,0,1,1,13.9,0Z"/>
+          <circle fill="#faf9f4" cx="8.9" cy="8.9" r="3.75"/>
         </svg>
       `,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20] // center the icon
+      className: "custom-svg-marker",        // prevents Leaflet default styles
+      iconSize: [32, 32],   // fixed size (doesn't scale with zoom)
+      iconAnchor: [16, 32], // bottom center = marker tip
     });
     
-    const marker = L.marker(latLng, { icon: userIcon }).addTo(map);
+    // Add marker
+    userMarker = L.marker(latLng, { icon: svgIcon }).addTo(map);
     
   }
 }
 
 function setBuildingAccent(buildingId ,accent) {
-
   let cls = "";
   switch(accent) {
     case "unassigned":
@@ -184,7 +171,6 @@ if (building) {
   console.warn("Building not found:", buildingId);
 }
 
-
 }
 
 
@@ -194,15 +180,12 @@ let buildingClickListner = [];
 // Add a listener and return a function to remove it
 function addBuildingClickListner(listener) {
   buildingClickListner.push(listener);
-
   console.log("Added building click listener. Total:", buildingClickListner.length);
-
 
   // Return an "unsubscribe" function
   return () => {
     removeBuildingClickListner(listener);
   };
-
 }
 
 function removeBuildingClickListner(listener) {
@@ -270,7 +253,6 @@ function stopGps() {
   console.log("GPS tracking stopped.");
 }
 
-
 export {
   map, 
   initMap, 
@@ -284,10 +266,8 @@ export {
   stopGps, 
   drawMarker, 
   addMessageListner, 
-
   sendMessage,
   setBuildingAccent
-
 };
 
 

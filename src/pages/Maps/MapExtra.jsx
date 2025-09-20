@@ -213,6 +213,12 @@ export default function MapExtra() {
     console.log(fetchedBuilding.current);
   }, []);
 
+  useEffect(() => {
+    addGpsListner((latLng) => {
+      drawMarker(latLng);
+    })
+  }, []);
+
   let unsubscribeGps = () => {};
     
   let unsubscribeRouteListner = () => {};
@@ -868,6 +874,9 @@ export default function MapExtra() {
                 onClick={() => {
                   if(isNavigating){
                     setIsNavigating(false);
+                    setTimeout(() => {
+                      setIsNavigating(true);
+                    }, 50);
                     return;
                   }
                   setNavStatus("Starting navigation...");
