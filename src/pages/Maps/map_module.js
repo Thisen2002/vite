@@ -1,3 +1,4 @@
+import { u } from "framer-motion/client";
 import L from "leaflet";
 import io, { Socket } from "socket.io-client";
 
@@ -5,7 +6,7 @@ let map, socket;
 const API = 'http://localhost:3001';
 
 let userPosition;
-
+let userMarkerLayer;
 function setUserPosition(latLng) {
   userPosition = latLng
   console.log(`user position set to: ${userPosition[0]}, ${userPosition[1]}`)
@@ -38,16 +39,25 @@ function initMap(map_div) {
   const northEast = L.latLng(7.255500, 80.593809);
   const bounds = L.latLngBounds(southWest, northEast);
 
+  const MsouthWest = L.latLng(7.251000, 80.589249);
+  const MnorthEast = L.latLng(7.256500, 80.594809);
+  const mapB = L.latLngBounds(MsouthWest, MnorthEast);
+
   map = L.map(map_div, {
     maxZoom: 22,
-    minZoom: 18,
-    maxBounds: bounds,
-    maxBoundsViscosity: 1.0
-  }).setView([7.253750, 80.592028], 19);
+    minZoom: 17,
+    maxBounds: mapB,
+    maxBoundsViscosity: 1.0,
+    zoomControl: false,
+  }).setView([7.253750, 80.592028], 18);
 
   // Create custom panes
   map.createPane('routePane');
   map.getPane('routePane').style.zIndex = 650;
+
+  userMarkerLayer = L.layerGroup().addTo(map);
+
+
 
   // Load SVG overlay
   fetch(`${API}/map`)
@@ -61,9 +71,10 @@ function initMap(map_div) {
     })
     .catch(err => console.error('Error loading SVG:', err));
 
-  map.fitBounds(bounds);
+  map.fitBounds(mapB);
 
   initWebSocket();
+
 }
 
 const buildings = {
@@ -111,18 +122,23 @@ function drawRoute(result) {
   if (result) {
 
     L.circleMarker(result.snappedAt, { radius: 8, color: 'orange', pane: 'routePane' }).addTo(map).bindTooltip('Snapped');
-    L.polyline(result.routeCoords, { color: 'red', weight: 5, pane: 'routePane' }).addTo(map);
-    L.circleMarker(result.routeCoords.at(-1), { radius: 7, color: 'red', pane: 'routePane' }).addTo(map).bindTooltip('end');
-    map.fitBounds(result.routeCoords);
+    L.polyline(result.routeCoords, { color: '#254E6A', weight: 5, pane: 'routePane' }).addTo(map);
+    L.circleMarker(result.routeCoords.at(-1), { radius: 7, color: '#254E6A', pane: 'routePane' }).addTo(map).bindTooltip('end');
+    //map.fitBounds(result.routeCoords);
   }
 
   setTimeout(() => {
     map.invalidateSize(); 
   }, 50);
 
+  setTimeout(() => {
+    focus(result.snappedAt); 
+  }, 700);
+
 }
 
 let userMarker = null;
+
 function drawMarker(latLng) {
   if(userMarker){
     userMarker.remove();
@@ -142,7 +158,7 @@ function drawMarker(latLng) {
     });
     
     // Add marker
-    userMarker = L.marker(latLng, { icon: svgIcon }).addTo(map);
+    userMarker = L.marker(latLng, { icon: svgIcon }).addTo(userMarkerLayer).bindTooltip('You are here');
     
   }
 }
@@ -253,6 +269,11 @@ function stopGps() {
   console.log("GPS tracking stopped.");
 }
 
+function focus(latLng) {
+  map.setView(latLng, map.getZoom(), { animate: true, duration: 1.0 });
+  
+}
+
 export {
   map, 
   initMap, 
@@ -267,7 +288,8 @@ export {
   drawMarker, 
   addMessageListner, 
   sendMessage,
-  setBuildingAccent
+  setBuildingAccent,
+  focus
 };
 
 

@@ -26,6 +26,7 @@ export default function MapExtra() {
   const [isClosing, setIsClosing] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const previousBuilding = useRef(null);
 
   // Use SearchBar hook for mobile search functionality
   const {
@@ -173,6 +174,12 @@ export default function MapExtra() {
   useEffect(() => {
     // Listen for building clicks from the map module
     const unsubscribe = addBuildingClickListner((buildingId) => {
+      if (previousBuilding.current) {
+        console.log("Resetting accent for previously selected building:", previousBuilding.current, "to assigned",buildingId);
+        setBuildingAccent(previousBuilding.current, "assigned");
+      }
+      previousBuilding.current = buildingId;
+      setBuildingAccent(buildingId, "clicked");
       setSelectedBuilding(buildingId);
       setIsSheetOpen(true);
     });
@@ -200,6 +207,71 @@ export default function MapExtra() {
       try { delete window.map; } catch {}
     };
   }, [map]);
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const loc = params.get('location');
+      console.log("URL param location:", loc);
+      if (loc) {
+        // Delay slightly to ensure map has initialized
+        setTimeout(() => {
+          const mapCode = nameToMapCode[loc] || null;
+          if (mapCode) {
+            previousBuilding.current = mapCode;
+            setBuildingAccent(mapCode, "clicked");
+            setSelectedBuilding(mapCode);
+            setIsSheetOpen(true);
+          }
+          
+          console.log("Highlighting building by name:", loc, "->", mapCode);
+        }, 500);
+  
+        // ✅ Clear the query param after first use so it doesn’t trigger again
+        const url = new URL(window.location);
+        url.searchParams.delete('location');
+        window.history.replaceState({}, '', url); 
+      }
+    } catch (e) {
+      console.error("Redirect flow error:", e);
+    }
+  }, []);
+
+  const nameToMapCode = {
+    "Drawing Office 2": "b13",
+    "Department of Manufacturing and Industrial Engineering": "b15",
+    "Corridor": null,
+    "Lecture Room (middle-right)": null,
+    "Structures Laboratory": "b6",
+    "Lecture Room (bottom-right)": "b9",
+    "Engineering Library": "b10",
+    "Process Laboratory": null,
+    "Faculty Canteen": "b14",
+
+    "Drawing Office 1": "b33",
+    "Professor E.O.E. Pereira Theatre": "b16",
+    "Administrative Building": "b7",
+    "Security Unit": "b12",
+    "Department of Chemical and Process Engineering": "b11",
+    "Department of Engineering Mathematics / Department of Engineering Management / Computer Center": "b32",
+
+    "Department of Electrical and Electronic Engineering": "b34",
+    "Department of Computer Engineering": "b20",
+    "Electrical and Electronic Workshop": "b19",
+    "Surveying Lab": "b31",
+    "Soil Lab": "b31",
+    "Materials Lab": "b28",
+    "Electronic Lab": "b17",
+    "Environmental Lab": "b22",
+
+    "Fluids Lab": "b30",
+    "New Mechanics Lab": "b24",
+    "Applied Mechanics Lab": "b23",
+    "Thermodynamics Lab": "b29",
+    "Generator Room": null,
+    "Engineering Workshop": "b2",
+    "Engineering Carpentry Shop": "b1"
+  };
 
   useEffect(() => {
     buildingApiService.getAllBuildings()

@@ -3,6 +3,7 @@ import './Dashboard.css';
 import MapExtra from './MapExtra.jsx';
 import buildingApiService from './buildingApi';
 import { DesktopSearchBar, useSearchBar } from './SearchBar';
+import {focus, getUserPosition} from './map_module.js';
 
 const categories = {
   Exhibits: '#2563eb',
@@ -226,9 +227,7 @@ const Dashboard = () => {
   };
 
   const locateMe = async () => {
-    setIsLocating(true);
-    setTimeout(() => setIsLocating(false), 1000);
-    // UI only for now
+    focus(getUserPosition());
   };
 
   // Zoom functions
