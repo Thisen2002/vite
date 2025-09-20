@@ -41,7 +41,7 @@ const BUILDING_NAMES = {
   B9:"Lecture Room 10/11",
   B10:"Engineering Library",
   B11:"Department of Chemical and process Engineering",
-  B12:"Security Unit",
+  B12:"Lecture Room 2/3",
   B13:"Drawing Office 2",
   B14:"Faculty Canteen",
   B15:"Department of Manufacturing and Industrial Engineering",
@@ -391,9 +391,9 @@ export default function SvgHeatmap() {
 
           <div className="legend-pill">
             <span className="chip" style={{ "--c": "#22c55e" }}>Low &lt;20%</span>
-            <span className="chip" style={{ "--c": "#eab308" }}>Moderate &lt;50%</span>
+            <span className="chip" style={{ "--c": "#ffbf00ff" }}>Moderate &lt;50%</span>
             <span className="chip" style={{ "--c": "#f97316" }}>Busy &lt;80%</span>
-            <span className="chip" style={{ "--c": "#ef4444" }}>High &ge;80%</span>
+            <span className="chip" style={{ "--c": "#ff0000ff" }}>High &ge;80%</span>
           </div>
 
           {popup && (
