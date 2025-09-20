@@ -6,6 +6,27 @@
 - Clamping: Forecasts are non-negative and capped at the building capacity, when known from the built-in catalog.
 - Traceability: Inserted predictions include `model = 'holt-damped'` in the database.
 
+### Seasonal Blending & Robust Preprocessing
+- Daily seasonal baseline: computes an average count per time-of-day bin (default 15 minutes) over the last N days (default 7) and blends it with the damped Holt forecast. Weight is horizon-aware: smaller at short horizons, larger at longer horizons.
+- Robustness: Optional winsorization (trim outliers by percentile) and optional `log1p` transform to stabilize variance.
+
+Config flags (.env):
+```
+# Seasonal
+SEASONAL_BLEND=true
+SEASONAL_LOOKBACK_DAYS=7
+SEASONAL_BIN_MINUTES=15
+BLEND_WEIGHT_SHORT=0.3
+BLEND_WEIGHT_LONG=0.6
+BLEND_SWITCH_MIN=60
+
+# Robust preprocessing
+WINSORIZE=true
+WINSOR_LO=5
+WINSOR_HI=95
+LOG1P_TRANSFORM=false
+```
+
 Quick verify (PowerShell):
 ```
 cd "D:\CO227 Project\new code\vite\backend\heatmap\predictiveAnalysis"
