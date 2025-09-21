@@ -45,4 +45,4 @@ load-test-events:
 	npx artillery run artillery-events.yml --name="load-test-events"  --record --key $(ARTILLERY_KEY)
 
 load-test-heatmap:
-	npx artillery run artillery-heatmap.yml --name="load-test-events" --record --key $(ARTILLERY_KEY)
+	npx artillery run artillery-heatmap.yml --name="load-test-heatmap" --record --key $(ARTILLERY_KEY)

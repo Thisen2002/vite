@@ -2,10 +2,10 @@ config:
   target: "http://localhost:3036"
   phases:
     - duration: 60 # run for 60s
-      arrivalRate: 1 # start at ~1 new VU/sec
-      rampTo: 200 # ramp linearly to ~100 new VUs/sec by the end
+      arrivalRate: 10 # start at ~10 new VU/sec
+      rampTo: 200 # ramp linearly to ~200 new VUs/sec by the end
 
-  # Cap concurrency so we don't exceed ~100 simultaneous users
+  # Cap concurrency so we don't exceed ~200 simultaneous users
   # (actual concurrency depends on request duration; this prevents runaway VUs)
   pool:
     maxVusers: 200
@@ -29,9 +29,7 @@ scenarios:
           url: "/api/events/health"
           expect:
             - statusCode: 200
-      # Add more steps if needed, e.g.:
-      - get: { url: "/api/events/" }
-      # - post:
-      #     url: "/api/search"
-      #     json: { q: "node" }
-      #     expect: [ { statusCode: 200 } ]
+      - get:
+          url: "/api/events/"
+          expect:
+            - statusCode: 200
