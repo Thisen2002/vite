@@ -25,4 +25,4 @@ const FooterTailwind: React.FC<FooterTailwindProps> = () => {
   )
 }
 
-export default FooteTailwindr
+export default FooterTailwind
