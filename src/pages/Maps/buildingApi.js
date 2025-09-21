@@ -1,7 +1,13 @@
 // Building API service for connecting to the building service
 // This service handles all communication with the building service backend
+// Falls back to sample data when backend is not available
+
+import buildingData, { searchBuildings as searchSampleData, getAllBuildings as getAllSampleBuildings } from './buildingData.js';
+
+const USE_SAMPLE_DATA = true; // Set to true to use sample data instead of backend
 
 const BUILDING_SERVICE_URL = import.meta.env.VITE_BUILDING_API_URL || import.meta.env.VITE_MAIN_API_URL || 'http://localhost:5000'; // Building service port
+
 
 class BuildingApiService {
   constructor() {
@@ -10,6 +16,11 @@ class BuildingApiService {
 
   // Get all buildings
   async getAllBuildings() {
+    if (USE_SAMPLE_DATA) {
+      console.log('Using sample building data');
+      return getAllSampleBuildings();
+    }
+    
     try {
       const response = await fetch(`${this.baseUrl}/buildings`);
       if (!response.ok) {
@@ -19,13 +30,19 @@ class BuildingApiService {
       console.log(`fetched data:${data}`)
       return data;
     } catch (error) {
-      console.error('Error fetching buildings:', error);
-      throw error;
+      console.error('Error fetching buildings, falling back to sample data:', error);
+      return getAllSampleBuildings();
     }
   }
 
   // Get building by ID
   async getBuildingById(buildingId) {
+    if (USE_SAMPLE_DATA) {
+      console.log('Using sample data for building ID:', buildingId);
+      const { getBuildingById: getSampleBuildingById } = await import('./buildingData.js');
+      return getSampleBuildingById(buildingId);
+    }
+    
     try {
       const response = await fetch(`${this.baseUrl}/buildings/${buildingId}`);
       if (!response.ok) {
@@ -34,8 +51,9 @@ class BuildingApiService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching building by ID:', error);
-      throw error;
+      console.error('Error fetching building by ID, falling back to sample data:', error);
+      const { getBuildingById: getSampleBuildingById } = await import('./buildingData.js');
+      return getSampleBuildingById(buildingId);
     }
   }
 
@@ -157,6 +175,11 @@ class BuildingApiService {
 
   // Search buildings by name, description, and exhibits
   async searchBuildings(query, options = {}) {
+    if (USE_SAMPLE_DATA) {
+      console.log('Using sample data for search:', query);
+      return searchSampleData(query, options);
+    }
+    
     try {
       if (!query || query.trim() === '') return [];
       
@@ -224,20 +247,21 @@ class BuildingApiService {
       return uniqueResults.slice(0, 10); // Limit to 10 results for better UX
       
     } catch (error) {
-      console.error('Error searching buildings:', error);
-      throw error;
+      console.error('Error searching buildings, falling back to sample data:', error);
+      return searchSampleData(query, options);
     }
   }
 
-  // Map database building ID to SVG building ID (b1, b2, etc.)
+  // Map database building ID to SVG building ID (b33, b34, etc.)
   mapDatabaseIdToSvgId(databaseId) {
     const mapping = {
-      1: "b1",   // Engineering Hall
-      2: "b2",   // Science Center
-      3: "b3",   // Innovation Hub
-      4: "b4",   // Cultural Pavilion
-      5: "b5",   // Common Room
-      // Add more mappings as needed
+      33: "b33",  // Tech Building A
+      34: "b34",  // Tech Building B
+      1: "b1",    // Innovation Hub
+      4: "b4",    // Research Block
+      16: "b16",  // Student Projects Zone
+      28: "b28",  // AI & Machine Learning Center
+      26: "b26",  // Green Technology Pavilion
     };
     return mapping[databaseId] || `b${databaseId}`;
   }
@@ -245,12 +269,13 @@ class BuildingApiService {
   // Check if a building has a valid SVG mapping (exists on the map)
   isValidSvgMapping(databaseId) {
     const validMappings = {
-      1: "b1",   // Engineering Hall
-      2: "b2",   // Science Center
-      3: "b3",   // Innovation Hub
-      4: "b4",   // Cultural Pavilion
-      5: "b5",   // Common Room
-      // Add more mappings as needed
+      33: "b33",  // Tech Building A
+      34: "b34",  // Tech Building B
+      1: "b1",    // Innovation Hub
+      4: "b4",    // Research Block
+      16: "b16",  // Student Projects Zone
+      28: "b28",  // AI & Machine Learning Center
+      26: "b26",  // Green Technology Pavilion
     };
     return validMappings.hasOwnProperty(databaseId);
   }

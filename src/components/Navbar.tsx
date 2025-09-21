@@ -30,18 +30,11 @@ const Navbar: React.FC = () => {
     // Changed background to white, added a subtle shadow and bottom border
     <nav className="fixed top-0 left-0 right-0 bg-white z-[1000] px-5 h-[70px] flex items-center justify-between shadow-md border-b border-gray-200">
       <div className="flex items-center">
-        <Link 
-          to="/" 
-          // Changed text to black for the main logo/title
-          className="text-black no-underline text-2xl font-bold flex items-center"
-        >
-          <img 
-            src="./engex.png" 
-            alt="EngEx 2025" 
-            className="h-40 mr-3" 
-          />
-          
-        </Link>
+        <img 
+          src="./engex.png" 
+          alt="EngEx 2025" 
+          className="h-40 pointer-events-none" 
+        />
       </div>
 
       {/* Desktop Menu */}
