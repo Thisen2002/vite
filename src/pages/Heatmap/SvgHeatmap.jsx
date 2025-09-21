@@ -28,6 +28,43 @@ const CAPACITY = {
   B28:100, B29:100, B30:100, B31:80, B32:60, B33:120, B34:120
 };
 
+const EXHIBITION_BUILDING_NAMES = {
+  B1: [],
+  B2: [],
+  B3: [],
+  B4: [],
+  B5: [],
+  B6: ["Modern Infrastructure Advancements","Ancient Engineering to Modern Engineering"],
+  B7: [],
+  B8: [],
+  B9: [],
+  B10: [],
+  B11: ["Innovating a Greener Tomorrow"],
+  B12: ["Dream Zone"], // Lecture Room 2/3
+  B13: ["Industry and VR Zone","Smart City by PeraCom"], // Drawing Office 2
+  B14: ["Innovating a Greener Tomorrow"],
+  B15: ["Creovate DMIE"],
+  B16: [],
+  B17: [],
+  B18: [],
+  B19: [],
+  B20: [],
+  B21: [],
+  B22: ["Environment and Engineering"],
+  B23: ["Applied Mechanics & Cyber Physical Systems"],
+  B24: ["Renewable Energy and Sustainability"],
+  B25: [],
+  B26: [],
+  B27: [],
+  B28: ["Structures and Materials"," Chemical Engineering Pilot Plant:"],
+  B29: ["Applied Thermodynamics,","Automobiles and Aeronautical Zone"],
+  B30: ["The Flow Space"],
+  B31: ["Smart Mobility Hub", "GeoFrontiers Hub"],
+  B32: ["EngMath Nexus"],
+  B33: ["EngMath Nexus","School Innovation Hub & Computer Museum"],
+  B34: ["Spark Street DEEE"],
+};
+
 /* ---------- Building display names ---------- */
 const BUILDING_NAMES = {
   B1:"Engineering Carpentry Shop",
@@ -42,7 +79,7 @@ const BUILDING_NAMES = {
   B10:"Engineering Library",
   B11:"Department of Chemical and process Engineering",
   B12:"Lecture Room 2/3",
-  B13:"Drawing Office 2",
+  B13:"Drawing Office 2 and Faculty Common Room",
   B14:"Faculty Canteen",
   B15:"Department of Manufacturing and Industrial Engineering",
   B16:"Professor E.O.E. Perera Theater",
@@ -65,6 +102,28 @@ const BUILDING_NAMES = {
   B33:"Drawing Office 1",
   B34:"Department of Electrical and Electronic Engineering ",
 };
+function ensureBuildingIcon(svg, node, id, iconPath) {
+  let bbox = node.getBBox();
+
+  // Try to find existing icon <image>
+  let icon = svg.querySelector(`.canteen-icon[data-for='${id}']`);
+  if (!icon) {
+    icon = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    icon.setAttribute("class", "canteen-icon");
+    icon.setAttribute("data-for", id);
+    icon.setAttribute("width", "20");
+    icon.setAttribute("height", "20");
+    svg.appendChild(icon);
+  }
+
+  // Always update icon href so caller can change dynamically
+  icon.setAttribute("href", iconPath);
+
+  // Position icon at center of the building rectangle
+  icon.setAttribute("x", bbox.x + bbox.width / 2 - 10);
+  icon.setAttribute("y", bbox.y + bbox.height / 2 - 10);
+}
+
 
 export default function SvgHeatmap() {
   const hostRef = useRef(null);
@@ -101,6 +160,11 @@ export default function SvgHeatmap() {
         status,
         color
       };
+    }).sort((a, b) => {
+      // Extract numeric part of B1, B2, B10, etc.
+      const numA = parseInt(a.id.replace(/^B0*/, ""), 10);
+      const numB = parseInt(b.id.replace(/^B0*/, ""), 10);
+      return numA - numB;
     });
   }, [buildingInfo, buildingColors]);
 
@@ -108,7 +172,7 @@ export default function SvgHeatmap() {
     const q = search.trim().toLowerCase();
     if (!q) return list;
     return list.filter(b =>
-      b.id.toLowerCase().includes(q) || (b.name || "").toLowerCase().includes(q)
+      b.id.toLowerCase().includes(q) || (b.name || "").toLowerCase().includes(q) || (EXHIBITION_BUILDING_NAMES[b.id] || []).some(n => n.toLowerCase().includes(q))
     );
   }, [list, search]);
 
@@ -316,6 +380,7 @@ export default function SvgHeatmap() {
       setPopup({
         id,
         name: infoNow?.name || id,
+        altName: EXHIBITION_BUILDING_NAMES[id] || "",
         current: infoNow?.current ?? null,
         capacity: infoNow?.capacity ?? null,
         occ,
@@ -339,6 +404,7 @@ export default function SvgHeatmap() {
 
     setSelectedId(b.id);
     setPopup({
+      altName: EXHIBITION_BUILDING_NAMES[b.id] || "",
       id: b.id, name: b.name, current: b.current, capacity: b.capacity,
       occ: b.occ, status: b.status, color: b.color,
       left: pos.left, top: pos.top, where: pos.where
@@ -410,10 +476,21 @@ export default function SvgHeatmap() {
             >
               <div className="popup-arrow" />
               <div className="popup-hd">
-                <div className="pill">{popup.id}</div>
+              <div className="pill">{popup.id}</div>
+              <div className="name-block">
                 <div className="bname" title={popup.name}>{popup.name}</div>
-                <button className="close" onClick={() => setPopup(null)} aria-label="Close">×</button>
+                {Array.isArray(popup.altName) &&
+      popup.altName
+        .filter(name => name && name.trim() !== "")
+        .map((name, idx) => (
+          <div key={idx} className="alt" title={name}>
+            {name}
+          </div>
+          
+        ))}
               </div>
+              <button className="close" onClick={() => setPopup(null)} aria-label="Close">×</button>
+            </div>
               <div className="popup-body">
                 <Row label="Current visitors" value={numOrDash(popup.current)} />
                 <Row label="Capacity"         value={numOrDash(popup.capacity)} />
@@ -459,6 +536,13 @@ export default function SvgHeatmap() {
                       <div className="name">{b.name}</div>
                       <div className="chip" style={{ background: b.color }}>{b.status}</div>
                     </div>
+                    {(EXHIBITION_BUILDING_NAMES[b.id] || []).length > 0 && (
+                      <div className="item-exhibitions">
+                        {(EXHIBITION_BUILDING_NAMES[b.id] || []).map((exh, idx) => (
+                          <div key={idx} className="exhibition-name">{exh}</div>
+                        ))}
+                      </div>
+                    )}
                     <div className="item-row">
                       <div className="count"><span className="count-num">{b.current ?? "—"}</span> people</div>
                       {b.occ != null && <div className="muted small">{b.occ}% occupancy</div>}
@@ -516,13 +600,55 @@ export default function SvgHeatmap() {
         /* (legacy popup base kept for compatibility) */
         .popup{ position:absolute; width:320px; background:#fff; color:#111; border:2px solid; border-radius:12px; box-shadow:var(--shadow); animation:pop .14s ease-out; }
         .popup-arrow{ position:absolute; top:-10px; left:28px; width:0; height:0; border-left:10px solid transparent; border-right:10px solid transparent; border-top:10px solid; filter: drop-shadow(0 -2px 4px rgba(0,0,0,.08)); }
-        .popup-hd{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-bottom:2px solid; background:#fafafa; border-top-left-radius:10px; border-top-right-radius:10px; }
+        .popup-hd{ display:block; align-items:center; gap:10px; padding:10px 12px; border-bottom:2px solid; background:#fafafa; border-top-left-radius:10px; border-top-right-radius:10px; }
         .pill{ color:#fff; font-weight:800; padding:2px 8px; border-radius:999px; font-size:12px; }
         .bname{ font-weight:800; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .aname{ font-weight:800; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; color:#374151; }
+        .bname .alt {
+          font-size: 0.9em;   /* smaller text for altName */
+          color: #666;        /* lighter color to differentiate */
+        }
+        .col {
+          display: flex;
+          flex-direction: column; /* stack vertically */
+          line-height: 1.2;       /* tighten spacing if needed */
+        }
+        .popup-hd {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          max-width: 100%; /* keeps content constrained */
+        }
+
+        .name-block {
+          display: flex;
+          flex-direction: column;
+          min-width: 0;  /* required for ellipsis inside flexbox */
+          flex: 1;       /* take remaining space */
+        }
+
+        .name-block .bname {
+          white-space: nowrap;        /* no wrapping */
+          overflow: hidden;           /* hide overflow text */
+          text-overflow: ellipsis;    /* add ... */
+          font-weight: 600;
+        }
+
+        .name-block .alt {
+          font-size: 0.9em;
+          color: #666;
+          white-space: nowrap;        /* optional: prevent wrap */
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         .close{ appearance:none; border:none; background:transparent; font-size:18px; line-height:1; cursor:pointer; color:#111; padding:0 4px; }
         .popup-body{ padding:10px 12px; display:grid; gap:8px; }
         .row{ display:flex; justify-content:space-between; font-size:14px; }
-
+        .exhibition-name {
+          font-size: 12px;
+          color: #787878ff;
+          margin-top: 2px;
+        }
         .panel.card{ background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:12px; }
         .panel .panel-title{ font-weight:700; margin-bottom:8px; }
         .stats{ display:grid; gap:8px; }
