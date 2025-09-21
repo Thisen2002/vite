@@ -1,6 +1,7 @@
 import { u } from "framer-motion/client";
 import L from "leaflet";
 import io, { Socket } from "socket.io-client";
+import mapping from "./mappings.json";
 
 let map, socket;
 const API = 'http://localhost:3001';
@@ -18,14 +19,26 @@ function getUserPosition() {
   return userPosition;
 }
 
+let prevBuildingId = null;
+
 function buildingClick(id) {
   console.log("Building clicked:", id);
+  highlightSelectedBuilding(id);
   if (buildingClickListner.length === 0) {
     console.warn("No building click listeners registered.");
     return
   }
   buildingClickListner.forEach(fn => fn(id));
 }
+
+function highlightSelectedBuilding(bid) {
+  if (prevBuildingId) {
+    setBuildingAccent(prevBuildingId, "assigned");
+  }
+  prevBuildingId = bid;
+  setBuildingAccent(bid, "clicked");
+}
+
 
 window.buildingClick = buildingClick;
 
@@ -87,8 +100,8 @@ function initMap(map_div) {
       icons.classList.add("st5");
 
       const b_name = document.querySelector(`#_x3C_building_name_big_x3E_`);
-      b_name.classList.remove("st6"); // remove previous accent classes
-      b_name.classList.add("st5");
+      b_name.classList.remove("st5"); // remove previous accent classes
+      b_name.classList.add("st6");
 
       const s_name = document.querySelector(`#_x3C_building_name_small_x3E_`);
       s_name.classList.remove("st5"); // remove previous accent classes
@@ -122,39 +135,8 @@ function initMap(map_div) {
 
 }
 
-const buildings = {
-  "b29": 35,
-  "b10": 29,
-  "b16": 81,
-  "b31": 61,
-  "b15": 10,
-  "b14": 8,
-  "b6": 15,
-  "b13": 20,
-  "b7": 57,
-  "b12": 22,
-  "b33": 87,
-  "b32": 75,
-  "b11": 88,
-  "b18": 68,
-  "b18A": 64,
-  "b20":92,
-  "b21": 56,
-  "b28": 27,
-  "b22": 25,
-  "b30": 30,
-  "b23": 50,
-  "b24": 48,
-  "b4": 50,
-  "b2": 44,
-  "b1": 40,
-  "b34": 71,
-
-
-};
-
 function buildingToNode(id) {
-  return buildings[id];
+  return mapping.svg_to_node[id];
 }
 
 
@@ -334,7 +316,8 @@ export {
   addMessageListner, 
   sendMessage,
   setBuildingAccent,
-  focus
+  focus,
+  highlightSelectedBuilding
 };
 
 
