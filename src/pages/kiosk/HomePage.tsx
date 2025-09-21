@@ -55,7 +55,7 @@ const HomePageTailwind: React.FC<HomePageTailwindProps> = () => {
 
         {/* Right-aligned title for first slide */}
         {currentIndex === 0 && (
-          <div className="absolute top-1/2 right-[5%] transform -translate-y-1/2 text-right text-white max-w-[400px] px-5 py-5 bg-black/60 rounded-2xl animate-slideInRight">
+          <div className="absolute top-1/2 right-[5%] transform -translate-y-1/2 text-right text-white max-w-[500px] px-5 py-5 bg-black/60 rounded-2xl animate-slideInRight">
             <div className="text-4xl font-bold text-white leading-relaxed">
               Faculty of Engineering
             </div>
@@ -67,15 +67,15 @@ const HomePageTailwind: React.FC<HomePageTailwindProps> = () => {
 
         {/* Full-width description overlay */}
         <div className="absolute bottom-0 w-full px-12 py-8 bg-gradient-to-t from-black/80 to-black/30 text-white text-center backdrop-blur-sm shadow-[0_-4px_20px_rgba(0,0,0,0.5)] animate-fadeInUp">
-          <p className="my-2 text-base leading-relaxed text-shadow-lg">
+          <p className="my-2 text-lg leading-relaxed text-shadow-lg">
             Sri Lanka's oldest and most prestigious engineering institution — shaping
             generations of innovators, leaders, and visionaries for over 75 years.
           </p>
-          <p className="my-2 text-base leading-relaxed text-shadow-lg">
+          <p className="my-2 text-lg leading-relaxed text-shadow-lg">
             The <strong>Faculty of Engineering, University of Peradeniya</strong> proudly presents 
             <strong> EngEx2025</strong> – The Diamond Jubilee Exhibition. Discover groundbreaking 
-            <strong> research, innovations</strong>, and <strong>future-shaping projects</strong> 
-            as we mark this historic milestone in engineering education and impact.
+            <strong> research, innovations</strong>, and <strong>future-shaping projects </strong> 
+             as we mark this historic milestone in engineering education and impact.
           </p>
         </div>
       </div>
