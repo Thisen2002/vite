@@ -79,7 +79,9 @@ const BUILDING_NAMES = {
   B10:"Engineering Library",
   B11:"Department of Chemical and process Engineering",
   B12:"Lecture Room 2/3",
+
   B13:"Drawing Office 2 and Faculty Common Room",
+
   B14:"Faculty Canteen",
   B15:"Department of Manufacturing and Industrial Engineering",
   B16:"Professor E.O.E. Perera Theater",

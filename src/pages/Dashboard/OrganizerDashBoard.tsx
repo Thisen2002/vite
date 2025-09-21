@@ -22,6 +22,13 @@ interface OrganizerDashBoardProps {
 function OrganizerDashBoard({ onLogout }: OrganizerDashBoardProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Get the current date in a nice format
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -35,9 +42,9 @@ function OrganizerDashBoard({ onLogout }: OrganizerDashBoardProps) {
         {/* Header */}
         <Header
           eventInfo={{
-            title: "EngEX 2025",
-            date: "30 Aug 2025",
-            location: "University of Peradeniya",
+            title: "EngEx 2025 - PeraVerse Exhibition Management System by PeraCom",
+            date: currentDate, // Dynamically updated date
+            location: "Faculty of Engineering University of Peradeniya",
           }}
           userInfo={{
             name: "Organizer",
