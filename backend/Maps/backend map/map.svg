@@ -1235,7 +1235,7 @@
 			<rect id="b20" x="133.5" y="122.3" onclick="buildingClick('b20')" class="st13" width="37.1" height="21.3"/>
 		
 			<rect id="b19" x="178.6" y="122.3" onclick="buildingClick('b19')" class="st13" width="19.7" height="21.3"/>
-		<polygon id="b18" onclick="buildingClick('B18A')" class="st13" points="
+		<polygon id="b18A" onclick="buildingClick('b18A')" class="st13" points="
 			236.8,130.3 236.8,134.8 232.7,134.8 232.7,138.2 219.4,138.2 219.4,126.9 232.7,126.9 232.7,130.3 		"/>
 		<polygon id="b18" onclick="buildingClick('b18')" class="st13" points="
 			215.3,123.3 215.3,138.2 206.6,138.2 206.6,126.9 211.2,126.9 211.2,123.3 		"/>

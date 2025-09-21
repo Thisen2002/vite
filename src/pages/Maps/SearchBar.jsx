@@ -51,6 +51,7 @@ export const DesktopSearchBar = ({
   
   // Custom handleSelectResult that immediately hides dropdown
   const handleSelectResultWithHide = (item) => {
+    
     setIsDropdownHidden(true); // Immediately hide dropdown
     handleSelectResult(item); // Call original handler
   };

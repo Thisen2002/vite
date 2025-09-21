@@ -2,14 +2,42 @@
 // This service handles all communication with the building service backend
 // Falls back to sample data when backend is not available
 
-import buildingData, { searchBuildings as searchSampleData, getAllBuildings as getAllSampleBuildings } from './buildingData.js';
+import { data } from 'react-router-dom';
+import buildingData, { searchBuildings as searchSampleData, getAllBuildings as getAllSampleBuildings, other_buildings } from './buildingData.js';
+import mapping from './mappings.json';
 
 const BUILDING_SERVICE_URL = 'http://localhost:5000'; // Building service port
 const USE_SAMPLE_DATA = true; // Set to true to use sample data instead of backend
 
 class BuildingApiService {
+  // let preFetchBuildings = [];
   constructor() {
     this.baseUrl = BUILDING_SERVICE_URL;
+    this.preFetchBuildings = [];
+    this.preFetch()
+    .then((data) => {
+      this.preFetchBuildings = [...data, ...other_buildings]
+    }).catch((data) => this.preFetchBuildings = [...data, ...other_buildings])
+    .finally(() => {
+      console.log("at constructor buildingApi")
+      console.log(this.preFetchBuildings)
+    })
+    
+  }
+
+  async preFetch(){
+    try {
+      const response = await fetch(`${this.baseUrl}/buildings`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(`fetched data:${data}`)
+      return data;
+    } catch (error) {
+      console.error('Error fetching buildings, falling back to sample data:', error);
+      return getAllSampleBuildings();
+    }
   }
 
   // Get all buildings
@@ -117,7 +145,7 @@ class BuildingApiService {
   // Search buildings by name or description
   async searchBuildings(query) {
     try {
-      const allBuildings = await this.getAllBuildings();
+      const allBuildings =  this.preFetchBuildings;
       const filteredBuildings = allBuildings.filter(building => 
         building.building_name.toLowerCase().includes(query.toLowerCase()) ||
         (building.description && building.description.toLowerCase().includes(query.toLowerCase()))
@@ -173,10 +201,10 @@ class BuildingApiService {
 
   // Search buildings by name, description, and exhibits
   async searchBuildings(query, options = {}) {
-    if (USE_SAMPLE_DATA) {
-      console.log('Using sample data for search:', query);
-      return searchSampleData(query, options);
-    }
+    // if (USE_SAMPLE_DATA) {
+    //   console.log('Using sample data for search:', query);
+    //   return searchSampleData(query, options);
+    // }
     
     try {
       if (!query || query.trim() === '') return [];
@@ -184,7 +212,7 @@ class BuildingApiService {
       const searchTerm = query.trim().toLowerCase();
       
       // Get all buildings first
-      const allBuildings = await this.getAllBuildings();
+      const allBuildings = this.preFetchBuildings;
       
       let results = [];
       
@@ -252,74 +280,14 @@ class BuildingApiService {
 
   // Map database building ID to SVG building ID (b33, b34, etc.)
   mapDatabaseIdToSvgId(databaseId) {
-    const mapping = {
-      1: "b11",
-      2: "b32",
-      3: "b33",   
-      4: "b16",
-      5: "b7", 
-      6: "b12",  
-      7: "b17", 
-      8: "b34",
-      9: "b20",
-      10:"b19",
-      11:"b31",
-      12:"b31",
-      13:"b27",
-      14:"b22",
-      15:"b30",
-      16:"b24",
-      17:"b23",
-      18:"b29",
-      19:"b4",
-      20:"b2",
-      21:"b1",
-      22:"b13",
-      24:"b9",
-      25:"b6",
-      26:"b10",
-      27:"b10",
-      28:"b15",
-      29:"b14",
-      
-      };
-    return mapping[databaseId] || `b${databaseId}`;
+    
+    return mapping.db_to_svg[databaseId] || `b${databaseId}`;
   }
 
   // Check if a building has a valid SVG mapping (exists on the map)
   isValidSvgMapping(databaseId) {
-    const validMappings = {
-      1: "b11",
-      2: "b32",
-      3: "b33",   
-      4: "b16",
-      5: "b7", 
-      6: "b12",  
-      7: "b17", 
-      8: "b34",
-      9: "b20",
-      10:"b19",
-      11:"b31",
-      12:"b31",
-      13:"b27",
-      14:"b22",
-      15:"b30",
-      16:"b24",
-      17:"b23",
-      18:"b29",
-      19:"b4",
-      20:"b2",
-      21:"b1",
-      22:"b13",
-      24:"b9",
-      25:"b6",
-      26:"b10",
-      27:"b10",
-      28:"b15",
-      29:"b14",
-      
-      };
-    return validMappings.hasOwnProperty(databaseId);
+    
+    return mapping.db_to_svg.hasOwnProperty(databaseId);
   }
 }
 

@@ -1,6 +1,7 @@
 import { u } from "framer-motion/client";
 import L from "leaflet";
 import io, { Socket } from "socket.io-client";
+import mapping from "./mappings.json";
 
 let map, socket;
 const API = 'http://localhost:3001';
@@ -134,39 +135,8 @@ function initMap(map_div) {
 
 }
 
-const buildings = {
-  "b29": 35,
-  "b10": 29,
-  "b16": 81,
-  "b31": 61,
-  "b15": 10,
-  "b14": 8,
-  "b6": 15,
-  "b13": 20,
-  "b7": 57,
-  "b12": 22,
-  "b33": 87,
-  "b32": 75,
-  "b11": 88,
-  "b18": 68,
-  "b18A": 64,
-  "b20":92,
-  "b21": 56,
-  "b28": 27,
-  "b22": 25,
-  "b30": 30,
-  "b23": 50,
-  "b24": 48,
-  "b4": 50,
-  "b2": 44,
-  "b1": 40,
-  "b34": 71,
-
-
-};
-
 function buildingToNode(id) {
-  return buildings[id];
+  return mapping.svg_to_node[id];
 }
 
 

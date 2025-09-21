@@ -5,6 +5,35 @@
 
 import buildingApiService from "./buildingApi";
 
+const other_buildings = [
+  {
+    building_id: 50,
+    zone_ID: 2,
+    building_name: "Female Restroom",
+    description: "Clean and well-maintained female restroom equipped with multiple stalls, sinks, and sanitary facilities. Located within Zone A for convenient access."
+  },
+  {
+    building_id: 51,
+    zone_ID: 2,
+    building_name: "Male Restroom",
+    description: "Spacious male restroom featuring urinals, private stalls, and handwashing stations. Easily accessible within Zone D."
+  },
+  {
+    building_id: 52,
+    zone_ID: 2,
+    building_name: "Male Restroom",
+    description: "Spacious male restroom featuring urinals, private stalls, and handwashing stations. Easily accessible within Zone C."
+  },
+  {
+    building_id: 49,
+    zone_ID: 2,
+    building_name: "Female Restroom",
+    description: "Clean and well-maintained female restroom equipped with multiple stalls, sinks, and sanitary facilities. Located within Zone C for convenient access."
+  },
+  
+
+]
+
 const buildingData = [
   {
     building_ID: 33,
@@ -179,6 +208,7 @@ const getAllBuildings = () => {
 export {
   buildingData,
   zoneData,
+  other_buildings,
   getBuildingById,
   getBuildingsByZone,
   searchBuildings,
