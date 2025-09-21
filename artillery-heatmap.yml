@@ -3,12 +3,12 @@ config:
   phases:
     - duration: 60 # run for 60s
       arrivalRate: 10 # start at ~10 new VU/sec
-      rampTo: 200 # ramp linearly to ~200 new VUs/sec by the end
+      rampTo: 1000 # ramp linearly to ~200 new VUs/sec by the end
 
   # Cap concurrency so we don't exceed ~200 simultaneous users
   # (actual concurrency depends on request duration; this prevents runaway VUs)
   pool:
-    maxVusers: 200
+    maxVusers: 1000
 
   # Good defaults
   defaults:
