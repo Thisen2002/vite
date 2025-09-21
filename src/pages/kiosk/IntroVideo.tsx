@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import introVideo from './kioskAssets/intro.mp4'
+import peracomLogo from './kioskAssets/peracom.png'
 
 interface IntroVideoTailwindProps {
   onVideoClick: () => void;
@@ -61,8 +62,8 @@ const IntroVideoTailwind: React.FC<IntroVideoTailwindProps> = ({ onVideoClick })
             </p>
             <div className="flex flex-col items-center gap-2 mt-8">
               <span className="text-4xl animate-bounce"></span>
-              <p className="text-xl font-serif font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-bounce">
-                Touch
+              <p className="text-xl -semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-bounce">
+                Click To Continue
               </p>
             </div>
           </div>
@@ -81,14 +82,22 @@ const IntroVideoTailwind: React.FC<IntroVideoTailwindProps> = ({ onVideoClick })
             playsInline
           />
           {videoLoaded && (
-            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center text-white z-[10000] bg-black/30 px-10 py-5 rounded-3xl backdrop-blur-md border border-white/20 animate-pulse">
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-4xl animate-bounce"></span>
-                <p className="m-0 text-xl font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif animate-bounce">
-                  Click To Continue
-                </p>
+            <>
+              <div className="absolute top-8 left-8 flex flex-col items-center gap-3 bg-transparent/30 px-6 py-4 rounded-3xl backdrop-md ">
+                <img src={peracomLogo} alt="PeraCom Logo" className="w-60 h-30" />
+                <span className="text-white font-semibold text-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-center">
+                  SMART INFO KIOSK
+                </span>
               </div>
-            </div>
+              <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center text-white z-[10000] bg-transparent/30 px-10 py-5 rounded-3xl backdrop-blur-md border border-white/20 animate-pulse">
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-4xl animate-bounce"></span>
+                  <p className="m-0 text-2xl font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif animate-bounce">
+                    Click To Continue
+                  </p>
+                </div>
+              </div>
+            </>
           )}
         </>
       )}

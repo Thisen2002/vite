@@ -1,13 +1,15 @@
 -- ==============================
 -- INSERT SAMPLE DATA
 -- ==============================
+\c organizer_dashboard;
 
--- 1. Zone
 INSERT INTO Zone (zone_name) VALUES
-('A'),
-('B'),
-('C'),
-('D');
+('A'),      -- This would get zone_ID = 1
+('B'),      -- This would get zone_ID = 2  
+('C'),      -- This would get zone_ID = 3
+('D');      -- This would get zone_ID = 4
+-- 1. Zone
+
 
 -- 2. Building
 INSERT INTO Building (building_ID, zone_ID, building_name, description, exhibits) VALUES

@@ -1,4 +1,6 @@
-CREATE DATABASE IF NOT EXISTS heatmap_db;
+CREATE DATABASE heatmap_db;
+
+\c heatmap_db;
 -- Create buildings table
 CREATE TABLE buildings (
     building_id VARCHAR(10) PRIMARY KEY,   -- Auto-increment primary key
