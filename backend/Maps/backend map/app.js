@@ -19,7 +19,7 @@ const io = new Server(server, {
 app.use(cors());
 app.use(bodyParser.json()); // parse JSON payloads
 
-const HTTP_PORT = 3001;
+const HTTP_PORT = process.env.PORT || process.env.BACKEND_MAPS_SERVICE_PORT || 3001;
 
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);

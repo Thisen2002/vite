@@ -4,8 +4,10 @@
 
 import buildingData, { searchBuildings as searchSampleData, getAllBuildings as getAllSampleBuildings } from './buildingData.js';
 
-const BUILDING_SERVICE_URL = 'http://localhost:5000'; // Building service port
 const USE_SAMPLE_DATA = true; // Set to true to use sample data instead of backend
+
+const BUILDING_SERVICE_URL = import.meta.env.VITE_BUILDING_API_URL || import.meta.env.VITE_MAIN_API_URL || 'http://localhost:5000'; // Building service port
+
 
 class BuildingApiService {
   constructor() {

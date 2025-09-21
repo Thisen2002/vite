@@ -7,7 +7,7 @@ interface Notification {
 
 interface NotificationsPageTailwindProps {}
 
-const API_URL = 'http://localhost:3000/api/events/:id/status'; // API endpoint for fetching notifications
+const API_URL = import.meta.env.VITE_KIOSK_NOTIFICATION_API_URL || 'http://localhost:3000/api/events/:id/status'; // API endpoint for fetching notifications
 
 const NotificationsPageTailwind: React.FC<NotificationsPageTailwindProps> = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]); // State to hold fetched notifications

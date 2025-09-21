@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, ChevronDown, Calendar, MapPin, Users, LogOut } from 'lucide-react';
+import { ChevronDown, Calendar, MapPin, Users, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   eventInfo: {
@@ -17,7 +17,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ eventInfo, userInfo, onLogout }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
 
   return (
     <header className="bg-white/90 backdrop-blur-md border-b border-white/20 shadow sticky top-0 z-50">
@@ -52,42 +51,6 @@ export const Header: React.FC<HeaderProps> = ({ eventInfo, userInfo, onLogout })
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
-          {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="p-3 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all duration-200 relative group"
-            >
-              <Bell size={20} className="group-hover:scale-110 transition-transform duration-200" />
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium shadow-lg">
-                3
-              </span>
-            </button>
-            {showNotifications && (
-              <div className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 z-50 animate-fadeIn">
-                <div className="p-5 border-b border-gray-100">
-                  <h3 className="font-bold text-gray-900 text-lg">Notifications</h3>
-                  <p className="text-sm text-gray-500 mt-1">You have 3 unread notifications</p>
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {["New feedback received", "Export completed", "System update available"].map((msg, idx) => (
-                    <div key={idx} className="p-4 border-b border-gray-100 hover:bg-gray-50/50 transition-colors duration-200">
-                      <div className="flex items-start space-x-3">
-                        <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                          idx === 0 ? "bg-green-500" : idx === 1 ? "bg-blue-500" : "bg-purple-500"
-                        }`}></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{msg}</p>
-                          <p className="text-xs text-gray-400 mt-1">{idx === 0 ? "2 minutes ago" : idx === 1 ? "5 minutes ago" : "1 hour ago"}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* User Profile */}
           <div className="relative">
             <button
