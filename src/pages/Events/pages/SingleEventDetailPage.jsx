@@ -15,7 +15,6 @@ export default function SingleEventDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [status, setStatus] = useState(null);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
     const [isInterested, setIsInterested] = useState(false);
@@ -120,23 +119,6 @@ export default function SingleEventDetailPage() {
         return new Date(dateString).toLocaleString('en-US', options);
     };
 
-    const goToNextImage = () => {
-        if (event?.event_photos?.length > 1) {
-            setCurrentImageIndex((prev) =>
-                prev === event.event_photos.length - 1 ? 0 : prev + 1
-            );
-        }
-    };
-
-    const goToPrevImage = () => {
-        if (event?.event_photos?.length > 1) {
-            setCurrentImageIndex((prev) =>
-                prev === 0 ? event.event_photos.length - 1 : prev - 1
-            );
-        }
-    };
-
-    const goToImage = (index) => setCurrentImageIndex(index);
     const toggleDescription = () => setIsDescriptionExpanded((v) => !v);
 
     const handleToggleInterested = async () => {
@@ -234,7 +216,7 @@ export default function SingleEventDetailPage() {
                 <div className="mobile-nav-spacer"></div>
             </div>
 
-            <div className="event-content">
+            <div className="event-content full-width">
                 <div className="event-left-section">
                     <Link to="/" className="back-button">
                         <img src={ArrowLeftIcon} alt="Back" className="back-icon" />
@@ -302,62 +284,6 @@ export default function SingleEventDetailPage() {
                         Rate Event
                     </Link>
                 </div>
-
-                {/* Right section with photo carousel */}
-                {event.event_photos && event.event_photos.length > 0 ? (
-                    <div className="photo-carousel">
-                        <div className={`carousel-container ${event.event_photos.length === 1 ? 'single-image' : ''}`}>
-                            <div
-                                className="carousel-track"
-                                style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
-                            >
-                                {event.event_photos.map((photo, index) => (
-                                    <div key={index} className="carousel-slide">
-                                        <img
-                                            src={photo.photo_url}
-                                            alt={`Event Photo ${index + 1}`}
-                                            className="carousel-image"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-
-                            {event.event_photos.length > 1 && (
-                                <>
-                                    <button
-                                        className="carousel-navigation carousel-prev"
-                                        onClick={goToPrevImage}
-                                        aria-label="Previous image"
-                                    >
-                                        ‹
-                                    </button>
-                                    <button
-                                        className="carousel-navigation carousel-next"
-                                        onClick={goToNextImage}
-                                        aria-label="Next image"
-                                    >
-                                        ›
-                                    </button>
-                                </>
-                            )}
-
-                            {event.event_photos.length > 1 && (
-                                <div className="carousel-dots">
-                                    {event.event_photos.map((_, index) => (
-                                        <button
-                                            key={index}
-                                            className={`carousel-dot ${index === currentImageIndex ? 'active' : ''}`}
-                                            onClick={() => goToImage(index)}
-                                            aria-label={`Go to image ${index + 1}`}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="no-image-placeholder">No Image Found</div>
-                )}
             </div>
         </div>
     );

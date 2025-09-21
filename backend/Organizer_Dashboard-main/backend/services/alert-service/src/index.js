@@ -7,7 +7,7 @@ require('dotenv').config();
 const alertRoutes = require('./routes/alertRoutes');
 const { initWebSocket, getConnectedCount } = require('./wsManager');
 
-const PORT = process.env.PORT || 5010;
+const PORT = process.env.PORT || process.env.BACKEND_ALERT_SERVICE_PORT || 5010;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 
 const app = express();

@@ -1,7 +1,7 @@
 // Simple API client for the frontend to talk to the backend (code 1)
 // Uses VITE_API_BASE if provided, else defaults to http://localhost:5000
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_MAIN_API_URL || 'http://localhost:5000';
 
 export async function fetchCrowd(intervalMinutes = 30) {
   const url = `${API_BASE}/api/crowd?interval=${encodeURIComponent(intervalMinutes)}`;
