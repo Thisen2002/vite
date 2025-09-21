@@ -1,0 +1,37 @@
+config:
+  target: "http://localhost:3897"
+  phases:
+    - duration: 60 # run for 60s
+      arrivalRate: 1 # start at ~1 new VU/sec
+      rampTo: 200 # ramp linearly to ~100 new VUs/sec by the end
+
+  # Cap concurrency so we don't exceed ~100 simultaneous users
+  # (actual concurrency depends on request duration; this prevents runaway VUs)
+  pool:
+    maxVusers: 200
+
+  # Good defaults
+  defaults:
+    headers:
+      Content-Type: application/json
+  http:
+    timeout: 10 # seconds
+
+  # Optional SLO guardrails (fail the run if breached)
+  ensure:
+    - "p95(latency) < 800"
+    - "http.response_rate > 0.99"
+
+scenarios:
+  - name: Public API smoke (no auth)
+    flow:
+      - get:
+          url: "/heatmap/map-data/"
+          expect:
+            - statusCode: 200
+      # Add more steps if needed, e.g.:
+      - get: { url: "/api/events/" }
+      # - post:
+      #     url: "/api/search"
+      #     json: { q: "node" }
+      #     expect: [ { statusCode: 200 } ]

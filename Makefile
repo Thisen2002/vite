@@ -17,6 +17,8 @@ help:
 	@echo "  make status             - Show PM2 status"
 	@echo "  make logs               - Tail PM2 logs"
 	@echo "  make pm2-install        - Install PM2 globally"
+	@echo "  make load-test-events   - Run load test for events service"
+	@echo "  make load-test-heatmap  - Run load test for heatmap service"
 
 start: ensure-exec
 	$(SCRIPT) start
@@ -39,3 +41,8 @@ logs: ensure-exec
 pm2-install:
 	npm install -g pm2
 
+load-test-events:
+	npx artillery run artillery-events.yml --name="load-test-events"  --record --key $(ARTILLERY_KEY)
+
+load-test-heatmap:
+	npx artillery run artillery-heatmap.yml --name="load-test-events" --record --key $(ARTILLERY_KEY)
