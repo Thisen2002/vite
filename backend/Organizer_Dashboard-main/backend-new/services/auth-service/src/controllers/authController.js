@@ -39,8 +39,9 @@ const register = async (req, res) => {
         );
 
         // Send approval email to admin - use unified server URL with auth proxy
-        const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
-        const approvalLink = `${baseUrl}/auth/approve/${result.rows[0].organizer_id}`;
+        // const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
+        // const approvalLink = `${baseUrl}/auth/approve/${result.rows[0].organizer_id}`;
+        const approvalLink = `${process.env.BASE_URL}/auths/approve/${result.rows[0].organizer_id}`;
         await sendApprovalEmail(ADMIN_EMAIL, {
             organizer_name,
             email

@@ -5,6 +5,9 @@ const buildingController = require('../controllers/buildingController');
 // Get all buildings
 router.get('/', buildingController.getBuildings);
 
+// Get buildings by tag (new route) - MUST be before /:id route
+router.get('/filterByTag', buildingController.getBuildingsByTag);
+
 // Get building by ID
 router.get('/:id', buildingController.getBuildingById);
 

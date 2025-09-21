@@ -2,7 +2,7 @@ require('dotenv').config();
 
 function getStartDate() {
 	// Format: YYYY-MM-DD
-	const d = process.env.EXHIBITION_START_DATE || '2025-09-17';
+	const d = process.env.EXHIBITION_START_DATE || '2025-09-23';
 	return d;
 }
 

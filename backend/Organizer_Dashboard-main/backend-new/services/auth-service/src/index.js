@@ -6,14 +6,15 @@ const app = express();
 const PORT = process.env.PORT || 5004;
 
 // CORS configuration to allow requests from unified server
-const corsOptions = {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
-    credentials: true,
-    optionsSuccessStatus: 200
-};
+// const corsOptions = {
+//     origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
+//     credentials: true,
+//     optionsSuccessStatus: 200
+// };
 
 // Middleware - fix typo
-app.use(cors(corsOptions));
+app.use(cors());
+// app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes

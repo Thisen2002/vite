@@ -17,7 +17,7 @@ const BuildingsWidget: React.FC = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [tags] = useState<string[]>([
-    "Artificial Intelligence Machine Learning and Data Science", "Biomedical Engineering and Mechatronics", "Electronics and Embedded Systems", "Robotics,Automation and Manufacturing", "Information Technology and Computing", "Energy Environment and Sustainability & Nature Based Technologies", "Materials and Nanotechnology", "Science,Entertainment and Mathematics Nanotechnoloy of Engineering"
+    "AI","ICT","Structures","Mechanical","Civil","Power","Automation","Robotics","Electronics","Software"
   ]);
 
   const [formData, setFormData] = useState<Building>({

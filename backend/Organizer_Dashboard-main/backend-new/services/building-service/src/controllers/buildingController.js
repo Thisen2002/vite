@@ -196,28 +196,44 @@ const deleteBuilding = async (req, res) => {
 // GET BUILDINGS BY TAG
 // ==============================
 const getBuildingsByTag = async (req, res) => {
-  const { tag } = req.query;  // Get the tag from query parameters
+  const { tag } = req.query;
 
+  // If no tag is provided, return all buildings
   if (!tag) {
-    return res.status(400).json({ message: 'Tag is required' });
+    return getBuildings(req, res);
   }
 
   try {
+    // Filter at DB level to only include exhibits whose tag list contains the exact tag (case-insensitive)
     const result = await pool.query(
-      `SELECT building_ID, building_name, exhibits, zone_ID, exhibit_tags
-       FROM Building
-       WHERE EXISTS (
-         SELECT 1
-         FROM jsonb_each_text(exhibit_tags) AS tags
-         WHERE tags.value LIKE $1
-       )`,
-      [`%${tag}%`]  // Use LIKE for partial matching on the tag
+      `
+      SELECT
+        b.building_ID  AS building_id,
+        b.building_name,
+        b.zone_ID      AS zone_id,
+        -- only include exhibit tag entries that match the tag
+        jsonb_object_agg(j.key, j.value) AS exhibit_tags,
+        array_agg(j.key)                 AS exhibits
+      FROM Building b
+      CROSS JOIN LATERAL (
+        SELECT key, value
+        FROM jsonb_each(COALESCE(b.exhibit_tags, '{}'::jsonb))
+        WHERE EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements_text(value) v(val)
+          WHERE LOWER(val) = LOWER($1)
+        )
+      ) j
+      GROUP BY b.building_ID, b.building_name, b.zone_ID
+      `,
+      [tag]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'No buildings found with the given tag' });
+      return res.status(404).json({ message: 'No exhibits found with the given tag' });
     }
 
+    // Results are already filtered and shaped by SQL
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching buildings by tag:', err);
@@ -225,7 +241,9 @@ const getBuildingsByTag = async (req, res) => {
   }
 };
 
-// Tags list
+// ==============================
+// TAGS LIST
+// ==============================
 router.get('/tags', (req, res) => {
   res.json({
     tags: ['AI', 'Robotics', 'Mechanics', 'Civil', 'Electronics', 'Computer Science', 'Chemical', 'Manufacturing']
