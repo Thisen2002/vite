@@ -29,7 +29,7 @@ function AppContent() {
           <Route path="/dashboard/*" element={<AppDashboard />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/events/*" element={<Appevents />} />
-          <Route path="/map" element={<Dashboard />} />
+          <Route path="/map" element={<Dashboard kiosk_mode={false}/>} />
         </Routes>
       </main>
       {!isDashboard && !isKiosk && <Footer />}

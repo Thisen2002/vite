@@ -12,12 +12,15 @@ import {
   stopGps, 
   getUserPosition,
   setBuildingAccent,
-  drawMarker
+  drawMarker,
+  highlightSelectedBuilding
 } from "./map_module";
 import buildingApiService from "./buildingApi";
+import mapping from "./mappings.json";
+import { other_buildings } from "./buildingData";
 // Removed MobileSearchBar and useSearchBar imports - not needed for this component
 
-export default function MapExtra() {
+export default function MapExtra({kiosk_mode=false}) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const fetchedBuilding = useRef([]);
@@ -33,6 +36,14 @@ export default function MapExtra() {
   // Engineering themed dummy building data (extend as needed)
 
   const getBuildingInfo = (buildingId) => {
+    console.log(`To be found building at 71: ${buildingId}`)
+    console.log(`=================================================================================================`);
+    fetchedBuilding.current.forEach(b => {
+      
+      console.log(`Building in list: ${b.building_id} ${b.building_name} mapped to ${buildingApiService.mapDatabaseIdToSvgId(b.building_id)}`);
+      
+    });
+    console.log(`=================================================================================================`);
     const building = fetchedBuilding.current.find(b => buildingId === buildingApiService.mapDatabaseIdToSvgId(b.building_id));
     console.log(`found building at 71: ${building}`)
     return building;
@@ -151,12 +162,7 @@ export default function MapExtra() {
   useEffect(() => {
     // Listen for building clicks from the map module
     const unsubscribe = addBuildingClickListner((buildingId) => {
-      if (previousBuilding.current) {
-        console.log("Resetting accent for previously selected building:", previousBuilding.current, "to assigned",buildingId);
-        setBuildingAccent(previousBuilding.current, "assigned");
-      }
-      previousBuilding.current = buildingId;
-      setBuildingAccent(buildingId, "clicked");
+      
       setSelectedBuilding(buildingId);
       setIsSheetOpen(true);
     });
@@ -193,10 +199,9 @@ export default function MapExtra() {
       if (loc) {
         // Delay slightly to ensure map has initialized
         setTimeout(() => {
-          const mapCode = nameToMapCode[loc] || null;
+          const mapCode = mapping.name_to_svg[loc] || null;
           if (mapCode) {
-            previousBuilding.current = mapCode;
-            setBuildingAccent(mapCode, "clicked");
+            highlightSelectedBuilding(mapCode);
             setSelectedBuilding(mapCode);
             setIsSheetOpen(true);
           }
@@ -255,12 +260,19 @@ export default function MapExtra() {
     .then((r) => {
       console.log(`at 169 MapExtra:`);
       console.log(r);
-      fetchedBuilding.current = r;
+      fetchedBuilding.current = [...r, ...other_buildings];
+      console.log("at 173 MapExtra");
+      console.log(fetchedBuilding.current);
     })
     .catch((e) => console.log("Error fetching building") );
 
-    console.log("at 173 MapExtra");
-    console.log(fetchedBuilding.current);
+    
+  }, []);
+
+  useEffect(() => {
+    addGpsListner((latLng) => {
+      drawMarker(latLng);
+    })
   }, []);
 
   useEffect(() => {
@@ -827,7 +839,7 @@ export default function MapExtra() {
           {/* Actions - Fixed at bottom */}
           <div style={{ flexShrink: 0, marginTop: 16 }}>
             <div className="iem-actions">
-              {selectedBuilding && isBookmarked(selectedBuilding.id) ? (
+              {/* {selectedBuilding && isBookmarked(selectedBuilding.id) ? (
                 <button
                   type="button"
                   className="iem-btn iem-btn-gradient"
@@ -890,8 +902,9 @@ export default function MapExtra() {
                     <span>Bookmark</span>
                   </span>
                 </button>
-              )}
-              <button
+              )} */}
+              {!kiosk_mode && (
+                <button
                 type="button"
                 className="iem-btn iem-btn-gradient"
                 onClick={() => {
@@ -923,6 +936,7 @@ export default function MapExtra() {
                   <span>Navigate</span>
                 </span>
               </button>
+              )}
             </div>
           </div>
         </div>
