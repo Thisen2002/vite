@@ -56,6 +56,14 @@ function buildingClick(buildingId) {
 <g id="_x3C_buildings_x3E_">
 	<rect id="_x3C_b35_x3E_" x="55.5" y="115" class="st4" width="11.7" height="26.6" onclick="buildingClick('B35')"/>
 	<polygon id="_x3C_b34_x3E_" class="st4" points="82.6,91.9 196.8,92.1 196.5,118.7 82.4,118.5" onclick="buildingClick('B34')"/>
+	<image 
+	href="/icons/washroom.png" 
+	x="80"   
+	y="30"   
+	width="13" 
+	height="13" 
+	pointer-events="none" 
+	/>
 	<rect id="_x3C_b33_x3E_" x="213.4" y="92.7" class="st4" width="95" height="30.6" onclick="buildingClick('B33')"/>
 	<polygon id="_x3C_b32_x3E_" class="st4" points="302.4,62.1 302.4,86.2 213.4,86.2 213.4,62.1 246.5,62.1 246.5,59.7 262,59.7 
 		262,62.1" onclick="buildingClick('B32')"/>
@@ -75,8 +83,16 @@ function buildingClick(buildingId) {
 	<rect id="_x3C_b20_x3E_" x="90.2" y="122.3" class="st4" width="37.1" height="21.3" onclick="buildingClick('B20')"/>
 	<rect id="_x3C_b19_x3E_" x="135.3" y="122.3" class="st4" width="19.7" height="21.3" onclick="buildingClick('B19')"/>
 	<polygon id="_x3C_b18_x3E__00000096033153864043970640000013314509281890693787_" class="st4" points="193.5,130.3 193.5,134.8 
-		189.4,134.8 189.4,138.2 176.1,138.2 176.1,126.9 189.4,126.9 189.4,130.3" onclick="buildingClick('B18A')"/>
+		189.4,134.8 189.4,138.2 176.1,138.2 176.1,126.9 189.4,126.9 189.4,130.3" onclick="buildingClick('B18')"/>
 	<polygon id="_x3C_b18_x3E_" class="st4" points="172,123.3 172,138.2 163.3,138.2 163.3,126.9 167.9,126.9 167.9,123.3" onclick="buildingClick('B18')"/>
+	<image 
+		href="/icons/washroom.png" 
+		x="170" 
+		y="125" 
+		width="13" 
+		height="13" 
+		pointer-events="none" 
+		/>
 	<rect id="_x3C_b17_x3E_" x="167.6" y="63.5" class="st4" width="23.1" height="23.1" onclick="buildingClick('B17')"/>
 	<polygon id="_x3C_b16_x3E_" class="st4" points="281.4,140.8 281.4,171.4 236.3,171.4 236.3,166.2 230.1,166.2 230.1,163.9 
 		222.2,163.9 222.2,148.4 230.1,148.4 230.1,146 235.3,146 235.3,140.8" onclick="buildingClick('B16')"/>
@@ -84,6 +100,10 @@ function buildingClick(buildingId) {
 		251.2,431.4 251.2,408.3 293.7,408.3 293.7,403.9 303.2,403.9 303.2,415.3" onclick="buildingClick('B15')"/>
 	<polygon id="_x3C_b14_x3E_" class="st4" points="307,449.5 307,458.1 297.8,458.1 297.8,465.5 266,465.5 266,442.1 297.8,442.1 
 		297.8,449.5" onclick="buildingClick('B14')"/>
+	<image href="/icons/canteen.webp"
+       x="277" y="446" 
+       width="15" height="15"
+       pointer-events="none" />
 	<rect id="_x3C_b13_x3E_" x="211.2" y="258.7" class="st4" width="94.9" height="30.3" onclick="buildingClick('B13')"/>
 	<polygon id="_x3C_b12_x3E_" class="st4" points="259.4,207.6 259.4,239.8 242.4,239.8 242.4,240.7 231.2,240.7 231.2,206.7 
 		242.4,206.7 242.4,207.6" onclick="buildingClick('B12')"/>
@@ -102,5 +122,13 @@ function buildingClick(buildingId) {
 	<rect id="_x3C_b3_x3E_" x="87.6" y="346.4" class="st4" width="24.6" height="15.7" onclick="buildingClick('B3')"/>
 	<rect id="_x3C_b2_x3E_" x="115.4" y="359.6" class="st4" width="80.8" height="28.2" onclick="buildingClick('B2')"/>
 	<polygon id="_x3C_b1_x3E_" class="st4" points="196.2,398.6 196.2,447.8 175,447.8 175,430.2 155.8,430.2 155.8,398.6" onclick="buildingClick('B1')"/>
+	<image 
+	href="/icons/washroom.png" 
+	x="190"   
+	y="500"   
+	width="13" 
+	height="13" 
+	pointer-events="none" 
+	/>
 </g>
 </svg>

@@ -19,8 +19,8 @@ const HeatMap = ({ data = [], onSelectBuilding, selectedBuilding } = {}) => {
   }, [data]);
 
   const getColor = (intensity) => {
-    if (intensity < 0.25) return 'rgba(30, 64, 175, 0.6)'; // Blue
-    if (intensity < 0.5) return 'rgba(5, 150, 105, 0.7)'; // Green
+    if (intensity < 0.25) return 'rgba(30, 175, 47, 0.85)'; // Blue
+    if (intensity < 0.5) return 'rgba(246, 250, 7, 0.85)'; // Green
     if (intensity < 0.75) return 'rgba(217, 119, 6, 0.8)'; // Orange
     return 'rgba(220, 38, 38, 0.9)'; // Red
   };
