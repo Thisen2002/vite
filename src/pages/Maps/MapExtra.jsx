@@ -33,23 +33,8 @@ export default function MapExtra() {
   // Engineering themed dummy building data (extend as needed)
 
   const getBuildingInfo = (buildingId) => {
-    // Handle both building ID formats: "b1", "b2" etc. or direct building IDs like 101, 102
-    let building;
-    
-    if (typeof buildingId === 'string' && buildingId.startsWith('b')) {
-      // Convert "b33" to building ID 33, "b34" to 34, etc.
-      const svgIdToBuildingId = {
-        'b33': 33, 'b34': 34, 'b1': 1, 'b4': 4, 'b16': 16,
-        'b28': 28, 'b26': 26
-      };
-      const actualBuildingId = svgIdToBuildingId[buildingId];
-      building = fetchedBuilding.current.find(b => b.building_ID === actualBuildingId);
-    } else {
-      // Direct building ID lookup
-      building = fetchedBuilding.current.find(b => b.building_ID === buildingId || b.building_id === buildingId);
-    }
-    
-    console.log(`Looking for building ID: ${buildingId}, found:`, building);
+    const building = fetchedBuilding.current.find(b => buildingId === buildingApiService.mapDatabaseIdToSvgId(b.building_id));
+    console.log(`found building at 71: ${building}`)
     return building;
   };
 
@@ -268,7 +253,8 @@ export default function MapExtra() {
   useEffect(() => {
     buildingApiService.getAllBuildings()
     .then((r) => {
-      console.log(`at 169 MapExtra: ${r}`);
+      console.log(`at 169 MapExtra:`);
+      console.log(r);
       fetchedBuilding.current = r;
     })
     .catch((e) => console.log("Error fetching building") );

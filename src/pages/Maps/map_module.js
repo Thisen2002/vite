@@ -51,6 +51,51 @@ function initMap(map_div) {
     zoomControl: false,
   }).setView([7.253750, 80.592028], 18);
 
+  map.on("zoomend", function () {
+    const zoomLevel = map.getZoom();
+    console.log("Current zoom level:", zoomLevel);
+  
+    // Example: show/hide labels depending on zoom
+    if (zoomLevel <= 18) {
+      const icons = document.querySelector(`#_x3C_icons_x3E_`);
+      icons.classList.remove("st5"); // remove previous accent classes
+      icons.classList.add("st6");
+
+      const b_name = document.querySelector(`#_x3C_building_name_big_x3E_`);
+      b_name.classList.remove("st6"); // remove previous accent classes
+      b_name.classList.add("st5");
+
+      const s_name = document.querySelector(`#_x3C_building_name_small_x3E_`);
+      s_name.classList.remove("st6"); // remove previous accent classes
+      s_name.classList.add("st5");
+
+    } else if (zoomLevel <= 19) {
+      const icons = document.querySelector(`#_x3C_icons_x3E_`);
+      icons.classList.remove("st6"); // remove previous accent classes
+      icons.classList.add("st5");
+
+      const b_name = document.querySelector(`#_x3C_building_name_big_x3E_`);
+      b_name.classList.remove("st5"); // remove previous accent classes
+      b_name.classList.add("st6");
+
+      const s_name = document.querySelector(`#_x3C_building_name_small_x3E_`);
+      s_name.classList.remove("st6"); // remove previous accent classes
+      s_name.classList.add("st5");
+    } else {
+      const icons = document.querySelector(`#_x3C_icons_x3E_`);
+      icons.classList.remove("st6"); // remove previous accent classes
+      icons.classList.add("st5");
+
+      const b_name = document.querySelector(`#_x3C_building_name_big_x3E_`);
+      b_name.classList.remove("st6"); // remove previous accent classes
+      b_name.classList.add("st5");
+
+      const s_name = document.querySelector(`#_x3C_building_name_small_x3E_`);
+      s_name.classList.remove("st5"); // remove previous accent classes
+      s_name.classList.add("st6");
+    }
+  });
+
   // Create custom panes
   map.createPane('routePane');
   map.getPane('routePane').style.zIndex = 650;
@@ -170,7 +215,7 @@ function setBuildingAccent(buildingId ,accent) {
       cls = "st1";
       break;
     case "assigned":
-      cls = "st2";
+      cls = "st13";
       break;
     case "clicked":
       cls = "st0";
@@ -181,7 +226,7 @@ function setBuildingAccent(buildingId ,accent) {
   }
   const building = document.querySelector(`#${buildingId}`);
 if (building) {
-  building.classList.remove("st1", "st2", "st0"); // remove previous accent classes
+  building.classList.remove("st1", "st13", "st0"); // remove previous accent classes
   building.classList.add(cls);
 } else {
   console.warn("Building not found:", buildingId);

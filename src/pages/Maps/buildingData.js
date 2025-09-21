@@ -162,10 +162,10 @@ const searchBuildings = (query, options = {}) => {
 
 const getAllBuildings = () => {
   return buildingData.map(building => ({
-    building_ID: building.building_ID,
+    building_id: building.building_ID,
     building_name: building.building_name,
     description: building.description,
-    zone_ID: building.zone_ID,
+    zone_id: building.zone_ID,
     exhibits: building.exhibits || [],
     coordinates: building.coordinates,
     svg_id: building.svg_id

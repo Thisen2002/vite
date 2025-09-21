@@ -114,16 +114,16 @@ export const DesktopSearchBar = ({
       {/* Show regular search results when not showing building results */}
       {(() => {
         const shouldShow = !isDropdownHidden && searchQuery && !hasSelectedResult && !isSelecting && !showBuildingResults && (isSearching || allResults.length > 0);
-        console.log('Dropdown visibility check:', {
-          isDropdownHidden,
-          searchQuery,
-          hasSelectedResult,
-          isSelecting,
-          showBuildingResults,
-          isSearching,
-          allResultsLength: allResults.length,
-          shouldShow
-        });
+        // console.log('Dropdown visibility check:', {
+        //   isDropdownHidden,
+        //   searchQuery,
+        //   hasSelectedResult,
+        //   isSelecting,
+        //   showBuildingResults,
+        //   isSearching,
+        //   allResultsLength: allResults.length,
+        //   shouldShow
+        // });
         return shouldShow;
       })() && (
         <div className="map-search-results">
