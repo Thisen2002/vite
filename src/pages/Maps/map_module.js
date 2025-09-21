@@ -18,14 +18,26 @@ function getUserPosition() {
   return userPosition;
 }
 
+let prevBuildingId = null;
+
 function buildingClick(id) {
   console.log("Building clicked:", id);
+  highlightSelectedBuilding(id);
   if (buildingClickListner.length === 0) {
     console.warn("No building click listeners registered.");
     return
   }
   buildingClickListner.forEach(fn => fn(id));
 }
+
+function highlightSelectedBuilding(bid) {
+  if (prevBuildingId) {
+    setBuildingAccent(prevBuildingId, "assigned");
+  }
+  prevBuildingId = bid;
+  setBuildingAccent(bid, "clicked");
+}
+
 
 window.buildingClick = buildingClick;
 
@@ -87,8 +99,8 @@ function initMap(map_div) {
       icons.classList.add("st5");
 
       const b_name = document.querySelector(`#_x3C_building_name_big_x3E_`);
-      b_name.classList.remove("st6"); // remove previous accent classes
-      b_name.classList.add("st5");
+      b_name.classList.remove("st5"); // remove previous accent classes
+      b_name.classList.add("st6");
 
       const s_name = document.querySelector(`#_x3C_building_name_small_x3E_`);
       s_name.classList.remove("st5"); // remove previous accent classes
@@ -334,7 +346,8 @@ export {
   addMessageListner, 
   sendMessage,
   setBuildingAccent,
-  focus
+  focus,
+  highlightSelectedBuilding
 };
 
 

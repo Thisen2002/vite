@@ -12,12 +12,13 @@ import {
   stopGps, 
   getUserPosition,
   setBuildingAccent,
-  drawMarker
+  drawMarker,
+  highlightSelectedBuilding
 } from "./map_module";
 import buildingApiService from "./buildingApi";
 // Removed MobileSearchBar and useSearchBar imports - not needed for this component
 
-export default function MapExtra() {
+export default function MapExtra({kiosk_mode=false}) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const fetchedBuilding = useRef([]);
@@ -151,12 +152,7 @@ export default function MapExtra() {
   useEffect(() => {
     // Listen for building clicks from the map module
     const unsubscribe = addBuildingClickListner((buildingId) => {
-      if (previousBuilding.current) {
-        console.log("Resetting accent for previously selected building:", previousBuilding.current, "to assigned",buildingId);
-        setBuildingAccent(previousBuilding.current, "assigned");
-      }
-      previousBuilding.current = buildingId;
-      setBuildingAccent(buildingId, "clicked");
+      
       setSelectedBuilding(buildingId);
       setIsSheetOpen(true);
     });
@@ -195,8 +191,7 @@ export default function MapExtra() {
         setTimeout(() => {
           const mapCode = nameToMapCode[loc] || null;
           if (mapCode) {
-            previousBuilding.current = mapCode;
-            setBuildingAccent(mapCode, "clicked");
+            highlightSelectedBuilding(mapCode);
             setSelectedBuilding(mapCode);
             setIsSheetOpen(true);
           }
@@ -827,7 +822,7 @@ export default function MapExtra() {
           {/* Actions - Fixed at bottom */}
           <div style={{ flexShrink: 0, marginTop: 16 }}>
             <div className="iem-actions">
-              {selectedBuilding && isBookmarked(selectedBuilding.id) ? (
+              {/* {selectedBuilding && isBookmarked(selectedBuilding.id) ? (
                 <button
                   type="button"
                   className="iem-btn iem-btn-gradient"
@@ -890,8 +885,9 @@ export default function MapExtra() {
                     <span>Bookmark</span>
                   </span>
                 </button>
-              )}
-              <button
+              )} */}
+              {!kiosk_mode && (
+                <button
                 type="button"
                 className="iem-btn iem-btn-gradient"
                 onClick={() => {
@@ -923,6 +919,7 @@ export default function MapExtra() {
                   <span>Navigate</span>
                 </span>
               </button>
+              )}
             </div>
           </div>
         </div>

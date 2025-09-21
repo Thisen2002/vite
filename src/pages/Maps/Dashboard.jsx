@@ -5,7 +5,7 @@ import buildingApiService from './buildingApi';
 import { DesktopSearchBar, useSearchBar } from './SearchBar';
 
 import BookmarkManager, { BookmarkButton, useBookmarkManager } from './BookmarkManager';
-import {focus, getUserPosition} from './map_module.js';
+import {focus, getUserPosition, highlightSelectedBuilding} from './map_module.js';
 
 
 const categories = {
@@ -103,7 +103,7 @@ function MapLegend({ categories, activeCategories, handleLegendFilter }) {
 }
 
 
-const Dashboard = () => {
+const Dashboard = ({kiosk_mode}) => {
   const mapRef = useRef(null);
   const [activeCategories, setActiveCategories] = useState({ Exhibits: true, Amenities: true, Emergency: true });
   const [selectedPoint, setSelectedPoint] = useState(null);
@@ -223,9 +223,7 @@ const Dashboard = () => {
     // Highlight the building and show bottom sheet
     if (item.svgBuildingId) {
       // Use highlightBuilding from Map component via window object
-      if (window.highlightBuilding) {
-        window.highlightBuilding(item.svgBuildingId);
-      }
+      highlightSelectedBuilding(item.svgBuildingId);
     }
     
     // Show building info in bottom sheet (MapExtra component)
@@ -427,7 +425,7 @@ const Dashboard = () => {
           <div className="map-main">
             <div className="map-card">
               <div className="map-viewport">
-                <MapExtra />
+                <MapExtra kiosk_mode={kiosk_mode} />
                 {/* Custom Controls */}
                 <div className="map-controls">
                   <button className="map-ctrl" onClick={zoomIn} aria-label="Zoom In" title="Zoom In">

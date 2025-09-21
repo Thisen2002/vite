@@ -253,28 +253,72 @@ class BuildingApiService {
   // Map database building ID to SVG building ID (b33, b34, etc.)
   mapDatabaseIdToSvgId(databaseId) {
     const mapping = {
-      33: "b33",  // Tech Building A
-      34: "b34",  // Tech Building B
-      1: "b1",    // Innovation Hub
-      4: "b4",    // Research Block
-      16: "b16",  // Student Projects Zone
-      28: "b28",  // AI & Machine Learning Center
-      26: "b26",  // Green Technology Pavilion
-    };
+      1: "b11",
+      2: "b32",
+      3: "b33",   
+      4: "b16",
+      5: "b7", 
+      6: "b12",  
+      7: "b17", 
+      8: "b34",
+      9: "b20",
+      10:"b19",
+      11:"b31",
+      12:"b31",
+      13:"b27",
+      14:"b22",
+      15:"b30",
+      16:"b24",
+      17:"b23",
+      18:"b29",
+      19:"b4",
+      20:"b2",
+      21:"b1",
+      22:"b13",
+      24:"b9",
+      25:"b6",
+      26:"b10",
+      27:"b10",
+      28:"b15",
+      29:"b14",
+      
+      };
     return mapping[databaseId] || `b${databaseId}`;
   }
 
   // Check if a building has a valid SVG mapping (exists on the map)
   isValidSvgMapping(databaseId) {
     const validMappings = {
-      33: "b33",  // Tech Building A
-      34: "b34",  // Tech Building B
-      1: "b1",    // Innovation Hub
-      4: "b4",    // Research Block
-      16: "b16",  // Student Projects Zone
-      28: "b28",  // AI & Machine Learning Center
-      26: "b26",  // Green Technology Pavilion
-    };
+      1: "b11",
+      2: "b32",
+      3: "b33",   
+      4: "b16",
+      5: "b7", 
+      6: "b12",  
+      7: "b17", 
+      8: "b34",
+      9: "b20",
+      10:"b19",
+      11:"b31",
+      12:"b31",
+      13:"b27",
+      14:"b22",
+      15:"b30",
+      16:"b24",
+      17:"b23",
+      18:"b29",
+      19:"b4",
+      20:"b2",
+      21:"b1",
+      22:"b13",
+      24:"b9",
+      25:"b6",
+      26:"b10",
+      27:"b10",
+      28:"b15",
+      29:"b14",
+      
+      };
     return validMappings.hasOwnProperty(databaseId);
   }
 }

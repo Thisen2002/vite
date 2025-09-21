@@ -3,6 +3,8 @@
 // This replaces the backend service when it's not available
 // Format matches the database schema from script.sql
 
+import buildingApiService from "./buildingApi";
+
 const buildingData = [
   {
     building_ID: 33,
@@ -98,6 +100,7 @@ const getBuildingsByZone = (zoneId) => {
 };
 
 const searchBuildings = (query, options = {}) => {
+  console.log('1999');
   if (!query || query.trim() === '') return [];
   
   const searchTerm = query.trim().toLowerCase();
@@ -123,7 +126,7 @@ const searchBuildings = (query, options = {}) => {
         description: building.description,
         buildingId: building.building_ID,
         buildingName: building.building_name,
-        svgBuildingId: building.svg_id,
+        svgBuildingId: buildingApiService.mapDatabaseIdToSvgId(building.building_ID),
         zoneId: building.zone_ID,
         coordinates: building.coordinates,
         exhibits: building.exhibits || [],
