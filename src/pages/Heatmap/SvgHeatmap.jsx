@@ -79,9 +79,7 @@ const BUILDING_NAMES = {
   B10:"Engineering Library",
   B11:"Department of Chemical and process Engineering",
   B12:"Lecture Room 2/3",
-
   B13:"Drawing Office 2 and Faculty Common Room",
-
   B14:"Faculty Canteen",
   B15:"Department of Manufacturing and Industrial Engineering",
   B16:"Professor E.O.E. Perera Theater",
@@ -458,10 +456,10 @@ export default function SvgHeatmap() {
           </div>
 
           <div className="legend-pill">
-            <span className="chip" style={{ "--c": "#22c55e" }}>Low &lt;20%</span>
-            <span className="chip" style={{ "--c": "#ffbf00ff" }}>Moderate &lt;50%</span>
-            <span className="chip" style={{ "--c": "#f97316" }}>Busy &lt;80%</span>
-            <span className="chip" style={{ "--c": "#ff0000ff" }}>High &ge;80%</span>
+            <span className="chip" style={{ "--c": "#22c55e" }}>Low 0%-50%</span>
+            <span className="chip" style={{ "--c": "#ffbf00ff" }}>Moderate 50%-80%</span>
+            <span className="chip" style={{ "--c": "#f97316" }}>Busy 80%-90%</span>
+            <span className="chip" style={{ "--c": "#ff0000ff" }}>High {'>='}90%</span>
           </div>
 
           {popup && (
@@ -1033,10 +1031,10 @@ function occPct(info) {
 function statusFor(info) {
   const p = occPct(info);
   if (p == null) return "Unknown";
-  if (p < 20) return "Low";
-  if (p < 50) return "Moderate";
-  if (p < 80) return "Busy";
-  if (p >= 80) return "High";
+  if (p < 50) return "Low";
+  if (p < 80) return "Moderate";
+  if (p < 90) return "Busy";
+  if (p >= 90) return "High";
   return "High";
 }
 function colorForStatus(status) {
