@@ -21,12 +21,12 @@ const LABEL_MAX = 24;         // px
 const LABEL_FRACTION = 0.095; // ~10% of bbox width
 
 /* ---------- Sample capacities (edit anytime) ---------- */
-const CAPACITY = {
-  B1:120, B2:100, B3:60,  B4:120, B5:120, B6:150, B7:50,  B8:80,  B9:200,
-  B10:40, B11:80, B12:60, B13:40, B14:80, B15:100, B16:60, B17:90, B18:120,
-  B19:70, B20:90, B21:120, B22:70, B23:90, B24:150, B25:60, B26:120, B27:160,
-  B28:100, B29:100, B30:100, B31:80, B32:60, B33:120, B34:120
-};
+// const CAPACITY = {
+//   B1:120, B2:100, B3:60,  B4:120, B5:120, B6:150, B7:50,  B8:80,  B9:200,
+//   B10:40, B11:80, B12:60, B13:40, B14:80, B15:100, B16:60, B17:90, B18:120,
+//   B19:70, B20:90, B21:120, B22:70, B23:90, B24:150, B25:60, B26:120, B27:160,
+//   B28:100, B29:100, B30:100, B31:80, B32:60, B33:120, B34:120
+// };
 
 const EXHIBITION_BUILDING_NAMES = {
   B1: [],
@@ -79,9 +79,7 @@ const BUILDING_NAMES = {
   B10:"Engineering Library",
   B11:"Department of Chemical and process Engineering",
   B12:"Lecture Room 2/3",
-
   B13:"Drawing Office 2 and Faculty Common Room",
-
   B14:"Faculty Canteen",
   B15:"Department of Manufacturing and Industrial Engineering",
   B16:"Professor E.O.E. Perera Theater",
@@ -135,6 +133,7 @@ export default function SvgHeatmap() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+  const [sort, setSort] = useState("most"); //sort
 
   // Live data from API
   const [buildingInfo, setBuildingInfo] = useState({});
@@ -170,13 +169,49 @@ export default function SvgHeatmap() {
     });
   }, [buildingInfo, buildingColors]);
 
-  const filtered = useMemo(() => {
+  /*const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return list;
     return list.filter(b =>
       b.id.toLowerCase().includes(q) || (b.name || "").toLowerCase().includes(q) || (EXHIBITION_BUILDING_NAMES[b.id] || []).some(n => n.toLowerCase().includes(q))
     );
   }, [list, search]);
+  */
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    let result = list;
+    
+    // Apply search filter
+    if (q) {
+      result = result.filter(b =>
+        b.id.toLowerCase().includes(q) || 
+        (b.name || "").toLowerCase().includes(q) || 
+        (EXHIBITION_BUILDING_NAMES[b.id] || []).some(n => n.toLowerCase().includes(q))
+      );
+    }
+    
+    // Apply sorting
+    switch (sort) {
+      case "most":
+        result.sort((a, b) => (b.occ || 0) - (a.occ || 0));
+        break;
+      case "least":
+        result.sort((a, b) => (a.occ || 0) - (b.occ || 0));
+        break;
+      case "az":
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "za":
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      default:
+        // Keep original order
+        break;
+    }
+    
+    return result;
+  }, [list, search, sort]); // ADD 'sort' TO DEPENDENCIES
 
   const totals = useMemo(() => {
     const totalPeople = list.reduce((s, b) => s + (b.current || 0), 0);
@@ -458,10 +493,10 @@ export default function SvgHeatmap() {
           </div>
 
           <div className="legend-pill">
-            <span className="chip" style={{ "--c": "#22c55e" }}>Low &lt;20%</span>
-            <span className="chip" style={{ "--c": "#ffbf00ff" }}>Moderate &lt;50%</span>
-            <span className="chip" style={{ "--c": "#f97316" }}>Busy &lt;80%</span>
-            <span className="chip" style={{ "--c": "#ff0000ff" }}>High &ge;80%</span>
+            <span className="chip" style={{ "--c": "#22c55e" }}>Low 0%-50%</span>
+            <span className="chip" style={{ "--c": "#ffbf00ff" }}>Moderate 50%-80%</span>
+            <span className="chip" style={{ "--c": "#f97316" }}>Busy 80%-90%</span>
+            <span className="chip" style={{ "--c": "#ff0000ff" }}>High {'>='}90%</span>
           </div>
 
           {popup && (
@@ -521,10 +556,29 @@ export default function SvgHeatmap() {
               <div className="stat small"><span className="dot red" /> {totals.byStatus.High} High</div>
             </div>
           </div>
+          
 
           <div className="panel card">
             <input className="search" placeholder="Search buildings…" value={search} onChange={e => setSearch(e.target.value)} />
           </div>
+          
+          {/*sorting buildings*/}
+          <div className="panel card">
+            <div className="sort-container">
+              <label className="sort-label">Sort by:</label>
+              <select
+                className="sort-select"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+              >
+                <option value="most">Most Crowded</option>
+                <option value="least">Least Crowded</option>
+                <option value="az">A → Z</option>
+                <option value="za">Z → A</option>
+              </select>
+            </div>
+          </div>
+
 
           <div className="panel card list">
             <div className="panel-title">Buildings</div>
@@ -845,6 +899,32 @@ export default function SvgHeatmap() {
           .popup.glass{ background:#ffffff; backdrop-filter:none; -webkit-backdrop-filter:none; }
           .popup.glass .popup-arrow{ border-bottom-color:#ffffff; }
         }
+        
+        /* === Sorting UI === */
+        .sort-container {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 4px;
+        }
+
+        .sort-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--muted);
+        }
+
+        .sort-select {
+          flex: 1;
+          padding: 8px 10px;
+          border-radius: 8px;
+          border: 1px solid var(--border);
+          background: #fff;
+          font-size: 13px;
+          color: #111;
+          cursor: pointer;
+        }
+
       `}</style>
     </div>
   );
@@ -1033,10 +1113,10 @@ function occPct(info) {
 function statusFor(info) {
   const p = occPct(info);
   if (p == null) return "Unknown";
-  if (p < 20) return "Low";
-  if (p < 50) return "Moderate";
-  if (p < 80) return "Busy";
-  if (p >= 80) return "High";
+  if (p < 50) return "Low";
+  if (p < 80) return "Moderate";
+  if (p < 90) return "Busy";
+  if (p >= 90) return "High";
   return "High";
 }
 function colorForStatus(status) {

@@ -1,6 +1,6 @@
-CREATE DATABASE heatmap_db;
+CREATE DATABASE IF NOT EXISTS heatmap_db;
 
-\c heatmap_db;
+\c heatmap_db
 -- Create buildings table
 CREATE TABLE buildings (
     building_id VARCHAR(10) PRIMARY KEY,   -- Auto-increment primary key
@@ -14,16 +14,16 @@ INSERT INTO buildings (building_id, building_name, building_capacity) VALUES
 ('B3',  '', 1),
 ('B4',  'Generator Room', 1),
 ('B5',  '', 1),
-('B6',  'Structure Lab', 60),
+('B6',  'Structure Lab', 350),
 ('B7',  'Administrative Building', 80),
 ('B8',  'Canteen', 20),
 ('B9',  'Lecture Room 10/11', 130),
 ('B10', 'Engineering Library', 80),
-('B11', 'Department of Chemical and process Engineering', 80),
+('B11', 'Department of Chemical and process Engineering', 50),
 ('B12', 'Lecture Room 2/3', 130),
-('B13', 'Drawing Office 2', 200),
+('B13', 'Drawing Office 2', 500),
 ('B14', 'Faculty Canteen', 80),
-('B15', 'Department of Manufacturing and Industrial Engineering', 80),
+('B15', 'Department of Manufacturing and Industrial Engineering', 100),
 ('B16', 'Professor E.O.E. Perera Theater', 80),
 ('B17', 'Electronic Lab', 130),
 ('B18', 'Washrooms', 30),
@@ -31,18 +31,18 @@ INSERT INTO buildings (building_id, building_name, building_capacity) VALUES
 ('B20', 'Department of Computer Engineering', 130),
 ('B21', '', 30),
 ('B22', 'Environmental Lab', 70),
-('B23', 'Applied Mechanics Lab', 100),
-('B24', 'New Mechanics Lab', 100),
+('B23', 'Applied Mechanics Lab', 450),
+('B24', 'New Mechanics Lab', 150),
 ('B25', '', 30),
 ('B26', '', 30),
 ('B27', '', 30),
-('B28', 'Materials Lab', 140),
-('B29', 'Thermodynamics Lab', 140),
-('B30', 'Fluids Lab', 140),
-('B31', 'Surveying and Soil Lab', 140),
+('B28', 'Materials Lab', 200),
+('B29', 'Thermodynamics Lab', 200),
+('B30', 'Fluids Lab', 200),
+('B31', 'Surveying and Soil Lab', 225),
 ('B32', 'Department of Engineering Mathematics', 100),
-('B33', 'Drawing Office 1', 200),
-('B34', 'Department of Electrical and Electronic Engineering ', 150);
+('B33', 'Drawing Office 1', 450),
+('B34', 'Department of Electrical and Electronic Engineering ', 400);
 
 
 
